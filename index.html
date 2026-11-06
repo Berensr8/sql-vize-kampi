@@ -1,0 +1,2554 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Sıfırdan SQL: tarayıcıda çalışan Northwind veritabanıyla konular, otomatik kontrol edilen pratikler ve vize soruları.">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>SQL Vize Kampı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: üstte ilerleme bandı; altında solda konu menüsü, sağda tek sütun ders (metin ~70 karakter, kod kutuları biraz daha geniş).
+   Kod kutuları her iki temada da koyu bir editör; SQL renklendirmesi teal anahtar kelime, amber fonksiyon, pembe metin, lila sayı. */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --surface-2:#ecf1ef; --ink:#10201d; --muted:#53635f; --line:#d7e1de; --line-strong:#b9c8c4;
+  --primary:#0f766e; --primary-ink:#ffffff; --primary-weak:#dcf0ec; --primary-hover:#0b5f58;
+  --accent:#b45309; --accent-weak:#fbefdc;
+  --ok:#15803d; --ok-weak:#e2f3e7; --err:#b91c1c; --err-weak:#fbe8e8; --info:#1d4ed8; --info-weak:#e7eef9;
+  --code-bg:#0f1b1a; --code-head:#142322; --code-ink:#dbe7e4; --code-line:#223331; --code-muted:#87a09b; --caret:#5eead4;
+  --tk-kw:#5eead4; --tk-fn:#fcd34d; --tk-str:#fda4af; --tk-num:#c4b5fd; --tk-com:#87a09b;
+  --shadow:0 1px 2px rgba(16,32,29,.06), 0 6px 20px -8px rgba(16,32,29,.12);
+  --r-sm:8px; --r-md:12px; --r-lg:16px;
+  --font-display:"Bricolage Grotesque", "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-code:"JetBrains Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1312; --surface:#111c1a; --surface-2:#172422; --ink:#e2ebe8; --muted:#9db1ac; --line:#233430; --line-strong:#33504a;
+  --primary:#2dd4bf; --primary-ink:#04201c; --primary-weak:#10332f; --primary-hover:#5eead4;
+  --accent:#f5a524; --accent-weak:#33260f;
+  --ok:#4ade80; --ok-weak:#10301d; --err:#f87171; --err-weak:#3a1616; --info:#93c5fd; --info-weak:#14223a;
+  --code-bg:#08100f; --code-head:#0d1817; --code-line:#1b2b29;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b1312; --surface:#111c1a; --surface-2:#172422; --ink:#e2ebe8; --muted:#9db1ac; --line:#233430; --line-strong:#33504a;
+  --primary:#2dd4bf; --primary-ink:#04201c; --primary-weak:#10332f; --primary-hover:#5eead4;
+  --accent:#f5a524; --accent-weak:#33260f;
+  --ok:#4ade80; --ok-weak:#10301d; --err:#f87171; --err-weak:#3a1616; --info:#93c5fd; --info-weak:#14223a;
+  --code-bg:#08100f; --code-head:#0d1817; --code-line:#1b2b29;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--primary);text-underline-offset:3px}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.fill{fill:currentColor;stroke:none}
+
+/* ---- üst band ---- */
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1220px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:42px;height:42px;border-radius:11px;background:var(--primary);color:var(--primary-ink);display:grid;place-items:center;flex:none}
+.logo .ic{width:22px;height:22px}
+.brand h1{font-family:var(--font-display);font-size:1.45rem;line-height:1.1;margin:0;letter-spacing:-.015em}
+.motto{display:block;font-family:var(--font-code);font-size:.74rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.motto .t-k{color:var(--primary)}
+.motto .t-s{color:var(--accent)}
+.overall{margin-left:auto;display:flex;flex-direction:column;gap:6px;min-width:min(100%,260px)}
+.ov-line{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;color:var(--muted)}
+.ov-line b{color:var(--ink);font-variant-numeric:tabular-nums}
+.status{display:inline-flex;align-items:center;gap:6px}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.status.ready::before{background:var(--ok)}
+.status.fail::before{background:var(--err)}
+.bar-p{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.bar-p i{display:block;height:100%;width:0;background:var(--primary);border-radius:99px;transition:width .4s var(--ease)}
+
+/* ---- düzen ---- */
+.wrap{max-width:1220px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 72px}
+.layout{display:grid;grid-template-columns:268px minmax(0,1fr);gap:40px;align-items:start}
+main{min-width:0;max-width:880px}
+
+/* ---- menü ---- */
+nav.side{position:sticky;top:16px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 32px);overflow:auto;padding:4px 6px 12px 0}
+nav.side .grp{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:16px 10px 6px}
+nav.side .grp:first-child{padding-top:2px}
+.nv{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--r-sm);color:var(--ink);text-decoration:none;font-size:.92rem;line-height:1.3;transition:background .15s}
+.nv:hover{background:var(--surface-2)}
+.nv-no{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-family:var(--font-code);font-size:.74rem;font-weight:600;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.nv-t{flex:1;min-width:0}
+.nv-c{font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.nv.done .nv-no{background:var(--ok-weak);border-color:transparent;color:var(--ok)}
+.nv.on{background:var(--primary-weak);font-weight:600}
+.nv.on .nv-no{background:var(--primary);border-color:transparent;color:var(--primary-ink)}
+#navsel{display:none;width:100%;font:inherit;font-size:1rem;padding:11px 12px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);margin-bottom:20px;min-height:46px}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)} nav.side{display:none} #navsel{display:block} .overall{margin-left:0;width:100%}}
+
+/* ---- ders başlığı ---- */
+.lhead{margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
+main h2{font-family:var(--font-display);font-size:clamp(1.8rem,1.3rem + 1.8vw,2.45rem);line-height:1.12;margin:6px 0 0;letter-spacing:-.02em;text-wrap:balance}
+.lprog{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:.85rem;color:var(--muted);max-width:360px}
+.lprog .bar-p{flex:1}
+main h3{font-family:var(--font-display);font-size:1.32rem;line-height:1.25;margin:38px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+main p, main li{max-width:70ch}
+main ul, main ol{padding-left:1.3em}
+main li{margin:3px 0}
+main li::marker{color:var(--primary)}
+main :not(pre) > code{font-family:var(--font-code);font-size:.84em;background:var(--surface-2);border:1px solid var(--line);padding:1px 5px;border-radius:5px;word-break:break-word}
+kbd{font-family:var(--font-code);font-size:.78em;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface);color:var(--ink)}
+.lead{color:var(--muted);font-size:1.06rem;margin-top:0}
+
+/* ---- bilgi kutuları ---- */
+.tip, .aside{position:relative;padding:12px 16px 12px 46px;border-radius:var(--r-md);border:1px solid;margin:16px 0;max-width:72ch}
+.tip{background:var(--primary-weak);border-color:color-mix(in srgb, var(--primary) 30%, transparent)}
+.aside{background:var(--accent-weak);border-color:color-mix(in srgb, var(--accent) 35%, transparent)}
+.tip::before, .aside::before{content:"";position:absolute;left:16px;top:15px;width:18px;height:18px;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.tip::before{color:var(--primary);--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5'/><path d='M9 18h6M10 22h4'/></svg>")}
+.aside::before{color:var(--accent);--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3'/><path d='M12 9v4M12 17h.01'/></svg>")}
+
+/* ---- statik kod ve tablolar ---- */
+pre{font-family:var(--font-code);font-size:.86rem;line-height:1.6;margin:0}
+pre.code{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:var(--r-md);overflow-x:auto;margin:12px 0;white-space:pre;tab-size:2}
+pre.map{background:var(--surface);border:1px solid var(--line);color:var(--ink);padding:16px;border-radius:var(--r-md);overflow-x:auto;font-size:.8rem;line-height:1.4;margin:12px 0}
+.t-k{color:var(--tk-kw);font-weight:600}.t-f{color:var(--tk-fn)}.t-s{color:var(--tk-str)}.t-n{color:var(--tk-num)}.t-c{color:var(--tk-com);font-style:italic}
+.tw{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);max-width:780px}
+table.ref{border-collapse:collapse;font-size:.92rem;width:100%}
+table.ref th, table.ref td{border-bottom:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+table.ref tr:last-child td{border-bottom:0}
+table.ref th{background:var(--surface-2);font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.ref td + td{border-left:1px solid var(--line)}
+
+/* ---- butonlar ---- */
+button{font:inherit;font-size:.88rem;font-weight:500;cursor:pointer;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);padding:0 13px;min-height:36px;line-height:1.2;display:inline-flex;align-items:center;gap:7px;transition:background .15s, border-color .15s, color .15s, transform .1s;touch-action:manipulation}
+button:hover{border-color:var(--primary);color:var(--primary)}
+button:active{transform:scale(.97)}
+button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+button.pri{background:var(--primary);border-color:var(--primary);color:var(--primary-ink);font-weight:600}
+button.pri:hover{background:var(--primary-hover);border-color:var(--primary-hover);color:var(--primary-ink)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:transparent}
+@media (pointer:coarse){button{min-height:44px}}
+
+/* ---- kod editörü ---- */
+.ed{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);margin:14px 0 22px;overflow:hidden;box-shadow:var(--shadow)}
+.ed-head{display:flex;align-items:center;gap:10px;background:var(--code-head);color:var(--code-muted);font-size:.74rem;padding:7px 14px;border-bottom:1px solid var(--code-line)}
+.ed-head .lbl{font-family:var(--font-code);font-weight:600;letter-spacing:.06em;color:var(--caret)}
+.ed-head .kh{margin-left:auto;display:flex;gap:4px;align-items:center}
+.ed-head kbd{background:transparent;color:var(--code-ink);border-color:var(--code-line)}
+.cw{position:relative;background:var(--code-bg)}
+.cw pre.hl, .cw textarea{margin:0;padding:14px 16px;font-family:var(--font-code);font-size:.9rem;line-height:1.6;white-space:pre;tab-size:2;letter-spacing:0;border:0;word-wrap:normal}
+.cw pre.hl{position:absolute;inset:0;overflow:hidden;pointer-events:none;color:var(--code-ink)}
+.cw textarea{position:relative;display:block;width:100%;background:transparent;color:transparent;caret-color:var(--caret);resize:none;overflow-x:auto;overflow-y:hidden;outline:none;min-height:3.4em}
+.cw textarea::selection{background:rgba(94,234,212,.28);color:transparent}
+.cw textarea::placeholder{color:var(--code-muted)}
+.cw:focus-within{box-shadow:inset 0 0 0 2px var(--caret)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.bar .sp{flex:1}
+.out:empty{display:none}
+.out{padding:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px;background:var(--surface)}
+.res .meta{font-size:.78rem;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.res .scroll{overflow:auto;max-height:360px;border:1px solid var(--line);border-radius:var(--r-sm)}
+.res table{border-collapse:collapse;font-family:var(--font-code);font-size:.78rem;font-variant-numeric:tabular-nums;min-width:100%}
+.res th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:600;white-space:nowrap;color:var(--ink);box-shadow:inset 0 -1px 0 var(--line)}
+.res th, .res td{padding:6px 12px;white-space:nowrap}
+.res tbody tr:nth-child(even){background:color-mix(in srgb, var(--surface-2) 55%, transparent)}
+.res tbody tr:hover{background:var(--primary-weak)}
+.res td.n{text-align:right}
+.res i.null{color:var(--muted)}
+
+/* ---- mesajlar ---- */
+.msg{position:relative;padding:10px 14px 10px 42px;border-radius:var(--r-md);font-size:.95rem;border:1px solid;line-height:1.55}
+.msg p{margin:4px 0 0}
+.msg::before{content:"";position:absolute;left:14px;top:12px;width:18px;height:18px;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.msg > b:first-child{font-weight:700}
+.msg.ok{background:var(--ok-weak);border-color:color-mix(in srgb, var(--ok) 40%, transparent)}
+.msg.ok::before, .msg.ok > b:first-child{color:var(--ok)}
+.msg.ok::before{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m8 12 3 3 5-6'/></svg>")}
+.msg.err{background:var(--err-weak);border-color:color-mix(in srgb, var(--err) 40%, transparent)}
+.msg.err::before, .msg.err > b:first-child{color:var(--err)}
+.msg.err::before{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m15 9-6 6M9 9l6 6'/></svg>")}
+.msg.warn{background:var(--accent-weak);border-color:color-mix(in srgb, var(--accent) 40%, transparent)}
+.msg.warn::before, .msg.warn > b:first-child{color:var(--accent)}
+.msg.warn::before{--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3'/><path d='M12 9v4M12 17h.01'/></svg>")}
+.msg.info{background:var(--info-weak);border-color:color-mix(in srgb, var(--info) 30%, transparent)}
+.msg.info::before{color:var(--info);--m:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 16v-4M12 8h.01'/></svg>")}
+.msg pre.code{margin:8px 0 2px}
+
+/* ---- pratik kartları ---- */
+.tasks{margin-top:48px}
+.tasks-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border-top:2px solid var(--ink);padding-top:14px}
+.tasks-head h3{margin:0}
+.task{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);margin:18px 0;overflow:hidden;box-shadow:var(--shadow);transition:border-color .2s}
+.task.solved{border-color:color-mix(in srgb, var(--ok) 45%, var(--line))}
+.task .q{padding:16px 18px 14px;display:flex;gap:14px;align-items:flex-start}
+.task .q .no{flex:none;width:32px;height:32px;border-radius:9px;background:var(--primary-weak);color:var(--primary);display:grid;place-items:center;font-family:var(--font-code);font-weight:600;font-size:.85rem}
+.task.solved .q .no{background:var(--ok);color:var(--surface)}
+.task .q .txt{min-width:0;flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;letter-spacing:.02em;padding:2px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.chip.src{background:var(--accent-weak);color:var(--accent);border-color:transparent}
+.chip.done{display:none;background:var(--ok-weak);color:var(--ok);border-color:transparent}
+.chip .ic{width:12px;height:12px;stroke-width:3}
+.task.solved .chip.done{display:inline-flex}
+.task .ed{margin:0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+.task .verify{display:block;font-size:.8rem;color:var(--muted);margin-top:6px}
+.orig{font-size:1.05rem}
+.orig::before{content:"“";color:var(--accent);font-family:var(--font-display);font-weight:700;margin-right:2px}
+.orig::after{content:"”";color:var(--accent);font-family:var(--font-display);font-weight:700;margin-left:2px}
+.mcq{display:flex;flex-direction:column;gap:8px;padding:0 18px 18px 64px}
+.mcq button{text-align:left;font-family:var(--font-code);font-size:.84rem;font-weight:400;padding:10px 14px;min-height:44px;justify-content:flex-start;white-space:normal}
+.mcq button.right{background:var(--ok-weak);border-color:var(--ok);color:var(--ink)}
+.mcq button.wrong{background:var(--err-weak);border-color:var(--err);color:var(--ink)}
+.mcq .why{font-size:.95rem}
+.mcq .why:empty{display:none}
+@media (max-width:560px){.mcq{padding-left:18px}}
+.reveal{padding:12px 18px 16px;border-top:1px dashed var(--line-strong);font-size:.95rem;background:var(--surface)}
+.reveal > div{margin-top:8px}
+.reveal pre.code{margin:6px 0 12px}
+.reveal p{margin:8px 0 4px}
+
+/* ---- gruplama görseli ---- */
+.gviz{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+.gviz .box{flex:1 1 200px;min-width:0;border:1.5px dashed color-mix(in srgb, var(--primary) 55%, transparent);border-radius:var(--r-md);padding:10px 14px;background:var(--surface)}
+.gviz .box b{display:block;color:var(--primary);font-family:var(--font-display);font-size:1.05rem;margin-bottom:4px}
+.gviz .box span{display:block;font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gviz .box .sum{margin-top:8px;font-family:var(--font-code);font-size:.85rem;font-weight:600;color:var(--ink);border-top:1px solid var(--line);padding-top:6px}
+.src{font-size:.82rem;color:var(--muted)}
+
+/* ---- sayfa altı ---- */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:52px}
+.pager a{display:flex;flex-direction:column;gap:2px;padding:14px 18px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);text-decoration:none;color:var(--ink);font-weight:600;transition:border-color .15s}
+.pager a:hover{border-color:var(--primary)}
+.pager a small{font-size:.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.pager .nx{text-align:right;grid-column:2}
+@media (max-width:560px){.pager{grid-template-columns:1fr}.pager .nx{grid-column:1}}
+
+/* ---- kopya kağıdı ---- */
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.cheat > div{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 16px;background:var(--surface);min-width:0}
+.cheat h4{margin:4px 0 8px;font-family:var(--font-display);font-size:1.02rem}
+.cheat pre.code{font-size:.78rem}
+.cheat ul{padding-left:1.1em;font-size:.92rem}
+#playreset{margin-top:4px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top" lang="tr">
+  <div class="top-in">
+    <div class="brand">
+      <span class="logo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span>
+      <div style="min-width:0">
+        <h1>SQL Vize Kampı</h1>
+        <code class="motto"><span class="t-k">SELECT</span> bilgi <span class="t-k">FROM</span> dersler <span class="t-k">WHERE</span> sen = <span class="t-s">'hazır'</span>;</code>
+      </div>
+    </div>
+    <div class="overall">
+      <div class="ov-line"><span><b id="ovS">0</b> / <span id="ovN">0</span> soru çözüldü</span><span class="status" id="status">Veritabanı hazırlanıyor…</span></div>
+      <div class="bar-p" role="progressbar" aria-label="Toplam ilerleme" aria-valuemin="0" aria-valuemax="100" id="ovBarWrap"><i id="ovBar"></i></div>
+    </div>
+  </div>
+</header>
+<div class="wrap" lang="tr">
+  <div class="layout">
+    <nav class="side" id="side" aria-label="Konular"></nav>
+    <main>
+      <select id="navsel" aria-label="Konu seç"></select>
+      <div id="lesson"></div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-asm.js"></script>
+<script>
+/* =========================================================
+   1) VERİ: hocanın attığı sql_veri_setleri.zip (Northwind), birebir
+   ========================================================= */
+const CSV = {
+Categories:`CategoryID;CategoryName;Description
+1;Beverages;Soft drinks, coffees, teas, beers, and ales
+2;Condiments;Sweet and savory sauces, relishes, spreads, and seasonings
+3;Confections;Desserts, candies, and sweet breads
+4;Dairy Products;Cheeses
+5;Grains/Cereals;Breads, crackers, pasta, and cereal
+6;Meat/Poultry;Prepared meats
+7;Produce;Dried fruit and bean curd
+8;Seafood;Seaweed and fish`,
+Customers:`CustomerID;CustomerName;ContactName;Address;City;PostalCode;Country
+1;Alfreds Futterkiste;Maria Anders;Obere Str. 57;Berlin;12209;Germany
+2;Ana Trujillo Emparedados y helados;Ana Trujillo;Avda. de la Constitución 2222;México D.F.;5021;Mexico
+3;Antonio Moreno Taquería;Antonio Moreno;Mataderos 2312;México D.F.;5023;Mexico
+4;Around the Horn;Thomas Hardy;120 Hanover Sq.;London;WA1 1DP;UK
+5;Berglunds snabbköp;Christina Berglund;Berguvsvägen 8;Luleå;S-958 22;Sweden
+6;Blauer See Delikatessen;Hanna Moos;Forsterstr. 57;Mannheim;68306;Germany
+7;Blondel père et fils;Frédérique Citeaux;24, place Kléber;Strasbourg;67000;France
+8;Bólido Comidas preparadas;Martín Sommer;C/ Araquil, 67;Madrid;28023;Spain
+9;Bon app';Laurence Lebihans;12, rue des Bouchers;Marseille;13008;France
+10;Bottom-Dollar Marketse;Elizabeth Lincoln;23 Tsawassen Blvd.;Tsawassen;T2F 8M4;Canada
+11;B's Beverages;Victoria Ashworth;Fauntleroy Circus;London;EC2 5NT;UK
+12;Cactus Comidas para llevar;Patricio Simpson;Cerrito 333;Buenos Aires;1010;Argentina
+13;Centro comercial Moctezuma;Francisco Chang;Sierras de Granada 9993;México D.F.;5022;Mexico
+14;Chop-suey Chinese;Yang Wang;Hauptstr. 29;Bern;3012;Switzerland
+15;Comércio Mineiro;Pedro Afonso;Av. dos Lusíadas, 23;São Paulo;05432-043;Brazil
+16;Consolidated Holdings;Elizabeth Brown;Berkeley Gardens 12 Brewery;London;WX1 6LT;UK
+17;Drachenblut Delikatessend;Sven Ottlieb;Walserweg 21;Aachen;52066;Germany
+18;Du monde entier;Janine Labrune;67, rue des Cinquante Otages;Nantes;44000;France
+19;Eastern Connection;Ann Devon;35 King George;London;WX3 6FW;UK
+20;Ernst Handel;Roland Mendel;Kirchgasse 6;Graz;8010;Austria
+21;Familia Arquibaldo;Aria Cruz;Rua Orós, 92;São Paulo;05442-030;Brazil
+22;FISSA Fabrica Inter. Salchichas S.A.;Diego Roel;C/ Moralzarzal, 86;Madrid;28034;Spain
+23;Folies gourmandes;Martine Rancé;184, chaussée de Tournai;Lille;59000;France
+24;Folk och fä HB;Maria Larsson;Åkergatan 24;Bräcke;S-844 67;Sweden
+25;Frankenversand;Peter Franken;Berliner Platz 43;München;80805;Germany
+26;France restauration;Carine Schmitt;54, rue Royale;Nantes;44000;France
+27;Franchi S.p.A.;Paolo Accorti;Via Monte Bianco 34;Torino;10100;Italy
+28;Furia Bacalhau e Frutos do Mar;Lino Rodriguez;Jardim das rosas n. 32;Lisboa;1675;Portugal
+29;Galería del gastrónomo;Eduardo Saavedra;Rambla de Cataluña, 23;Barcelona;8022;Spain
+30;Godos Cocina Típica;José Pedro Freyre;C/ Romero, 33;Sevilla;41101;Spain
+31;Gourmet Lanchonetes;André Fonseca;Av. Brasil, 442;Campinas;04876-786;Brazil
+32;Great Lakes Food Market;Howard Snyder;2732 Baker Blvd.;Eugene;97403;USA
+33;GROSELLA-Restaurante;Manuel Pereira;5ª Ave. Los Palos Grandes;Caracas;1081;Venezuela
+34;Hanari Carnes;Mario Pontes;Rua do Paço, 67;Rio de Janeiro;05454-876;Brazil
+35;HILARIÓN-Abastos;Carlos Hernández;Carrera 22 con Ave. Carlos Soublette #8-35;San Cristóbal;5022;Venezuela
+36;Hungry Coyote Import Store;Yoshi Latimer;City Center Plaza 516 Main St.;Elgin;97827;USA
+37;Hungry Owl All-Night Grocers;Patricia McKenna;8 Johnstown Road;Cork;;Ireland
+38;Island Trading;Helen Bennett;Garden House Crowther Way;Cowes;PO31 7PJ;UK
+39;Königlich Essen;Philip Cramer;Maubelstr. 90;Brandenburg;14776;Germany
+40;La corne d'abondance;Daniel Tonini;67, avenue de l'Europe;Versailles;78000;France
+41;La maison d'Asie;Annette Roulet;1 rue Alsace-Lorraine;Toulouse;31000;France
+42;Laughing Bacchus Wine Cellars;Yoshi Tannamuri;1900 Oak St.;Vancouver;V3F 2K1;Canada
+43;Lazy K Kountry Store;John Steel;12 Orchestra Terrace;Walla Walla;99362;USA
+44;Lehmanns Marktstand;Renate Messner;Magazinweg 7;Frankfurt a.M.;60528;Germany
+45;Let's Stop N Shop;Jaime Yorres;87 Polk St. Suite 5;San Francisco;94117;USA
+46;LILA-Supermercado;Carlos González;Carrera 52 con Ave. Bolívar #65-98 Llano Largo;Barquisimeto;3508;Venezuela
+47;LINO-Delicateses;Felipe Izquierdo;Ave. 5 de Mayo Porlamar;I. de Margarita;4980;Venezuela
+48;Lonesome Pine Restaurant;Fran Wilson;89 Chiaroscuro Rd.;Portland;97219;USA
+49;Magazzini Alimentari Riuniti;Giovanni Rovelli;Via Ludovico il Moro 22;Bergamo;24100;Italy
+50;Maison Dewey;Catherine Dewey;Rue Joseph-Bens 532;Bruxelles;B-1180;Belgium
+51;Mère Paillarde;Jean Fresnière;43 rue St. Laurent;Montréal;H1J 1C3;Canada
+52;Morgenstern Gesundkost;Alexander Feuer;Heerstr. 22;Leipzig;4179;Germany
+53;North/South;Simon Crowther;South House 300 Queensbridge;London;SW7 1RZ;UK
+54;Océano Atlántico Ltda.;Yvonne Moncada;Ing. Gustavo Moncada 8585 Piso 20-A;Buenos Aires;1010;Argentina
+55;Old World Delicatessen;Rene Phillips;2743 Bering St.;Anchorage;99508;USA
+56;Ottilies Käseladen;Henriette Pfalzheim;Mehrheimerstr. 369;Köln;50739;Germany
+57;Paris spécialités;Marie Bertrand;265, boulevard Charonne;Paris;75012;France
+58;Pericles Comidas clásicas;Guillermo Fernández;Calle Dr. Jorge Cash 321;México D.F.;5033;Mexico
+59;Piccolo und mehr;Georg Pipps;Geislweg 14;Salzburg;5020;Austria
+60;Princesa Isabel Vinhoss;Isabel de Castro;Estrada da saúde n. 58;Lisboa;1756;Portugal
+61;Que Delícia;Bernardo Batista;Rua da Panificadora, 12;Rio de Janeiro;02389-673;Brazil
+62;Queen Cozinha;Lúcia Carvalho;Alameda dos Canàrios, 891;São Paulo;05487-020;Brazil
+63;QUICK-Stop;Horst Kloss;Taucherstraße 10;Cunewalde;1307;Germany
+64;Rancho grande;Sergio Gutiérrez;Av. del Libertador 900;Buenos Aires;1010;Argentina
+65;Rattlesnake Canyon Grocery;Paula Wilson;2817 Milton Dr.;Albuquerque;87110;USA
+66;Reggiani Caseifici;Maurizio Moroni;Strada Provinciale 124;Reggio Emilia;42100;Italy
+67;Ricardo Adocicados;Janete Limeira;Av. Copacabana, 267;Rio de Janeiro;02389-890;Brazil
+68;Richter Supermarkt;Michael Holz;Grenzacherweg 237;Genève;1203;Switzerland
+69;Romero y tomillo;Alejandra Camino;Gran Vía, 1;Madrid;28001;Spain
+70;Santé Gourmet;Jonas Bergulfsen;Erling Skakkes gate 78;Stavern;4110;Norway
+71;Save-a-lot Markets;Jose Pavarotti;187 Suffolk Ln.;Boise;83720;USA
+72;Seven Seas Imports;Hari Kumar;90 Wadhurst Rd.;London;OX15 4NB;UK
+73;Simons bistro;Jytte Petersen;Vinbæltet 34;København;1734;Denmark
+74;Spécialités du monde;Dominique Perrier;25, rue Lauriston;Paris;75016;France
+75;Split Rail Beer & Ale;Art Braunschweiger;P.O. Box 555;Lander;82520;USA
+76;Suprêmes délices;Pascale Cartrain;Boulevard Tirou, 255;Charleroi;B-6000;Belgium
+77;The Big Cheese;Liz Nixon;89 Jefferson Way Suite 2;Portland;97201;USA
+78;The Cracker Box;Liu Wong;55 Grizzly Peak Rd.;Butte;59801;USA
+79;Toms Spezialitäten;Karin Josephs;Luisenstr. 48;Münster;44087;Germany
+80;Tortuga Restaurante;Miguel Angel Paolino;Avda. Azteca 123;México D.F.;5033;Mexico
+81;Tradição Hipermercados;Anabela Domingues;Av. Inês de Castro, 414;São Paulo;05634-030;Brazil
+82;Trail's Head Gourmet Provisioners;Helvetius Nagy;722 DaVinci Blvd.;Kirkland;98034;USA
+83;Vaffeljernet;Palle Ibsen;Smagsløget 45;Århus;8200;Denmark
+84;Victuailles en stock;Mary Saveley;2, rue du Commerce;Lyon;69004;France
+85;Vins et alcools Chevalier;Paul Henriot;59 rue de l'Abbaye;Reims;51100;France
+86;Die Wandernde Kuh;Rita Müller;Adenauerallee 900;Stuttgart;70563;Germany
+87;Wartian Herkku;Pirkko Koskitalo;Torikatu 38;Oulu;90110;Finland
+88;Wellington Importadora;Paula Parente;Rua do Mercado, 12;Resende;08737-363;Brazil
+89;White Clover Markets;Karl Jablonski;305 - 14th Ave. S. Suite 3B;Seattle;98128;USA
+90;Wilman Kala;Matti Karttunen;Keskuskatu 45;Helsinki;21240;Finland
+91;Wolski;Zbyszek;ul. Filtrowa 68;Walla;01-012;Poland`,
+Employees:`EmployeeID;LastName;FirstName;BirthDate;Photo;Notes
+1;Davolio;Nancy;8.12.1968;EmpID1.pic;Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
+2;Fuller;Andrew;19.02.1952;EmpID2.pic;Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
+3;Leverling;Janet;30.08.1963;EmpID3.pic;Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
+4;Peacock;Margaret;19.09.1958;EmpID4.pic;Margaret holds a BA in English literature from Concordia College and an MA from the American Institute of Culinary Arts. She was temporarily assigned to the London office before returning to her permanent post in Seattle.
+5;Buchanan;Steven;4.03.1955;EmpID5.pic;Steven Buchanan graduated from St. Andrews University, Scotland, with a BSC degree. Upon joining the company as a sales representative, he spent 6 months in an orientation program at the Seattle office and then returned to his permanent post in London, where he was promoted to sales manager. Mr. Buchanan has completed the courses 'Successful Telemarketing' and 'International Sales Management'. He is fluent in French.
+6;Suyama;Michael;2.07.1963;EmpID6.pic;Michael is a graduate of Sussex University (MA, economics) and the University of California at Los Angeles (MBA, marketing). He has also taken the courses 'Multi-Cultural Selling' and 'Time Management for the Sales Professional'. He is fluent in Japanese and can read and write French, Portuguese, and Spanish.
+7;King;Robert;29.05.1960;EmpID7.pic;Robert King served in the Peace Corps and traveled extensively before completing his degree in English at the University of Michigan and then joining the company. After completing a course entitled 'Selling in Europe', he was transferred to the London office.
+8;Callahan;Laura;9.01.1958;EmpID8.pic;Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
+9;Dodsworth;Anne;2.07.1969;EmpID9.pic;Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
+10;West;Adam;19.09.1928;EmpID10.pic;An old chum.`,
+OrderDetails:`OrderDetailID;OrderID;ProductID;Quantity
+1;10248;11;12
+2;10248;42;10
+3;10248;72;5
+4;10249;14;9
+5;10249;51;40
+6;10250;41;10
+7;10250;51;35
+8;10250;65;15
+9;10251;22;6
+10;10251;57;15
+11;10251;65;20
+12;10252;20;40
+13;10252;33;25
+14;10252;60;40
+15;10253;31;20
+16;10253;39;42
+17;10253;49;40
+18;10254;24;15
+19;10254;55;21
+20;10254;74;21
+21;10255;2;20
+22;10255;16;35
+23;10255;36;25
+24;10255;59;30
+25;10256;53;15
+26;10256;77;12
+27;10257;27;25
+28;10257;39;6
+29;10257;77;15
+30;10258;2;50
+31;10258;5;65
+32;10258;32;6
+33;10259;21;10
+34;10259;37;1
+35;10260;41;16
+36;10260;57;50
+37;10260;62;15
+38;10260;70;21
+39;10261;21;20
+40;10261;35;20
+41;10262;5;12
+42;10262;7;15
+43;10262;56;2
+44;10263;16;60
+45;10263;24;28
+46;10263;30;60
+47;10263;74;36
+48;10264;2;35
+49;10264;41;25
+50;10265;17;30
+51;10265;70;20
+52;10266;12;12
+53;10267;40;50
+54;10267;59;70
+55;10267;76;15
+56;10268;29;10
+57;10268;72;4
+58;10269;33;60
+59;10269;72;20
+60;10270;36;30
+61;10270;43;25
+62;10271;33;24
+63;10272;20;6
+64;10272;31;40
+65;10272;72;24
+66;10273;10;24
+67;10273;31;15
+68;10273;33;20
+69;10273;40;60
+70;10273;76;33
+71;10274;71;20
+72;10274;72;7
+73;10275;24;12
+74;10275;59;6
+75;10276;10;15
+76;10276;13;10
+77;10277;28;20
+78;10277;62;12
+79;10278;44;16
+80;10278;59;15
+81;10278;63;8
+82;10278;73;25
+83;10279;17;15
+84;10280;24;12
+85;10280;55;20
+86;10280;75;30
+87;10281;19;1
+88;10281;24;6
+89;10281;35;4
+90;10282;30;6
+91;10282;57;2
+92;10283;15;20
+93;10283;19;18
+94;10283;60;35
+95;10283;72;3
+96;10284;27;15
+97;10284;44;21
+98;10284;60;20
+99;10284;67;5
+100;10285;1;45
+101;10285;40;40
+102;10285;53;36
+103;10286;35;100
+104;10286;62;40
+105;10287;16;40
+106;10287;34;20
+107;10287;46;15
+108;10288;54;10
+109;10288;68;3
+110;10289;3;30
+111;10289;64;9
+112;10290;5;20
+113;10290;29;15
+114;10290;49;15
+115;10290;77;10
+116;10291;13;20
+117;10291;44;24
+118;10291;51;2
+119;10292;20;20
+120;10293;18;12
+121;10293;24;10
+122;10293;63;5
+123;10293;75;6
+124;10294;1;18
+125;10294;17;15
+126;10294;43;15
+127;10294;60;21
+128;10294;75;6
+129;10295;56;4
+130;10296;11;12
+131;10296;16;30
+132;10296;69;15
+133;10297;39;60
+134;10297;72;20
+135;10298;2;40
+136;10298;36;40
+137;10298;59;30
+138;10298;62;15
+139;10299;19;15
+140;10299;70;20
+141;10300;66;30
+142;10300;68;20
+143;10301;40;10
+144;10301;56;20
+145;10302;17;40
+146;10302;28;28
+147;10302;43;12
+148;10303;40;40
+149;10303;65;30
+150;10303;68;15
+151;10304;49;30
+152;10304;59;10
+153;10304;71;2
+154;10305;18;25
+155;10305;29;25
+156;10305;39;30
+157;10306;30;10
+158;10306;53;10
+159;10306;54;5
+160;10307;62;10
+161;10307;68;3
+162;10308;69;1
+163;10308;70;5
+164;10309;4;20
+165;10309;6;30
+166;10309;42;2
+167;10309;43;20
+168;10309;71;3
+169;10310;16;10
+170;10310;62;5
+171;10311;42;6
+172;10311;69;7
+173;10312;28;4
+174;10312;43;24
+175;10312;53;20
+176;10312;75;10
+177;10313;36;12
+178;10314;32;40
+179;10314;58;30
+180;10314;62;25
+181;10315;34;14
+182;10315;70;30
+183;10316;41;10
+184;10316;62;70
+185;10317;1;20
+186;10318;41;20
+187;10318;76;6
+188;10319;17;8
+189;10319;28;14
+190;10319;76;30
+191;10320;71;30
+192;10321;35;10
+193;10322;52;20
+194;10323;15;5
+195;10323;25;4
+196;10323;39;4
+197;10324;16;21
+198;10324;35;70
+199;10324;46;30
+200;10324;59;40
+201;10324;63;80
+202;10325;6;6
+203;10325;13;12
+204;10325;14;9
+205;10325;31;4
+206;10325;72;40
+207;10326;4;24
+208;10326;57;16
+209;10326;75;50
+210;10327;2;25
+211;10327;11;50
+212;10327;30;35
+213;10327;58;30
+214;10328;59;9
+215;10328;65;40
+216;10328;68;10
+217;10329;19;10
+218;10329;30;8
+219;10329;38;20
+220;10329;56;12
+221;10330;26;50
+222;10330;72;25
+223;10331;54;15
+224;10332;18;40
+225;10332;42;10
+226;10332;47;16
+227;10333;14;10
+228;10333;21;10
+229;10333;71;40
+230;10334;52;8
+231;10334;68;10
+232;10335;2;7
+233;10335;31;25
+234;10335;32;6
+235;10335;51;48
+236;10336;4;18
+237;10337;23;40
+238;10337;26;24
+239;10337;36;20
+240;10337;37;28
+241;10337;72;25
+242;10338;17;20
+243;10338;30;15
+244;10339;4;10
+245;10339;17;70
+246;10339;62;28
+247;10340;18;20
+248;10340;41;12
+249;10340;43;40
+250;10341;33;8
+251;10341;59;9
+252;10342;2;24
+253;10342;31;56
+254;10342;36;40
+255;10342;55;40
+256;10343;64;50
+257;10343;68;4
+258;10343;76;15
+259;10344;4;35
+260;10344;8;70
+261;10345;8;70
+262;10345;19;80
+263;10345;42;9
+264;10346;17;36
+265;10346;56;20
+266;10347;25;10
+267;10347;39;50
+268;10347;40;4
+269;10347;75;6
+270;10348;1;15
+271;10348;23;25
+272;10349;54;24
+273;10350;50;15
+274;10350;69;18
+275;10351;38;20
+276;10351;41;13
+277;10351;44;77
+278;10351;65;10
+279;10352;24;10
+280;10352;54;20
+281;10353;11;12
+282;10353;38;50
+283;10354;1;12
+284;10354;29;4
+285;10355;24;25
+286;10355;57;25
+287;10356;31;30
+288;10356;55;12
+289;10356;69;20
+290;10357;10;30
+291;10357;26;16
+292;10357;60;8
+293;10358;24;10
+294;10358;34;10
+295;10358;36;20
+296;10359;16;56
+297;10359;31;70
+298;10359;60;80
+299;10360;28;30
+300;10360;29;35
+301;10360;38;10
+302;10360;49;35
+303;10360;54;28
+304;10361;39;54
+305;10361;60;55
+306;10362;25;50
+307;10362;51;20
+308;10362;54;24
+309;10363;31;20
+310;10363;75;12
+311;10363;76;12
+312;10364;69;30
+313;10364;71;5
+314;10365;11;24
+315;10366;65;5
+316;10366;77;5
+317;10367;34;36
+318;10367;54;18
+319;10367;65;15
+320;10367;77;7
+321;10368;21;5
+322;10368;28;13
+323;10368;57;25
+324;10368;64;35
+325;10369;29;20
+326;10369;56;18
+327;10370;1;15
+328;10370;64;30
+329;10370;74;20
+330;10371;36;6
+331;10372;20;12
+332;10372;38;40
+333;10372;60;70
+334;10372;72;42
+335;10373;58;80
+336;10373;71;50
+337;10374;31;30
+338;10374;58;15
+339;10375;14;15
+340;10375;54;10
+341;10376;31;42
+342;10377;28;20
+343;10377;39;20
+344;10378;71;6
+345;10379;41;8
+346;10379;63;16
+347;10379;65;20
+348;10380;30;18
+349;10380;53;20
+350;10380;60;6
+351;10380;70;30
+352;10381;74;14
+353;10382;5;32
+354;10382;18;9
+355;10382;29;14
+356;10382;33;60
+357;10382;74;50
+358;10383;13;20
+359;10383;50;15
+360;10383;56;20
+361;10384;20;28
+362;10384;60;15
+363;10385;7;10
+364;10385;60;20
+365;10385;68;8
+366;10386;24;15
+367;10386;34;10
+368;10387;24;15
+369;10387;28;6
+370;10387;59;12
+371;10387;71;15
+372;10388;45;15
+373;10388;52;20
+374;10388;53;40
+375;10389;10;16
+376;10389;55;15
+377;10389;62;20
+378;10389;70;30
+379;10390;31;60
+380;10390;35;40
+381;10390;46;45
+382;10390;72;24
+383;10391;13;18
+384;10392;69;50
+385;10393;2;25
+386;10393;14;42
+387;10393;25;7
+388;10393;26;70
+389;10393;31;32
+390;10394;13;10
+391;10394;62;10
+392;10395;46;28
+393;10395;53;70
+394;10395;69;8
+395;10396;23;40
+396;10396;71;60
+397;10396;72;21
+398;10397;21;10
+399;10397;51;18
+400;10398;35;30
+401;10398;55;120
+402;10399;68;60
+403;10399;71;30
+404;10399;76;35
+405;10399;77;14
+406;10400;29;21
+407;10400;35;35
+408;10400;49;30
+409;10401;30;18
+410;10401;56;70
+411;10401;65;20
+412;10401;71;60
+413;10402;23;60
+414;10402;63;65
+415;10403;16;21
+416;10403;48;70
+417;10404;26;30
+418;10404;42;40
+419;10404;49;30
+420;10405;3;50
+421;10406;1;10
+422;10406;21;30
+423;10406;28;42
+424;10406;36;5
+425;10406;40;2
+426;10407;11;30
+427;10407;69;15
+428;10407;71;15
+429;10408;37;10
+430;10408;54;6
+431;10408;62;35
+432;10409;14;12
+433;10409;21;12
+434;10410;33;49
+435;10410;59;16
+436;10411;41;25
+437;10411;44;40
+438;10411;59;9
+439;10412;14;20
+440;10413;1;24
+441;10413;62;40
+442;10413;76;14
+443;10414;19;18
+444;10414;33;50
+445;10415;17;2
+446;10415;33;20
+447;10416;19;20
+448;10416;53;10
+449;10416;57;20
+450;10417;38;50
+451;10417;46;2
+452;10417;68;36
+453;10417;77;35
+454;10418;2;60
+455;10418;47;55
+456;10418;61;16
+457;10418;74;15
+458;10419;60;60
+459;10419;69;20
+460;10420;9;20
+461;10420;13;2
+462;10420;70;8
+463;10420;73;20
+464;10421;19;4
+465;10421;26;30
+466;10421;53;15
+467;10421;77;10
+468;10422;26;2
+469;10423;31;14
+470;10423;59;20
+471;10424;35;60
+472;10424;38;49
+473;10424;68;30
+474;10425;55;10
+475;10425;76;20
+476;10426;56;5
+477;10426;64;7
+478;10427;14;35
+479;10428;46;20
+480;10429;50;40
+481;10429;63;35
+482;10430;17;45
+483;10430;21;50
+484;10430;56;30
+485;10430;59;70
+486;10431;17;50
+487;10431;40;50
+488;10431;47;30
+489;10432;26;10
+490;10432;54;40
+491;10433;56;28
+492;10434;11;6
+493;10434;76;18
+494;10435;2;10
+495;10435;22;12
+496;10435;72;10
+497;10436;46;5
+498;10436;56;40
+499;10436;64;30
+500;10436;75;24
+501;10437;53;15
+502;10438;19;15
+503;10438;34;20
+504;10438;57;15
+505;10439;12;15
+506;10439;16;16
+507;10439;64;6
+508;10439;74;30
+509;10440;2;45
+510;10440;16;49
+511;10440;29;24
+512;10440;61;90
+513;10441;27;50
+514;10442;11;30
+515;10442;54;80
+516;10442;66;60
+517;10443;11;6
+518;10443;28;12`,
+Orders:`OrderID;CustomerID;EmployeeID;OrderDate;ShipperID
+10248;90;5;4.07.1996;3
+10249;81;6;5.07.1996;1
+10250;34;4;8.07.1996;2
+10251;84;3;8.07.1996;1
+10252;76;4;9.07.1996;2
+10253;34;3;10.07.1996;2
+10254;14;5;11.07.1996;2
+10255;68;9;12.07.1996;3
+10256;88;3;15.07.1996;2
+10257;35;4;16.07.1996;3
+10258;20;1;17.07.1996;1
+10259;13;4;18.07.1996;3
+10260;55;4;19.07.1996;1
+10261;61;4;19.07.1996;2
+10262;65;8;22.07.1996;3
+10263;20;9;23.07.1996;3
+10264;24;6;24.07.1996;3
+10265;7;2;25.07.1996;1
+10266;87;3;26.07.1996;3
+10267;25;4;29.07.1996;1
+10268;33;8;30.07.1996;3
+10269;89;5;31.07.1996;1
+10270;87;1;1.08.1996;1
+10271;75;6;1.08.1996;2
+10272;65;6;2.08.1996;2
+10273;63;3;5.08.1996;3
+10274;85;6;6.08.1996;1
+10275;49;1;7.08.1996;1
+10276;80;8;8.08.1996;3
+10277;52;2;9.08.1996;3
+10278;5;8;12.08.1996;2
+10279;44;8;13.08.1996;2
+10280;5;2;14.08.1996;1
+10281;69;4;14.08.1996;1
+10282;69;4;15.08.1996;1
+10283;46;3;16.08.1996;3
+10284;44;4;19.08.1996;1
+10285;63;1;20.08.1996;2
+10286;63;8;21.08.1996;3
+10287;67;8;22.08.1996;3
+10288;66;4;23.08.1996;1
+10289;11;7;26.08.1996;3
+10290;15;8;27.08.1996;1
+10291;61;6;27.08.1996;2
+10292;81;1;28.08.1996;2
+10293;80;1;29.08.1996;3
+10294;65;4;30.08.1996;2
+10295;85;2;2.09.1996;2
+10296;46;6;3.09.1996;1
+10297;7;5;4.09.1996;2
+10298;37;6;5.09.1996;2
+10299;67;4;6.09.1996;2
+10300;49;2;9.09.1996;2
+10301;86;8;9.09.1996;2
+10302;76;4;10.09.1996;2
+10303;30;7;11.09.1996;2
+10304;80;1;12.09.1996;2
+10305;55;8;13.09.1996;3
+10306;69;1;16.09.1996;3
+10307;48;2;17.09.1996;2
+10308;2;7;18.09.1996;3
+10309;37;3;19.09.1996;1
+10310;77;8;20.09.1996;2
+10311;18;1;20.09.1996;3
+10312;86;2;23.09.1996;2
+10313;63;2;24.09.1996;2
+10314;65;1;25.09.1996;2
+10315;38;4;26.09.1996;2
+10316;65;1;27.09.1996;3
+10317;48;6;30.09.1996;1
+10318;38;8;1.10.1996;2
+10319;80;7;2.10.1996;3
+10320;87;5;3.10.1996;3
+10321;38;3;3.10.1996;2
+10322;58;7;4.10.1996;3
+10323;39;4;7.10.1996;1
+10324;71;9;8.10.1996;1
+10325;39;1;9.10.1996;3
+10326;8;4;10.10.1996;2
+10327;24;2;11.10.1996;1
+10328;28;4;14.10.1996;3
+10329;75;4;15.10.1996;2
+10330;46;3;16.10.1996;1
+10331;9;9;16.10.1996;1
+10332;51;3;17.10.1996;2
+10333;87;5;18.10.1996;3
+10334;84;8;21.10.1996;2
+10335;37;7;22.10.1996;2
+10336;60;7;23.10.1996;2
+10337;25;4;24.10.1996;3
+10338;55;4;25.10.1996;3
+10339;51;2;28.10.1996;2
+10340;9;1;29.10.1996;3
+10341;73;7;29.10.1996;3
+10342;25;4;30.10.1996;2
+10343;44;4;31.10.1996;1
+10344;89;4;1.11.1996;2
+10345;63;2;4.11.1996;2
+10346;65;3;5.11.1996;3
+10347;21;4;6.11.1996;3
+10348;86;4;7.11.1996;2
+10349;75;7;8.11.1996;1
+10350;41;6;11.11.1996;2
+10351;20;1;11.11.1996;1
+10352;28;3;12.11.1996;3
+10353;59;7;13.11.1996;3
+10354;58;8;14.11.1996;3
+10355;4;6;15.11.1996;1
+10356;86;6;18.11.1996;2
+10357;46;1;19.11.1996;3
+10358;41;5;20.11.1996;1
+10359;72;5;21.11.1996;3
+10360;7;4;22.11.1996;3
+10361;63;1;22.11.1996;2
+10362;9;3;25.11.1996;1
+10363;17;4;26.11.1996;3
+10364;19;1;26.11.1996;1
+10365;3;3;27.11.1996;2
+10366;29;8;28.11.1996;2
+10367;83;7;28.11.1996;3
+10368;20;2;29.11.1996;2
+10369;75;8;2.12.1996;2
+10370;14;6;3.12.1996;2
+10371;41;1;3.12.1996;1
+10372;62;5;4.12.1996;2
+10373;37;4;5.12.1996;3
+10374;91;1;5.12.1996;3
+10375;36;3;6.12.1996;2
+10376;51;1;9.12.1996;2
+10377;72;1;9.12.1996;3
+10378;24;5;10.12.1996;3
+10379;61;2;11.12.1996;1
+10380;37;8;12.12.1996;3
+10381;46;3;12.12.1996;3
+10382;20;4;13.12.1996;1
+10383;4;8;16.12.1996;3
+10384;5;3;16.12.1996;3
+10385;75;1;17.12.1996;2
+10386;21;9;18.12.1996;3
+10387;70;1;18.12.1996;2
+10388;72;2;19.12.1996;1
+10389;10;4;20.12.1996;2
+10390;20;6;23.12.1996;1
+10391;17;3;23.12.1996;3
+10392;59;2;24.12.1996;3
+10393;71;1;25.12.1996;3
+10394;36;1;25.12.1996;3
+10395;35;6;26.12.1996;1
+10396;25;1;27.12.1996;3
+10397;60;5;27.12.1996;1
+10398;71;2;30.12.1996;3
+10399;83;8;31.12.1996;3
+10400;19;1;1.01.1997;3
+10401;65;1;1.01.1997;1
+10402;20;8;2.01.1997;2
+10403;20;4;3.01.1997;3
+10404;49;2;3.01.1997;1
+10405;47;1;6.01.1997;1
+10406;62;7;7.01.1997;1
+10407;56;2;7.01.1997;2
+10408;23;8;8.01.1997;1
+10409;54;3;9.01.1997;1
+10410;10;3;10.01.1997;3
+10411;10;9;10.01.1997;3
+10412;87;8;13.01.1997;2
+10413;41;3;14.01.1997;2
+10414;21;2;14.01.1997;3
+10415;36;3;15.01.1997;1
+10416;87;8;16.01.1997;3
+10417;73;4;16.01.1997;3
+10418;63;4;17.01.1997;1
+10419;68;4;20.01.1997;2
+10420;88;3;21.01.1997;1
+10421;61;8;21.01.1997;1
+10422;27;2;22.01.1997;1
+10423;31;6;23.01.1997;3
+10424;51;7;23.01.1997;2
+10425;41;6;24.01.1997;2
+10426;29;4;27.01.1997;1
+10427;59;4;27.01.1997;2
+10428;66;7;28.01.1997;1
+10429;37;3;29.01.1997;2
+10430;20;4;30.01.1997;1
+10431;10;4;30.01.1997;2
+10432;75;3;31.01.1997;2
+10433;60;3;3.02.1997;3
+10434;24;3;3.02.1997;2
+10435;16;8;4.02.1997;2
+10436;7;3;5.02.1997;2
+10437;87;8;5.02.1997;1
+10438;79;3;6.02.1997;2
+10439;51;6;7.02.1997;3
+10440;71;4;10.02.1997;2
+10441;55;3;10.02.1997;2
+10442;20;3;11.02.1997;2
+10443;66;8;12.02.1997;1`,
+Products:`ProductID;ProductName;SupplierID;CategoryID;Unit;Price
+1;Chais;1;1;10 boxes x 20 bags;18
+2;Chang;1;1;24 - 12 oz bottles;19
+3;Aniseed Syrup;1;2;12 - 550 ml bottles;10
+4;Chef Anton's Cajun Seasoning;2;2;48 - 6 oz jars;22
+5;Chef Anton's Gumbo Mix;2;2;36 boxes;21
+6;Grandma's Boysenberry Spread;3;2;12 - 8 oz jars;25
+7;Uncle Bob's Organic Dried Pears;3;7;12 - 1 lb pkgs.;30
+8;Northwoods Cranberry Sauce;3;2;12 - 12 oz jars;40
+9;Mishi Kobe Niku;4;6;18 - 500 g pkgs.;97
+10;Ikura;4;8;12 - 200 ml jars;31
+11;Queso Cabrales;5;4;1 kg pkg.;21
+12;Queso Manchego La Pastora;5;4;10 - 500 g pkgs.;38
+13;Konbu;6;8;2 kg box;6
+14;Tofu;6;7;40 - 100 g pkgs.;23
+15;Genen Shouyu;6;2;24 - 250 ml bottles;43
+16;Pavlova;7;3;32 - 500 g boxes;17
+17;Alice Mutton;7;6;20 - 1 kg tins;39
+18;Carnarvon Tigers;7;8;16 kg pkg.;62
+19;Teatime Chocolate Biscuits;8;3;10 boxes x 12 pieces;43
+20;Sir Rodney's Marmalade;8;3;30 gift boxes;81
+21;Sir Rodney's Scones;8;3;24 pkgs. x 4 pieces;10
+22;Gustaf's Knäckebröd;9;5;24 - 500 g pkgs.;21
+23;Tunnbröd;9;5;12 - 250 g pkgs.;9
+24;Guaraná Fantástica;10;1;12 - 355 ml cans;43
+25;NuNuCa Nuß-Nougat-Creme;11;3;20 - 450 g glasses;14
+26;Gumbär Gummibärchen;11;3;100 - 250 g bags;31
+27;Schoggi Schokolade;11;3;100 - 100 g pieces;43
+28;Rössle Sauerkraut;12;7;25 - 825 g cans;45
+29;Thüringer Rostbratwurst;12;6;50 bags x 30 sausgs.;123
+30;Nord-Ost Matjeshering;13;8;10 - 200 g glasses;25
+31;Gorgonzola Telino;14;4;12 - 100 g pkgs;435
+32;Mascarpone Fabioli;14;4;24 - 200 g pkgs.;32
+33;Geitost;15;4;500 g;43
+34;Sasquatch Ale;16;1;24 - 12 oz bottles;14
+35;Steeleye Stout;16;1;24 - 12 oz bottles;18
+36;Inlagd Sill;17;8;24 - 250 g jars;19
+37;Gravad lax;17;8;12 - 500 g pkgs.;26
+38;Côte de Blaye;18;1;12 - 75 cl bottles;263
+39;Chartreuse verte;18;1;750 cc per bottle;18
+40;Boston Crab Meat;19;8;24 - 4 oz tins;43
+41;Jack's New England Clam Chowder;19;8;12 - 12 oz cans;23
+42;Singaporean Hokkien Fried Mee;20;5;32 - 1 kg pkgs.;14
+43;Ipoh Coffee;20;1;16 - 500 g tins;46
+44;Gula Malacca;20;2;20 - 2 kg bags;19
+45;Røgede sild;21;8;1k pkg.;43
+46;Spegesild;21;8;4 - 450 g glasses;12
+47;Zaanse koeken;22;3;10 - 4 oz boxes;43
+48;Chocolade;22;3;10 pkgs.;27
+49;Maxilaku;23;3;24 - 50 g pkgs.;20
+50;Valkoinen suklaa;23;3;12 - 100 g bars;16
+51;Manjimup Dried Apples;24;7;50 - 300 g pkgs.;53
+52;Filo Mix;24;5;16 - 2 kg boxes;7
+53;Perth Pasties;24;6;48 pieces;32
+54;Tourtière;25;6;16 pies;16
+55;Pâté chinois;25;6;24 boxes x 2 pies;24
+56;Gnocchi di nonna Alice;26;5;24 - 250 g pkgs.;38
+57;Ravioli Angelo;26;5;24 - 250 g pkgs.;43
+58;Escargots de Bourgogne;27;8;24 pieces;13
+59;Raclette Courdavault;28;4;5 kg pkg.;55
+60;Camembert Pierrot;28;4;15 - 300 g rounds;34
+61;Sirop d'érable;29;2;24 - 500 ml bottles;43
+62;Tarte au sucre;29;3;48 pies;49
+63;Vegie-spread;7;2;15 - 625 g jars;43
+64;Wimmers gute Semmelknödel;12;5;20 bags x 4 pieces;33
+65;Louisiana Fiery Hot Pepper Sauce;2;2;32 - 8 oz bottles;43
+66;Louisiana Hot Spiced Okra;2;2;24 - 8 oz jars;17
+67;Laughing Lumberjack Lager;16;1;24 - 12 oz bottles;14
+68;Scottish Longbreads;8;3;10 boxes x 8 pieces;45
+69;Gudbrandsdalsost;15;4;10 kg pkg.;36
+70;Outback Lager;7;1;24 - 355 ml bottles;15
+71;Fløtemysost;15;4;10 - 500 g pkgs.;21
+72;Mozzarella di Giovanni;14;4;24 - 200 g pkgs.;34
+73;Röd Kaviar;17;8;24 - 150 g jars;15
+74;Longlife Tofu;4;7;5 kg pkg.;10
+75;Rhönbräu Klosterbier;12;1;24 - 0.5 l bottles;27
+76;Lakkalikööri;23;1;500 ml;18
+77;Original Frankfurter grüne Soße;12;2;12 boxes;13`,
+Shippers:`ShipperID;ShipperName;Phone
+1;Speedy Express;(503) 555-9831
+2;United Package;(503) 555-3199
+3;Federal Shipping;(503) 555-9931`,
+Suppliers:`SupplierID;SupplierName;ContactName;Address;City;PostalCode;Country;Phone
+1;Exotic Liquid;Charlotte Cooper;49 Gilbert St.;Londona;EC1 4SD;UK;(171) 555-2222
+2;New Orleans Cajun Delights;Shelley Burke;P.O. Box 78934;New Orleans;70117;USA;(100) 555-4822
+3;Grandma Kelly's Homestead;Regina Murphy;707 Oxford Rd.;Ann Arbor;48104;USA;(313) 555-5735
+4;Tokyo Traders;Yoshi Nagase;9-8 Sekimai Musashino-shi;Tokyo;100;Japan;(03) 3555-5011
+5;Cooperativa de Quesos 'Las Cabras';Antonio del Valle Saavedra;Calle del Rosal 4;Oviedo;33007;Spain;(98) 598 76 54
+6;Mayumi's;Mayumi Ohno;92 Setsuko Chuo-ku;Osaka;545;Japan;(06) 431-7877
+7;Pavlova, Ltd.;Ian Devling;74 Rose St. Moonie Ponds;Melbourne;3058;Australia;(03) 444-2343
+8;Specialty Biscuits, Ltd.;Peter Wilson;29 King's Way;Manchester;M14 GSD;UK;(161) 555-4448
+9;PB Knäckebröd AB;Lars Peterson;Kaloadagatan 13;Göteborg;S-345 67;Sweden;031-987 65 43
+10;Refrescos Americanas LTDA;Carlos Diaz;Av. das Americanas 12.890;São Paulo;5442;Brazil;(11) 555 4640
+11;Heli Süßwaren GmbH & Co. KG;Petra Winkler;Tiergartenstraße 5;Berlin;10785;Germany;(010) 9984510
+12;Plutzer Lebensmittelgroßmärkte AG;Martin Bein;Bogenallee 51;Frankfurt;60439;Germany;(069) 992755
+13;Nord-Ost-Fisch Handelsgesellschaft mbH;Sven Petersen;Frahmredder 112a;Cuxhaven;27478;Germany;(04721) 8713
+14;Formaggi Fortini s.r.l.;Elio Rossi;Viale Dante, 75;Ravenna;48100;Italy;(0544) 60323
+15;Norske Meierier;Beate Vileid;Hatlevegen 5;Sandvika;1320;Norway;(0)2-953010
+16;Bigfoot Breweries;Cheryl Saylor;3400 - 8th Avenue Suite 210;Bend;97101;USA;(503) 555-9931
+17;Svensk Sjöföda AB;Michael Björn;Brovallavägen 231;Stockholm;S-123 45;Sweden;08-123 45 67
+18;Aux joyeux ecclésiastiques;Guylène Nodier;203, Rue des Francs-Bourgeois;Paris;75004;France;(1) 03.83.00.68
+19;New England Seafood Cannery;Robb Merchant;Order Processing Dept. 2100 Paul Revere Blvd.;Boston;2134;USA;(617) 555-3267
+20;Leka Trading;Chandra Leka;471 Serangoon Loop, Suite #402;Singapore;512;Singapore;555-8787
+21;Lyngbysild;Niels Petersen;Lyngbysild Fiskebakken 10;Lyngby;2800;Denmark;43844108
+22;Zaanse Snoepfabriek;Dirk Luchte;Verkoop Rijnweg 22;Zaandam;9999 ZZ;Netherlands;(12345) 1212
+23;Karkki Oy;Anne Heikkonen;Valtakatu 12;Lappeenranta;53120;Finland;(953) 10956
+24;G'day, Mate;Wendy Mackenzie;170 Prince Edward Parade Hunter's Hill;Sydney;2042;Australia;(02) 555-5914
+25;Ma Maison;Jean-Guy Lauzon;2960 Rue St. Laurent;Montréal;H1J 1C3;Canada;(514) 555-9022
+26;Pasta Buttini s.r.l.;Giovanni Giudici;Via dei Gelsomini, 153;Salerno;84100;Italy;(089) 6547665
+27;Escargots Nouveaux;Marie Delamare;22, rue H. Voiron;Montceau;71300;France;85.57.00.07
+28;Gai pâturage;Eliane Noz;Bat. B 3, rue des Alpes;Annecy;74000;France;38.76.98.06
+29;Forêts d'érables;Chantal Goulet;148 rue Chasseur;Ste-Hyacinthe;J2S 7S8;Canada;(514) 555-2955`
+};
+function parseCsv(txt){ const lines=txt.trim().split('\n'); return lines.slice(1).map(l=>l.split(';')); }
+
+/* Hocanın Access dosyalarındaki (veritabanuygulama.accdb) tablolar */
+const ACCESS_SQL = `CREATE TABLE musteri (no INTEGER PRIMARY KEY, adsoyad TEXT, memleket TEXT, tel TEXT, bakiye INTEGER);
+INSERT INTO musteri VALUES (1,'rr lll','rize','36221213344',3000),(2,'aa bb','samsun','2122221111',5000),(3,'cc dd','dünya','3224454545',6000),(4,'sdfg','samsun','5556664411',10000),(5,'ali al','edirne','5554441121',11000),(6,'hadi bol','dünya','3335554422',7500),(10,'dd gg','amasya','556554',8000);
+CREATE TABLE siparis (no INTEGER, siparisno INTEGER, ürün TEXT, kargoteslim TEXT, tarih TEXT);
+INSERT INTO siparis VALUES (1,110,'peçete','adana','14.04.2021'),(2,111,'kulaklık','samsun','1.04.2021'),(3,112,'telefon','rize','9.04.2021');
+CREATE TABLE Tablo1 (no INTEGER PRIMARY KEY, adsoyad TEXT, memleket TEXT);
+INSERT INTO Tablo1 VALUES (1,'ab cd','adana'),(2,'cc ddd','kayseri'),(3,'ali al','samsun'),(4,'hhh fff','ordu'),(5,'tt ff','rize'),(6,'dsss ws','artvin'),(7,'ef gh','adana'),(8,'istatistik','dünya');
+CREATE TABLE Tablo2 (Kimlik INTEGER PRIMARY KEY, adsoyad TEXT, toplam INTEGER, odenmis INTEGER, kalan INTEGER, cinsiyet TEXT);
+INSERT INTO Tablo2 VALUES (1,'halim selim',45,35,0,'Bay'),(2,'bb',85,55,0,'Bayan');
+CREATE TABLE silin (no INTEGER, adsoyad TEXT, memleket TEXT);
+INSERT INTO silin VALUES (1,'ali al','amasya'),(5,'aaa ddd','Kars'),(6,'hadi bol','dünya');`;
+
+/* =========================================================
+   2) SQL MOTORU
+   ========================================================= */
+let SQL=null, BASE=null, PLAY=null;
+const READY = (async()=>{
+  SQL = await initSqlJs();
+  const db = new SQL.Database();
+  db.run(`CREATE TABLE Categories (CategoryID INTEGER PRIMARY KEY, CategoryName TEXT, Description TEXT);
+CREATE TABLE Suppliers (SupplierID INTEGER PRIMARY KEY, SupplierName TEXT, ContactName TEXT, Address TEXT, City TEXT, PostalCode TEXT, Country TEXT, Phone TEXT);
+CREATE TABLE Products (ProductID INTEGER PRIMARY KEY, ProductName TEXT, SupplierID INTEGER, CategoryID INTEGER, Unit TEXT, Price INTEGER);
+CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY, CustomerName TEXT, ContactName TEXT, Address TEXT, City TEXT, PostalCode TEXT, Country TEXT);
+CREATE TABLE Employees (EmployeeID INTEGER PRIMARY KEY, LastName TEXT, FirstName TEXT, BirthDate TEXT, Photo TEXT, Notes TEXT);
+CREATE TABLE Shippers (ShipperID INTEGER PRIMARY KEY, ShipperName TEXT, Phone TEXT);
+CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate TEXT, ShipperID INTEGER);
+CREATE TABLE OrderDetails (OrderDetailID INTEGER PRIMARY KEY, OrderID INTEGER, ProductID INTEGER, Quantity INTEGER);`);
+  const ins=(tbl,rows)=>{ if(!rows.length) return; const st=db.prepare(`INSERT INTO ${tbl} VALUES (${rows[0].map(()=>'?').join(',')})`); rows.forEach(r=>st.run(r)); st.free(); };
+  db.run('BEGIN');
+  for(const [name, txt] of Object.entries(CSV)) ins(name, parseCsv(txt));
+  db.run(ACCESS_SQL);
+  db.run('COMMIT');
+  BASE = db.export(); db.close();
+  PLAY = new SQL.Database(BASE);
+  return true;
+})();
+READY.then(()=>{ const st=document.getElementById('status'); st.textContent='Veritabanı hazır'; st.classList.add('ready'); fillDynamic(); })
+     .catch(e=>{ const st=document.getElementById('status'); st.classList.add('fail'); st.textContent='Veritabanı yüklenemedi, sayfayı yenile'; console.error(e); });
+
+const fresh = ()=> new SQL.Database(BASE);
+/* db.exec boş SELECT'lerde sütun başlığını da atıyor; o yüzden ifadeleri tek tek çalıştırıyoruz */
+function run(db, sql){
+  const sets=[]; let changes=0;
+  try{
+    for(const st of db.iterateStatements(sql)){
+      const columns=st.getColumnNames(), values=[];
+      while(st.step()) values.push(st.get());
+      if(columns.length) sets.push({columns, values}); else changes=db.getRowsModified();
+    }
+    return {sets, changes};
+  }catch(e){ return {error:String(e.message||e)}; }
+}
+
+/* Hata mesajlarını Türkçe açıklamaya çevir */
+function explainError(m){
+  let x;
+  if((x=m.match(/no such column: (.+)/))) return `<code>${esc(x[1])}</code> diye bir sütun bulunamadı. Yazımını kontrol et (sütun adları İngilizce: <code>CustomerName</code>, <code>Price</code>...). Bu sütun başka bir tablodaysa o tabloyu JOIN ile bağlaman gerekir. <code>p.Price</code> gibi takma ad kullandıysan, <code>p</code>'yi FROM ya da JOIN'de tanımladığından emin ol.`;
+  if((x=m.match(/no such table: (.+)/))) return `<code>${esc(x[1])}</code> diye bir tablo yok. Tablolar: <code>Customers, Orders, OrderDetails, Products, Categories, Employees, Shippers, Suppliers</code>. Hepsi çoğul (sonunda s var), <code>Product</code> değil <code>Products</code>.`;
+  if((x=m.match(/ambiguous column name: (.+)/))) return `<code>${esc(x[1])}</code> birden fazla tabloda var, hangisini kastettiğin belli değil. Başına tablo adını ya da takma adı koy: <code>Products.${esc(x[1])}</code> ya da <code>p.${esc(x[1])}</code>.`;
+  if(/incomplete input/.test(m)) return `Sorgu yarım kalmış gibi görünüyor: kapanmamış bir parantez ya da tırnak olabilir, ya da sorgu bir anahtar kelimeyle bitiyor (<code>WHERE</code> yazıp koşulu yazmamak gibi).`;
+  if((x=m.match(/unrecognized token: "(.+)"/))) return `<code>${esc(x[1])}</code> anlaşılamadı. Çoğunlukla açılıp kapanmayan bir tırnaktan olur: <code>'Germany'</code> iki tarafta da tek tırnak ister.`;
+  if(/near "\*": syntax error/.test(m)) return `<code>*</code> civarında yazım hatası. <code>DELETE * FROM ...</code> yazdıysan: bu Access'e özel bir yazım, burada (ve standart SQL'de) <code>DELETE FROM ...</code> yazılır. Değilse: <code>*</code> sadece <code>SELECT *</code>'da ya da iki sayının arasında (çarpma) kullanılır.`;
+  if((x=m.match(/near "(.+?)": syntax error/))) return `<code>${esc(x[1])}</code> civarında yazım hatası var. Sık sebepler: kapanmamış parantez (<code>COUNT(CustomerID, Country</code> gibi), son sütundan sonra fazladan virgül, eksik virgül,<code>SELECT</code> ile <code>FROM</code> arasının boş kalması, anahtar kelimelerin sırasının yanlış olması (doğru sıra: SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT) ya da <code>Orders.o</code> gibi takma ad önüne nokta konması.`;
+  if(/misuse of aggregate/.test(m)) return `COUNT, SUM, AVG gibi fonksiyonları WHERE içinde kullanamazsın. Gruplamadan sonra süzmek için <code>HAVING</code> kullan.`;
+  if((x=m.match(/wrong number of arguments to function (\w+)/))) return `<code>${esc(x[1])}</code> fonksiyonuna yanlış sayıda şey verdin. Mesela <code>COUNT(CustomerID, Country)</code> olmaz; <code>COUNT(CustomerID), Country</code> yazmalısın (parantez sadece saydığın sütunu sarar).`;
+  if((x=m.match(/no such function: (\w+)/))) return `<code>${esc(x[1])}</code> diye bir fonksiyon yok. Yazımını kontrol et.`;
+  if(/duplicate column name/.test(m)) return `Bu isimde bir sütun tabloda zaten var.`;
+  if((x=m.match(/table (\w+) already exists/))) return `<code>${esc(x[1])}</code> tablosu zaten var.`;
+  if(/UNIQUE constraint failed|PRIMARY KEY/.test(m)) return `Aynı ID ile ikinci bir satır eklemeye çalıştın. PRIMARY KEY olan sütunda her değer tek olmalı.`;
+  if(/Cannot add a NOT NULL column/.test(m)) return `Bu veritabanı (SQLite) sonradan eklenen bir sütunda NOT NULL'a ancak varsayılan değerle izin verir: <code>ADD tel VARCHAR(20) NOT NULL DEFAULT ''</code>. Access'te boş tabloya izin veriyordu.`;
+  if(/aggregate functions are not allowed in the GROUP BY/.test(m)) return `GROUP BY içine fonksiyon yazılmaz; neye göre gruplayacaksan o sütunu yaz.`;
+  return '';
+}
+
+/* =========================================================
+   3) YARDIMCILAR
+   ========================================================= */
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem('sqlkamp.'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+  set(k,v){ try{ localStorage.setItem('sqlkamp.'+k, JSON.stringify(v)); }catch(e){} }
+};
+let SOLVED = store.get('solved', {});
+function markSolved(id){ if(!SOLVED[id]){ SOLVED[id]=1; store.set('solved',SOLVED); buildNav(); } }
+
+function fmt(v){
+  if(v===null||v===undefined) return '<i class="null">NULL</i>';
+  if(typeof v==='number') return Number.isInteger(v)? String(v) : String(+v.toFixed(4));
+  return esc(v);
+}
+function tableHtml(set, title){
+  const max=200, rows=set.values;
+  let h=`<div class="res"><div class="meta">${title?esc(title)+' · ':''}${rows.length} satır${rows.length>max?` (ilk ${max} gösteriliyor)`:''}</div><div class="scroll"><table><thead><tr>`;
+  h += set.columns.map(c=>`<th>${esc(c)}</th>`).join('') + '</tr></thead><tbody>';
+  for(const r of rows.slice(0,max)) h += '<tr>'+r.map(v=>`<td${typeof v==='number'?' class="n"':''}>${fmt(v)}</td>`).join('')+'</tr>';
+  if(!rows.length) h += `<tr><td colspan="${set.columns.length}"><i class="null">(boş)</i></td></tr>`;
+  return h+'</tbody></table></div></div>';
+}
+function errorHtml(m){
+  const t=explainError(m);
+  return `<div class="msg err"><b>Hata.</b> <code>${esc(m)}</code>${t?`<p>${t}</p>`:''}</div>`;
+}
+function resultHtml(r){
+  if(r.error) return errorHtml(r.error);
+  if(!r.sets.length) return `<div class="msg info">Komut çalıştı, gösterilecek bir sonuç tablosu yok${r.changes?` (etkilenen satır: ${r.changes})`:''}. Değişikliği görmek istersen sonuna bir <code>SELECT</code> ekle.</div>`;
+  if(r.sets.length===1) return tableHtml(r.sets[0]);
+  return r.sets.map((s,i)=>tableHtml(s, (i+1)+'. sonuç')).join('');
+}
+
+/* ---- Sonuç karşılaştırma ---- */
+const norm = v => v===null||v===undefined ? '∅' : typeof v==='number' ? String(Math.round(v*100)/100) : String(v).trim();
+const rowKey = r => JSON.stringify(r);
+function sameBag(A,B){ if(A.length!==B.length) return false; const a=A.map(rowKey).sort(), b=B.map(rowKey).sort(); return a.every((x,i)=>x===b[i]); }
+function remapCols(U,E,nc){
+  const sig = (M,j)=> M.map(r=>r[j]).sort().join('\u0001');
+  const es=[...Array(nc).keys()].map(j=>sig(E,j)), us=[...Array(nc).keys()].map(j=>sig(U,j));
+  const used=new Set(), map=[];
+  for(let i=0;i<nc;i++){ const j=us.findIndex((s,k)=>!used.has(k)&&s===es[i]); if(j<0) return null; used.add(j); map.push(j); }
+  return U.map(r=>map.map(j=>r[j]));
+}
+function compare(uset, eset, ordered){
+  if(!uset) return {ok:false, html:`<div class="msg warn"><b>Sonuç tablosu yok.</b><p>Sorgun bir tablo döndürmedi. Bir <code>SELECT</code> sorgusu yazdığından emin ol.</p></div>`};
+  const ec=eset.columns.length, uc=uset.columns.length;
+  const E=eset.values.map(r=>r.map(norm)); let U=uset.values.map(r=>r.map(norm));
+  if(uc!==ec){
+    return {ok:false, html:`<div class="msg warn"><b>Sütun sayısı tutmuyor.</b><p>Beklenen sonuçta ${ec} sütun var, seninkinde ${uc}. Soru tam olarak hangi bilgileri istiyor, tekrar oku. ${uc>ec?'Fazladan sütun seçmiş olabilirsin (mesela <code>*</code> yerine sadece istenen sütunları yaz).':'Eksik sütun var.'}</p></div>`};
+  }
+  if(U.length!==E.length){
+    let why = '';
+    if(U.length===0) why='Hiç satır dönmedi. Tırnak içindeki değerlerin yazımını kontrol et (<code>\'Germany\'</code>, <code>\'USA\'</code>, <code>\'Beverages\'</code>), LIKE kalıbında % işaretlerini unutmuş olabilirsin.';
+    else if(U.length>E.length) why='Fazla satır geldi. Bir koşul eksik olabilir, ya da GROUP BY / DISTINCT / LIMIT gerekiyor olabilir.';
+    else why='Eksik satır geldi. Koşulun fazla sıkı olabilir, ya da gruplaman fazla ayrıntılı (gereğinden çok sütuna göre GROUP BY) olabilir.';
+    return {ok:false, html:`<div class="msg warn"><b>Satır sayısı tutmuyor.</b><p>Beklenen ${E.length} satır, sende ${U.length} satır var. ${why}</p></div>`};
+  }
+  if(!sameBag(U,E)){
+    const R2 = remapCols(U,E,ec);
+    if(R2 && sameBag(R2,E)) U=R2;
+    else {
+      const have=new Set(U.map(rowKey)); const miss=E.find(r=>!have.has(rowKey(r)));
+      return {ok:false, html:`<div class="msg warn"><b>Satır ve sütun sayısı doğru, ama değerler farklı.</b><p>Hesapladığın şey ya da süzdüğün satırlar biraz farklı olabilir (SUM yerine AVG, Price yerine Price*Quantity, yanlış ülke gibi).${miss?` Beklenen sonuçta olup sende olmayan bir satır: <code>${esc(miss.map(v=>v==='∅'?'NULL':v).join(' | '))}</code>`:''}</p></div>`};
+    }
+  }
+  if(ordered){
+    const key = r => JSON.stringify(ordered.map(i=>r[i]));
+    for(let i=0;i<E.length;i++) if(key(U[i])!==key(E[i]))
+      return {ok:false, html:`<div class="msg warn"><b>Değerler doğru, sıralama farklı.</b><p>Soru bir sıralama istiyor. <code>ORDER BY</code> kullandın mı? Büyükten küçüğe için sonuna <code>DESC</code> ekle.</p></div>`};
+  }
+  return {ok:true, html:`<div class="msg ok"><b>Doğru!</b> Sonucun beklenen sonuçla birebir aynı.</div>`};
+}
+const EXP_CACHE = {};
+function expected(t){
+  if(EXP_CACHE[t.id]) return EXP_CACHE[t.id];
+  const db=fresh(); let r=run(db,t.sol), set=null;
+  if(!r.error){ if(t.verify){ const v=run(db,t.verify); set=v.error?null:v.sets[v.sets.length-1]; } else set=r.sets[r.sets.length-1]; }
+  db.close();
+  return EXP_CACHE[t.id]=set;
+}
+
+/* =========================================================
+   4) DERSLER
+   ========================================================= */
+const sp = n => ' '.repeat(n);
+const MAP = ['Customers ──(CustomerID)──┐','Employees ──(EmployeeID)──┼── Orders','Shippers  ──(ShipperID)───┘     │',sp(28)+'(OrderID)',sp(32)+'│',sp(26)+'OrderDetails ──(ProductID)── Products ──(CategoryID)── Categories',sp(59)+'│',sp(53)+'(SupplierID)',sp(59)+'│',sp(55)+'Suppliers'].join('\n');
+const MAP_HTML = `<pre class="map" aria-label="Tabloların bağlantı haritası">${esc(MAP)}</pre>
+<div class="tw"><table class="ref"><thead><tr><th>Bu ikisini bağlamak için</th><th>ON kısmına yaz</th></tr></thead><tbody>
+<tr><td>Orders + Customers</td><td><code>o.CustomerID = cu.CustomerID</code></td></tr>
+<tr><td>Orders + Employees</td><td><code>o.EmployeeID = em.EmployeeID</code></td></tr>
+<tr><td>Orders + Shippers</td><td><code>o.ShipperID = sh.ShipperID</code></td></tr>
+<tr><td>Orders + OrderDetails</td><td><code>o.OrderID = od.OrderID</code></td></tr>
+<tr><td>OrderDetails + Products</td><td><code>od.ProductID = p.ProductID</code></td></tr>
+<tr><td>Products + Categories</td><td><code>p.CategoryID = ca.CategoryID</code></td></tr>
+<tr><td>Products + Suppliers</td><td><code>p.SupplierID = s.SupplierID</code></td></tr>
+</tbody></table></div>`;
+
+const TABLE_INFO = {
+  Customers:['Müşteriler (firmalar)', {CustomerID:'müşteri numarası',CustomerName:'firma adı',ContactName:'yetkili kişi',Address:'adres',City:'şehir',PostalCode:'posta kodu',Country:'ülke'}],
+  Orders:['Siparişler: kim, ne zaman, hangi çalışana sipariş verdi. Tarihler 4.07.1996 ile 12.02.1997 arası.', {OrderID:'sipariş numarası',CustomerID:'siparişi veren müşteri',EmployeeID:'siparişi alan çalışan',OrderDate:"tarih, '4.07.1996' biçiminde (gün.ay.yıl)",ShipperID:'kargo firması'}],
+  OrderDetails:['Sipariş detayları: hangi siparişte hangi üründen kaç adet', {OrderDetailID:'satır numarası',OrderID:'hangi sipariş',ProductID:'hangi ürün',Quantity:'adet (miktar)'}],
+  Products:['Ürünler', {ProductID:'ürün numarası',ProductName:'ürün adı',SupplierID:'tedarikçi',CategoryID:'kategori',Unit:'paket bilgisi',Price:'birim fiyat (tek adedin fiyatı), tam sayı'}],
+  Categories:['Kategoriler', {CategoryID:'kategori numarası',CategoryName:'kategori adı (Beverages = içecekler...)',Description:'açıklama'}],
+  Employees:['Çalışanlar', {EmployeeID:'çalışan numarası',LastName:'soyad',FirstName:'ad',BirthDate:"doğum tarihi ('8.12.1968')",Photo:'fotoğraf dosyası adı',Notes:'özgeçmiş notu'}],
+  Shippers:['Kargo firmaları', {ShipperID:'kargo numarası',ShipperName:'firma adı',Phone:'telefon'}],
+  Suppliers:['Tedarikçiler (ürünü üreten/satan firmalar)', {SupplierID:'tedarikçi numarası',SupplierName:'firma adı',ContactName:'yetkili kişi',Address:'adres',City:'şehir',PostalCode:'posta kodu',Country:'ülke',Phone:'telefon'}]
+};
+
+const LESSONS = [
+/* ---------------------------------------------------- 0 */
+{id:'baslangic', no:'0', title:'Başlarken', group:'Temel',
+body:`
+<p class="lead">SQL'i hiç bilmiyorsan doğru yerdesin. Adım adım gideceğiz; sonunda hocanın derste verdiği soruların hepsini kendin çözebileceksin.</p>
+<h3>Veritabanı = birbirine bağlı Excel sayfaları</h3>
+<p>Bir veritabanını içinde birkaç sayfa olan bir Excel dosyası gibi düşün:</p>
+<ul>
+<li><b>Tablo</b>: bir konunun listesi. Mesela <code>Customers</code> (müşteriler).</li>
+<li><b>Satır</b> (kayıt): listedeki tek bir şey. Bir müşteri = bir satır.</li>
+<li><b>Sütun</b> (alan): her satırda tutulan bilgi. <code>CustomerName</code>, <code>City</code>, <code>Country</code>...</li>
+</ul>
+<p><b>SQL</b> bu tablolara soru sorma dili. "Almanya'daki müşterileri getir" cümlesini SQL ile yazarsın, veritabanı cevabı yine bir tablo olarak verir.</p>
+<h3>İlk sorgunu çalıştır</h3>
+<p>Aşağıdaki kutu bir kod kutusu. <b>Çalıştır</b>'a bas (ya da kutunun içindeyken <kbd>Ctrl</kbd>+<kbd>Enter</kbd>). Kodu istediğin gibi değiştirebilirsin; bozarsan <b>Sıfırla</b>.</p>
+<pre class="ex">SELECT * FROM Customers;</pre>
+<p>Bu "Customers tablosundaki her şeyi getir" demek. Gördüğün her satır bir müşteri. <code>Customers</code> yerine <code>Orders</code> ya da <code>Products</code> yazıp tekrar çalıştır.</p>
+<h3>Hocanın kullandığı veritabanı: Northwind</h3>
+<p>Hocanın soruları <b>Northwind</b> adlı örnek veritabanı üzerinde. Bir gıda toptancısı düşün: müşterileri var, sipariş alıyor, siparişlerde ürünler var, ürünlerin kategorisi var. Buradaki veri, hocanın dönem başında attığı <code>sql_veri_setleri.zip</code>'teki CSV dosyalarının <b>aynısı</b>. Yani sonuçların hocanın Colab'ındakiyle aynı çıkması lazım.</p>
+<p>Bu veride bilmen gereken iki tuhaflık var:</p>
+<ul>
+<li><b>Tarihler <code>4.07.1996</code> biçiminde</b> (gün.ay.yıl, günün başında sıfır yok). Siparişler sadece 4.07.1996 ile 12.02.1997 arasında. Hocanın <code>LIKE '%1997%'</code> yazmasının sebebi bu: yıl sonda.</li>
+<li><b>Fiyatlar tam sayı</b> (21.35 değil 21). Bunun bir bölme tuzağı var, 2. konuda göreceğiz.</li>
+</ul>
+<div id="tablolar"></div>
+<h3>Tablolar birbirine nasıl bağlı?</h3>
+<p>Bu kısım JOIN konusunda çok önemli olacak, şimdilik göz atman yeter. Tablolar ortak sütunlar üzerinden bağlı: bir siparişin (<code>Orders</code>) hangi müşteriye ait olduğu <code>CustomerID</code> sütunundan anlaşılır.</p>
+${MAP_HTML}
+<h3><code>%%sql</code> ne? Colab'da kurulum</h3>
+<p>Hocanın kodlarının başındaki <code>%%sql</code>, Colab'a (ya da Jupyter'e) "bu hücre Python değil SQL" demenin yolu. SQL'in parçası değil. Burada yazmana gerek yok, Colab'da yazman gerekiyor.</p>
+<p>Hocanın 23 Mart dersindeki kurulum üç hücre:</p>
+<pre class="code">!pip install ipython-sql        # 1) SQL eklentisini kur (bir kere)
+
+%load_ext sql                   # 2) eklentiyi aç
+
+%%sql
+sqlite:///ist.db                # 3) veritabanı dosyasına bağlan</pre>
+<p>Hocanın notunda <code>load_ext sql</code> başında % olmadan da yazılmış; Jupyter onu da kabul ediyor. Bağlandıktan sonra her SQL hücresinin başına <code>%%sql</code> yazıp sorguyu altına yazarsın:</p>
+<pre class="code">%%sql
+SELECT * FROM Products LIMIT 10;</pre>
+<p>Hocanın sınıfta kullandığı diğer araç <b>DB Browser for SQLite</b> (<code>.sqbpro</code> ve <code>.db</code> dosyaları onun). Orada "Execute SQL" sekmesine aynı sorguları <code>%%sql</code> olmadan yazarsın, bu sitedeki gibi.</p>
+<h3>Bu siteyle nasıl çalışmalı?</h3>
+<ol>
+<li>Konuyu oku, örnek kutularını çalıştır ve <b>bir yerini değiştirip</b> tekrar çalıştır. En hızlı böyle öğrenilir.</li>
+<li>Her konunun sonunda <b>Pratik</b> soruları var. Sorguyu yaz, <b>Kontrol et</b>'e bas. Site senin sonucunu doğru sonuçla karşılaştırır ve neyin tutmadığını söyler.</li>
+<li>Takılırsan önce <b>İpucu</b>, olmazsa <b>Çözümü göster</b>.</li>
+<li>Çözdüğün sorular sol menüde sayılır. Bu bilgi sadece senin tarayıcında durur, arkadaşların kendi ilerlemesini görür.</li>
+</ol>
+<p class="tip">Sıra önerisi: 1'den 13'e kadar konuları sırayla bitir, sonra <b>Hocanın soruları</b>'na geç, en son <b>Sınav provası</b>. Sınavdan önce <b>Kopya kağıdı</b>'na bir göz at.</p>`,
+tasks:[]},
+
+/* ---------------------------------------------------- 1 */
+{id:'select', no:'1', title:'SELECT ve FROM', group:'Temel',
+body:`
+<p class="lead">Her sorgu iki soruya cevap verir: <b>neyi</b> istiyorsun, <b>nereden</b>?</p>
+<pre class="code">SELECT sütunlar
+FROM tablo;</pre>
+<ul><li><code>SELECT</code>: "şu sütunları göster"</li><li><code>FROM</code>: "şu tablodan"</li><li><code>;</code>: komut bitti</li></ul>
+<h3>Yıldız = bütün sütunlar</h3>
+<pre class="ex">SELECT * FROM Products;</pre>
+<h3>İstediğin sütunları seç</h3>
+<p>Sütun adlarını aralarına virgül koyarak yaz. Hangi sırayla yazarsan sonuç o sırayla gelir.</p>
+<pre class="ex">SELECT ProductName, Price FROM Products;</pre>
+<p>Dene: <code>Price</code>'ı başa al, ya da araya <code>Unit</code> ekle.</p>
+<h3>Kafa karıştıran küçük şeyler</h3>
+<ul>
+<li><b>Satır atlamak serbest.</b> <code>SELECT ...</code> ve <code>FROM ...</code> ayrı satırlarda olabilir. Hoca da öyle yazıyor, okuması kolay.</li>
+<li><b>Büyük/küçük harf:</b> <code>select</code> ile <code>SELECT</code> aynı. Bu veritabanında tablo adlarında da fark etmez (hoca bazen <code>products</code> yazıyor, çalışıyor). Ama tırnak içindeki <b>değerlerde</b> fark eder; onu WHERE'de göreceğiz.</li>
+<li><b>Son sütundan sonra virgül yok.</b> <code>SELECT ProductName, Price, FROM ...</code> hata verir.</li>
+<li><b>Tablo adları çoğul:</b> <code>Products</code>, <code>Customers</code>, <code>Orders</code>. <code>Product</code> yazarsan "no such table" hatası alırsın. (Hocanın bir çözümünde tam bu hata var.)</li>
+</ul>
+<p>Bilerek hatalı bir sorgu çalıştır ve sitenin ne dediğine bak. Sonra iki hatayı da düzelt:</p>
+<pre class="ex">SELECT ProductName, Price, FROM Product;</pre>
+<h3>LIMIT: sadece ilk birkaç satır</h3>
+<p>Hocanın 23 Mart dersindeki ilk sorgu buydu. Tablo büyükse hepsini görmek yerine ilk 10 satıra bakarsın:</p>
+<pre class="ex">SELECT * FROM Products LIMIT 10;</pre>
+<h3>Hocanın iki işe yarar hilesi</h3>
+<p><b>Veritabanında hangi tablolar var?</b> SQLite her tablonun adını <code>sqlite_master</code> adlı gizli bir tabloda tutar:</p>
+<pre class="ex">SELECT name FROM sqlite_master WHERE type = 'table';</pre>
+<p>(Burada Northwind tablolarının yanında Access dersindeki <code>musteri</code>, <code>siparis</code> gibi tablolar da görünecek; 13. konuda onları kullanacağız.)</p>
+<p><b>Bir tablonun sütun adları ne?</b> Hiçbir zaman doğru olmayan bir koşul yazarsan satır gelmez, ama sütun başlıkları gelir:</p>
+<pre class="ex">SELECT * FROM Customers WHERE 1 = 0;</pre>
+<p>1 hiçbir zaman 0'a eşit olmadığı için hiçbir satır seçilmez. Bir soruyu çözmeden önce sütun adlarını hatırlamak için çok kullanışlı.</p>`,
+tasks:[
+ {q:'<code>Customers</code> tablosunun ilk 3 kaydı.', src:'Hocanın 23 Mart dersi', sol:`SELECT * FROM Customers LIMIT 3;`, hint:'SELECT * ... LIMIT 3'},
+ {q:'Müşterilerin <code>CustomerID</code> ve <code>City</code> bilgisi, ilk 3 kayıt.', src:'Hocanın 23 Mart dersi', sol:`SELECT CustomerID, City FROM Customers LIMIT 3;`, hint:'İki sütun, sonra LIMIT 3'},
+ {q:'Çalışanlar tablosunun (<code>Employees</code>) tamamını getir.', sol:`SELECT * FROM Employees;`, hint:'Yıldız bütün sütunlar demek.'},
+ {q:'Müşterilerin sadece adını (<code>CustomerName</code>) ve ülkesini (<code>Country</code>) getir.', sol:`SELECT CustomerName, Country FROM Customers;`, hint:'İki sütunu virgülle ayırarak yaz.'},
+ {q:'Kategorilerin sadece adlarını getir.', sol:`SELECT CategoryName FROM Categories;`, hint:'Tablo: Categories. Sütun: CategoryName.'},
+ {q:'Ürünlerin adı, paket bilgisi (<code>Unit</code>) ve fiyatı, bu sırayla.', sol:`SELECT ProductName, Unit, Price FROM Products;`, hint:'Sütunları istenen sırada yaz.'}
+]},
+
+/* ---------------------------------------------------- 2 */
+{id:'hesap', no:'2', title:'Hesap yapmak ve AS', group:'Temel',
+body:`
+<p class="lead">SELECT'e sadece sütun adı değil, hesap da yazabilirsin. Hesap her satır için ayrı ayrı yapılır.</p>
+<pre class="ex">SELECT ProductName, Price, Price * Price
+FROM Products;</pre>
+<p>İşaretler: <code>+</code> toplama, <code>-</code> çıkarma, <code>*</code> çarpma, <code>/</code> bölme. (SELECT'in hemen arkasındaki <code>*</code> "bütün sütunlar" demekti; iki sütunun arasındaki <code>*</code> ise çarpma.)</p>
+<h3>AS: sütuna isim koy</h3>
+<p>Üstteki sonuçta son sütunun adı <code>Price * Price</code> oldu, pek okunur değil. <code>AS</code> ile isim verirsin:</p>
+<pre class="ex">SELECT ProductName, Price, Price * Price AS fiyat_karesi
+FROM Products;</pre>
+<p><code>AS</code> yazmak zorunlu değil; hesaptan sonra boşluk bırakıp ismi yazmak da aynı işi görür. Hocanın <code>SUM(p.Price) toplam_satis</code> yazması bu yüzden çalışıyor.</p>
+<pre class="ex">SELECT ProductName, Price * 1.2 kdvli_fiyat
+FROM Products;</pre>
+<p>İsimde boşluk ve Türkçe karakter kullanma, alt çizgi kullan: <code>toplam_satis</code> iyi, <code>toplam satış</code> dert çıkarır.</p>
+<h3>Bu isim ne işe yarıyor?</h3>
+<p>Sonucu okunur yapıyor. Ayrıca ileride <code>ORDER BY toplam_satis</code> diye bu isimle sıralama yapacağız.</p>
+<h3>Tuzak: tam sayı bölmesi</h3>
+<p>Bu veride fiyatlar tam sayı. SQLite'ta <b>tam sayı / tam sayı</b> sonucu da tam sayı olur, küsurat atılır. Çalıştır, Chef Anton's Gumbo Mix'e bak (21 / 2):</p>
+<pre class="ex">SELECT ProductName, Price, Price / 2, Price / 2.0, Price * 0.5
+FROM Products LIMIT 5;</pre>
+<p><code>21 / 2</code> = 10 çıktı, 10.5 değil. Küsuratlı sonuç istiyorsan sayıyı ondalıklı yaz: <code>Price / 2.0</code> ya da <code>Price * 0.5</code>. (AVG bu sorunu yaşamaz, ortalamayı her zaman küsuratlı verir.)</p>`,
+tasks:[
+ {q:'Fiyatı ve fiyatın iki katını getir, ilk 5 ürün için.', src:'Hocanın 23 Mart dersi', sol:`SELECT Price, Price * 2 FROM Products LIMIT 5;`, hint:'SELECT Price, Price * 2 ... LIMIT 5'},
+ {q:'Ürünlerin adını, fiyatını ve yarı fiyatını (küsuratıyla, 21 → 10.5) getir. Son sütunun adı <code>indirimli</code> olsun.', sol:`SELECT ProductName, Price, Price / 2.0 AS indirimli FROM Products;`, hint:'Price / 2 küsuratı atar. Price / 2.0 ya da Price * 0.5 yaz.'},
+ {q:'<code>OrderDetails</code> tablosundan <code>OrderID</code>, <code>Quantity</code> ve adedin 3 katını getir.', sol:`SELECT OrderID, Quantity, Quantity * 3 AS uc_kat FROM OrderDetails;`, hint:'Quantity * 3'},
+ {q:'Ürünlerin adı ve fiyatın 10 fazlası.', sol:`SELECT ProductName, Price + 10 FROM Products;`, hint:'Price + 10'}
+]},
+
+/* ---------------------------------------------------- 3 */
+{id:'where', no:'3', title:'WHERE ile süzmek', group:'Temel',
+body:`
+<p class="lead">Şimdiye kadar hep bütün satırları aldık. <code>WHERE</code> ile sadece koşula uyan satırları alırsın.</p>
+<pre class="code">SELECT sütunlar
+FROM tablo
+WHERE koşul;</pre>
+<pre class="ex">SELECT * FROM Customers
+WHERE Country = 'Germany';</pre>
+<h3>Karşılaştırma işaretleri</h3>
+<div class="tw"><table class="ref"><tbody>
+<tr><td><code>=</code></td><td>eşit</td><td><code>&lt;&gt;</code> ya da <code>!=</code></td><td>eşit değil</td></tr>
+<tr><td><code>&gt;</code></td><td>büyük</td><td><code>&lt;</code></td><td>küçük</td></tr>
+<tr><td><code>&gt;=</code></td><td>büyük ya da eşit</td><td><code>&lt;=</code></td><td>küçük ya da eşit</td></tr>
+</tbody></table></div>
+<pre class="ex">SELECT ProductName, Price FROM Products
+WHERE Price > 50;</pre>
+<pre class="ex">SELECT CustomerName, Country FROM Customers
+WHERE Country &lt;&gt; 'USA';</pre>
+<h3>Tırnak kuralı</h3>
+<ul><li><b>Metin</b> değerler tek tırnak içinde: <code>'Germany'</code>, <code>'Berlin'</code>.</li>
+<li><b>Sayılar</b> tırnaksız: <code>Price > 30</code>, <code>CategoryID = 1</code>.</li>
+<li><b>Sütun adları</b> tırnaksız: <code>Country</code>.</li></ul>
+<h3>Değerin yazımı birebir tutmalı</h3>
+<p>Veritabanında ülke <code>'Germany'</code> diye kayıtlı. <code>'germany'</code>, <code>'Almanya'</code> ya da <code>'Germany '</code> (sonda boşluk) yazarsan hiç satır gelmez. Hata da vermez, sadece boş döner:</p>
+<pre class="ex">SELECT * FROM Customers
+WHERE Country = 'germany';</pre>
+<p>Ülkelerin nasıl yazıldığını görmek için <code>SELECT DISTINCT Country FROM Customers;</code> yeter (DISTINCT 6. konuda).</p>
+<h3>WHERE ve hesap birlikte</h3>
+<pre class="ex">SELECT ProductName, Price, Price * Price AS fiyat_karesi
+FROM Products
+WHERE Price > 30;</pre>
+<p>Bu tam olarak hocanın "Fiyatı 30 TL'den büyük olan ürünlerin isimleri, fiyatları ve fiyatlarının karesi" sorusunun cevabı.</p>`,
+tasks:[
+ {q:'Brezilya\'daki (<code>Brazil</code>) müşterilerin bütün bilgileri.', sol:`SELECT * FROM Customers WHERE Country = 'Brazil';`, hint:"WHERE Country = 'Brazil'"},
+ {q:'Fiyatı 20\'den küçük ürünlerin adı ve fiyatı.', sol:`SELECT ProductName, Price FROM Products WHERE Price < 20;`, hint:'Price < 20 (sayı, tırnak yok)'},
+ {q:'<code>CategoryID</code>\'si 8 olan ürünlerin adları.', sol:`SELECT ProductName FROM Products WHERE CategoryID = 8;`, hint:'WHERE CategoryID = 8'},
+ {q:'London\'daki müşterilerin adı ve adresi (<code>Address</code>).', sol:`SELECT CustomerName, Address FROM Customers WHERE City = 'London';`, hint:"Şehir City sütununda: WHERE City = 'London'"},
+ {q:'10250 numaralı siparişin detayları (<code>OrderDetails</code> tablosunun bütün sütunları).', sol:`SELECT * FROM OrderDetails WHERE OrderID = 10250;`, hint:'WHERE OrderID = 10250'}
+]},
+
+/* ---------------------------------------------------- 4 */
+{id:'mantik', no:'4', title:'AND, OR, IN, BETWEEN', group:'Temel',
+body:`
+<h3>AND: ikisi de doğru olmalı</h3>
+<pre class="ex">SELECT CustomerName FROM Customers
+WHERE Country = 'Germany' AND City = 'Berlin';</pre>
+<h3>OR: biri doğruysa yeter</h3>
+<pre class="ex">SELECT CustomerName, Country FROM Customers
+WHERE Country = 'Brazil' OR Country = 'USA';</pre>
+<p>Dikkat: <code>WHERE Country = 'Brazil' OR 'USA'</code> diye kısaltamazsın. Her koşulda sütun adını tekrar yazman gerekir.</p>
+<h3>IN: uzun OR'ların kısayolu</h3>
+<p>Aynı sütun için birkaç seçenek varsa:</p>
+<pre class="ex">SELECT CustomerName, Country FROM Customers
+WHERE Country IN ('Brazil', 'USA');</pre>
+<p>Bir üstteki sorguyla tamamen aynı sonucu verir. <code>NOT IN</code> tersini yapar:</p>
+<pre class="ex">SELECT CustomerName, Country FROM Customers
+WHERE Country NOT IN ('Germany', 'USA', 'France');</pre>
+<h3>BETWEEN: aralık</h3>
+<pre class="ex">SELECT ProductName, Price FROM Products
+WHERE Price BETWEEN 40 AND 90;</pre>
+<p><code>BETWEEN 40 AND 90</code> uçları da dahil eder, yani <code>Price >= 40 AND Price &lt;= 90</code> ile aynı. Buradaki AND, BETWEEN'in bir parçası.</p>
+<h3>Tuzak: AND, OR'dan önce çalışır</h3>
+<p>Matematikte çarpma toplamadan önce yapılır; SQL'de de <code>AND</code> önce çalışır. "Kategorisi 1 ya da 2 olan ve fiyatı 30'dan büyük ürünler" istiyoruz:</p>
+<pre class="ex">SELECT ProductName, CategoryID, Price FROM Products
+WHERE CategoryID = 1 OR CategoryID = 2 AND Price > 30;</pre>
+<p>Sonuçta 30'dan ucuz içecekler de var. SQL bunu "kategorisi 1 olanlar, <b>ya da</b> kategorisi 2 olup 30'dan pahalı olanlar" diye okudu. Parantezle düzelt:</p>
+<pre class="ex">SELECT ProductName, CategoryID, Price FROM Products
+WHERE (CategoryID = 1 OR CategoryID = 2) AND Price > 30;</pre>
+<p class="tip">AND ile OR'u aynı yerde kullanıyorsan parantez koy, kafan rahat olsun.</p>`,
+tasks:[
+ {q:'Germany\'de ve Berlin şehrinde yaşayan müşterilerin isimleri.', src:'Hocanın sorusu', sol:`SELECT CustomerName FROM Customers WHERE Country = 'Germany' AND City = 'Berlin';`, hint:'İki koşul, ikisi de doğru olmalı: AND'},
+ {q:'Brezilya ve USA\'daki müşterilerin bütün bilgileri, <code>IN</code> kullanarak.', src:'Hocanın sorusu', sol:`SELECT * FROM Customers WHERE Country IN ('Brazil', 'USA');`, hint:"Country IN ('Brazil', 'USA')"},
+ {q:'Fiyatı 40 ile 90 arasında olan ürünlerin isimleri ve fiyatları.', src:'Hocanın sorusu', sol:`SELECT ProductName, Price FROM Products WHERE Price BETWEEN 40 AND 90;`, hint:'BETWEEN 40 AND 90'},
+ {q:'Kategorisi 3 ya da 4 olup fiyatı 30\'dan büyük ürünlerin adları ve fiyatları.', sol:`SELECT ProductName, Price FROM Products WHERE (CategoryID = 3 OR CategoryID = 4) AND Price > 30;`, hint:'Parantez! (CategoryID = 3 OR CategoryID = 4) AND ... ya da CategoryID IN (3, 4) AND ...'},
+ {q:'Almanya, Fransa ve İspanya (<code>Spain</code>) dışındaki müşterilerin adları ve ülkeleri.', sol:`SELECT CustomerName, Country FROM Customers WHERE Country NOT IN ('Germany', 'France', 'Spain');`, hint:'NOT IN (...)'},
+ {q:'Fiyatı 10\'dan küçük <b>ya da</b> 100\'den büyük ürünlerin adı ve fiyatı.', sol:`SELECT ProductName, Price FROM Products WHERE Price < 10 OR Price > 100;`, hint:'Price < 10 OR Price > 100'},
+ {mcq:true, q:'<code>WHERE Country = \'Brazil\' OR \'USA\'</code> neden yanlış?', options:['OR yerine AND yazılmalı','OR\'un iki tarafı da tam koşul olmalı: Country = \'USA\' yazılmalı','USA çift tırnakla yazılmalı','Hiçbir sorun yok'], answer:1, explain:'Her koşul "sütun işaret değer" şeklinde tam yazılır: <code>Country = \'Brazil\' OR Country = \'USA\'</code>. Kısa yolu IN: <code>Country IN (\'Brazil\', \'USA\')</code>.'}
+]},
+
+/* ---------------------------------------------------- 5 */
+{id:'like', no:'5', title:'LIKE ile metin arama', group:'Temel',
+body:`
+<p class="lead"><code>=</code> tam eşleşme ister. "İçinde 'ha' geçen", "C ile başlayan" gibi aramalar için <code>LIKE</code> kullanılır.</p>
+<p>LIKE'ta iki özel işaret var:</p>
+<ul><li><code>%</code> : <b>herhangi sayıda</b> karakter (hiç karakter de olur)</li>
+<li><code>_</code> : <b>tam bir</b> karakter</li></ul>
+<div class="tw"><table class="ref"><thead><tr><th>Kalıp</th><th>Anlamı</th><th>Eşleşir</th></tr></thead><tbody>
+<tr><td><code>'C%'</code></td><td>C ile başlayan</td><td>Chais, Chang, Côte de Blaye</td></tr>
+<tr><td><code>'%e'</code></td><td>e ile biten</td><td>Chartreuse verte, Côte de Blaye</td></tr>
+<tr><td><code>'%ha%'</code></td><td>içinde ha geçen</td><td>Chais, Chang, Chartreuse</td></tr>
+<tr><td><code>'_a%'</code></td><td>2. harfi a olan</td><td>Camembert, Laughing...</td></tr>
+<tr><td><code>'%1997'</code></td><td>1997 ile biten</td><td>15.01.1997</td></tr>
+</tbody></table></div>
+<pre class="ex">SELECT * FROM Products
+WHERE ProductName LIKE '%ha%';</pre>
+<p>Bu, hocanın derste gösterdiği örnek. "ha" ürün adının herhangi bir yerinde geçiyor.</p>
+<p>Bu veritabanında LIKE büyük/küçük harfe bakmaz: <code>'c%'</code> ile <code>'C%'</code> aynı sonucu verir. (= ile karşılaştırmada harf önemliydi.)</p>
+<pre class="ex">SELECT ProductName FROM Products
+WHERE ProductName LIKE 'C%';</pre>
+<h3>LIKE ile tarih arama</h3>
+<p>Önce tarihin nasıl yazıldığına bak. Her tarih sorusundan önce bunu yap:</p>
+<pre class="ex">SELECT OrderID, OrderDate FROM Orders LIMIT 5;</pre>
+<p>Bu veride <code>OrderDate</code>, <code>'4.07.1996'</code> gibi yazılmış bir metin: <b>gün.ay.yıl</b>, günün başında sıfır yok. Yıl sonda olduğu için yıl aramak <code>'%1997'</code> ya da hocanın yazdığı gibi <code>'%1997%'</code>:</p>
+<pre class="ex">SELECT * FROM Orders
+WHERE OrderDate LIKE '%1997%';</pre>
+<h3>Ay ararken dikkat</h3>
+<p>Temmuz (07) siparişleri için hocanın kalıbı <code>'%07%'</code>. Bu veride doğru çalışır, çünkü günler sıfırsız yazılmış (<code>7.08.1996</code>, <code>07.08.1996</code> değil) ve yıllarda "07" geçmiyor. Ama aynı yöntem Aralık (12) için bozulur. Çalıştır ve sonuca bak:</p>
+<pre class="ex">SELECT OrderID, OrderDate FROM Orders
+WHERE OrderDate LIKE '%12%';</pre>
+<p>Aralık olmayan tarihler de geldi: <code>12.07.1996</code> Temmuz'un 12'si, ama içinde "12" geçiyor. Doğrusu ayı <b>noktaların arasında</b> aramak:</p>
+<pre class="ex">SELECT OrderID, OrderDate FROM Orders
+WHERE OrderDate LIKE '%.12.%';</pre>
+<p>Noktalar sayesinde sadece ay kısmı eşleşir. Ay ve yıl birlikte: <code>LIKE '%.12.1996'</code>.</p>
+<p class="tip">Kural: ay ararken her zaman <code>'%.AA.%'</code> yaz. Hocanın <code>'%07%'</code>'si bu veride tesadüfen doğru; <code>'%.07.%'</code> her zaman doğru.</p>
+<p class="aside">Başka bir veritabanında tarih <code>'1996-07-04'</code> (yıl-ay-gün) biçiminde olabilir. Orada yıl başta (<code>'1996%'</code>), ay tirelerin arasında (<code>'%-07-%'</code>). Biçim değişince kalıp da değişir; o yüzden önce <code>SELECT OrderDate ... LIMIT 5</code> ile bak.</p>
+<p>Bir de şu: tarih metin olduğu için <code>ORDER BY OrderDate</code> alfabetik sıralar ve <code>10.07.1996</code>'yı <code>4.07.1996</code>'dan önce koyar. Tarih sırası için <code>OrderID</code>'ye göre sıralamak bu veride daha güvenli (siparişler zaman sırasıyla numaralanmış).</p>`,
+tasks:[
+ {q:'Adında \'ha\' geçen ürünlerin bütün bilgileri.', src:'Hocanın örneği', sol:`SELECT * FROM Products WHERE ProductName LIKE '%ha%';`, hint:"LIKE '%ha%'"},
+ {q:'Adresinin herhangi bir yerinde "da" geçen müşterilerin adresleri (sadece <code>Address</code>).', src:'Hocanın sorusu', sol:`SELECT Address FROM Customers WHERE Address LIKE '%da%';`, hint:"Address LIKE '%da%'"},
+ {q:'Kanada\'da (<code>Canada</code>) yaşayıp isminde \'in\' geçen müşterilerin isimleri.', src:'Hocanın sorusu', sol:`SELECT CustomerName FROM Customers WHERE CustomerName LIKE '%in%' AND Country = 'Canada';`, hint:"LIKE ile = koşulunu AND ile bağla."},
+ {q:'\'S\' harfiyle başlayan ürünlerin adları.', sol:`SELECT ProductName FROM Products WHERE ProductName LIKE 'S%';`, hint:"'S%' (başta S, sonrası ne olursa)"},
+ {q:'Adı \'a\' harfiyle biten müşterilerin adları.', sol:`SELECT CustomerName FROM Customers WHERE CustomerName LIKE '%a';`, hint:"'%a'"},
+ {q:'1997 yılının Ocak ayında verilen siparişlerin bütün bilgileri.', sol:`SELECT * FROM Orders WHERE OrderDate LIKE '%.01.1997';`, hint:"Tarih '15.01.1997' biçiminde: '%.01.1997'"},
+ {q:'1996 yılının Kasım (11) ayında verilen siparişlerin numarası ve tarihi. Dikkat: 11.07.1996 gibi günler gelmemeli.', sol:`SELECT OrderID, OrderDate FROM Orders WHERE OrderDate LIKE '%.11.1996';`, hint:"'%11%' yetmez (gün 11 olanlar da gelir). Ayı noktalarla ara."},
+ {mcq:true, q:"Bu veride (4.07.1996 biçimi) Ekim (10) siparişleri için hangi kalıp doğru?", options:["LIKE '%10%'","LIKE '%.10.%'","LIKE '10%'","LIKE '%-10-%'"], answer:1, explain:"<code>'%10%'</code> ve <code>'10%'</code> ayın 10'unu da yakalar (10.07.1996). <code>'%-10-%'</code> yıl-ay-gün biçimindeki veritabanları için; burada tire yok."}
+]},
+
+/* ---------------------------------------------------- 6 */
+{id:'siralama', no:'6', title:'ORDER BY, LIMIT, DISTINCT', group:'Temel',
+body:`
+<h3>ORDER BY: sırala</h3>
+<pre class="ex">SELECT ProductName, Price FROM Products
+ORDER BY Price;</pre>
+<p>Varsayılan küçükten büyüğe (<code>ASC</code>). Büyükten küçüğe için <code>DESC</code>:</p>
+<pre class="ex">SELECT ProductName, Price FROM Products
+ORDER BY Price DESC;</pre>
+<p>Metinler alfabetik sıralanır. Birden fazla sütun yazarsan önce birincisine göre, eşit olanlarda ikincisine göre sıralar:</p>
+<pre class="ex">SELECT CustomerName, Country, City FROM Customers
+ORDER BY Country, City;</pre>
+<p>Her sütunun yönü ayrı yazılır: <code>ORDER BY Country ASC, City DESC</code>.</p>
+<h3>LIMIT: ilk N satır</h3>
+<pre class="ex">SELECT ProductName, Price FROM Products
+ORDER BY Price DESC
+LIMIT 3;</pre>
+<p>"En pahalı 3 ürün" = pahalıdan ucuza sırala, ilk 3'ü al.</p>
+<h3>DISTINCT: tekrarları at</h3>
+<pre class="ex">SELECT Country FROM Customers;</pre>
+<p>Aynı ülke tekrar tekrar geliyor. Her birini bir kez görmek için:</p>
+<pre class="ex">SELECT DISTINCT Country FROM Customers;</pre>
+<p>DISTINCT, SELECT'in hemen arkasına yazılır ve seçtiğin <b>bütün sütunlara birlikte</b> bakar: <code>SELECT DISTINCT Country, City</code> her ülke-şehir ikilisini bir kez getirir.</p>
+<h3>Sıra önemli</h3>
+<pre class="code">SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT ...;</pre>
+<p>WHERE her zaman ORDER BY'dan önce gelir, LIMIT en sonda.</p>`,
+tasks:[
+ {q:'Ürünlerin adı ve fiyatı, pahalıdan ucuza.', sol:`SELECT ProductName, Price FROM Products ORDER BY Price DESC;`, ordered:[1], hint:'ORDER BY Price DESC'},
+ {q:'En ucuz 5 ürünün adı ve fiyatı.', sol:`SELECT ProductName, Price FROM Products ORDER BY Price LIMIT 5;`, ordered:[1], hint:'Ucuzdan pahalıya sırala (ASC), sonra LIMIT 5.'},
+ {q:'Müşterilerin bulunduğu ülkeler, her ülke bir kez.', sol:`SELECT DISTINCT Country FROM Customers;`, hint:'SELECT DISTINCT ...'},
+ {q:'Almanya\'daki müşterilerin adları, alfabetik sırayla (A\'dan Z\'ye).', sol:`SELECT CustomerName FROM Customers WHERE Country = 'Germany' ORDER BY CustomerName;`, ordered:[0], hint:'Önce WHERE, sonra ORDER BY CustomerName'},
+ {q:'Sipariş almış farklı çalışan numaraları (<code>EmployeeID</code>), küçükten büyüğe.', sol:`SELECT DISTINCT EmployeeID FROM Orders ORDER BY EmployeeID;`, ordered:[0], hint:'Orders tablosunda DISTINCT EmployeeID, sonra ORDER BY'}
+]},
+
+/* ---------------------------------------------------- 7 */
+{id:'fonksiyon', no:'7', title:'COUNT, SUM, AVG, MIN, MAX', group:'Hesaplama',
+body:`
+<p class="lead">Bazen satırların kendisini değil, onlardan çıkan <b>tek bir sonucu</b> istersin: kaç tane, toplam, ortalama...</p>
+<div class="tw"><table class="ref"><tbody>
+<tr><td><code>COUNT(...)</code></td><td>kaç tane</td><td>"kaç müşteri", "sayısı"</td></tr>
+<tr><td><code>SUM(...)</code></td><td>toplam</td><td>"toplam kazanç", "toplam satış"</td></tr>
+<tr><td><code>AVG(...)</code></td><td>ortalama</td><td>"fiyat ortalaması", "ort fiyat"</td></tr>
+<tr><td><code>MIN(...)</code></td><td>en küçük</td><td>"en ucuz"</td></tr>
+<tr><td><code>MAX(...)</code></td><td>en büyük</td><td>"en pahalı", "maks"</td></tr>
+</tbody></table></div>
+<pre class="ex">SELECT COUNT(*) FROM Products;</pre>
+<pre class="ex">SELECT AVG(Price), MIN(Price), MAX(Price), SUM(Price)
+FROM Products;</pre>
+<p>Sonuç tek satır: bütün ürünler tek bir cevaba indi.</p>
+<h3>WHERE ile birlikte</h3>
+<p>Önce WHERE satırları süzer, fonksiyon kalan satırlarda hesaplanır:</p>
+<pre class="ex">SELECT AVG(Price) FROM Products
+WHERE CategoryID = 1;</pre>
+<h3>COUNT'un üç hâli (sınavda çıkıyor)</h3>
+<ul>
+<li><code>COUNT(*)</code>: satır sayısı.</li>
+<li><code>COUNT(sütun)</code>: o sütunu boş (NULL) olmayan satırların sayısı. Çoğu zaman <code>COUNT(*)</code> ile aynı çıkar.</li>
+<li><code>COUNT(DISTINCT sütun)</code>: o sütundaki <b>farklı</b> değerlerin sayısı.</li>
+</ul>
+<p>Hocanın iki sorusu tam bu fark üzerine: "orders tablosunda kaç müşteri var" ve "eşsiz müşteri nasıl bulunur".</p>
+<pre class="ex">SELECT COUNT(CustomerID) FROM Orders;</pre>
+<p>Bu aslında <b>sipariş</b> sayısını verir. Aynı müşteri 5 sipariş verdiyse 5 kere sayılır.</p>
+<pre class="ex">SELECT COUNT(DISTINCT CustomerID) FROM Orders;</pre>
+<p>Bu ise sipariş vermiş <b>farklı müşteri</b> sayısı. "Eşsiz", "farklı", "tekrarsız" kelimelerini görünce DISTINCT aklına gelsin.</p>
+<h3>Küsuratı yuvarlamak</h3>
+<pre class="ex">SELECT ROUND(AVG(Price), 2) AS ortalama FROM Products;</pre>
+<h3>Yaygın hata</h3>
+<p><code>SELECT ProductName, MAX(Price) FROM Products;</code> bu veritabanında (SQLite) çalışır, ama çoğu veritabanı hata verir. Fonksiyonla birlikte normal bir sütun istiyorsan çoğu zaman GROUP BY gerekir, sıradaki konu bu. "En pahalı ürünün adı" için güvenli yol: <code>ORDER BY Price DESC LIMIT 1</code>.</p>`,
+tasks:[
+ {q:'<code>Products</code> tablosunda kaç ürün var?', sol:`SELECT COUNT(*) FROM Products;`, hint:'COUNT(*)'},
+ {q:'<code>Orders</code> tablosunda kaç <b>farklı</b> müşteri var?', src:'Hocanın sorusu', sol:`SELECT COUNT(DISTINCT CustomerID) FROM Orders;`, hint:'COUNT(DISTINCT CustomerID)'},
+ {q:'Ürünlerin ortalama fiyatı.', sol:`SELECT AVG(Price) FROM Products;`, hint:'AVG(Price)'},
+ {q:'En ucuz ve en pahalı ürünün fiyatı, tek sorguda (iki sütun).', sol:`SELECT MIN(Price), MAX(Price) FROM Products;`, hint:'SELECT MIN(...), MAX(...)'},
+ {q:'10248 numaralı siparişteki toplam ürün adedi (<code>Quantity</code> toplamı).', sol:`SELECT SUM(Quantity) FROM OrderDetails WHERE OrderID = 10248;`, hint:'OrderDetails tablosunda SUM(Quantity), WHERE OrderID = 10248'},
+ {q:'Almanya\'daki müşteri sayısı.', sol:`SELECT COUNT(*) FROM Customers WHERE Country = 'Germany';`, hint:'COUNT + WHERE'},
+ {q:'1997 yılında kaç sipariş verilmiş?', sol:`SELECT COUNT(*) FROM Orders WHERE OrderDate LIKE '%1997%';`, hint:"COUNT(*) + WHERE OrderDate LIKE '%1997%'"},
+ {mcq:true, q:'Bir müşteri 3, diğeri 2 sipariş vermiş (Orders\'ta 5 satır). <code>COUNT(DISTINCT CustomerID)</code> kaç döner?', options:['5','2','3','1'], answer:1, explain:'İki farklı müşteri var. <code>COUNT(CustomerID)</code> 5 dönerdi.'}
+]},
+
+/* ---------------------------------------------------- 8 */
+{id:'grup', no:'8', title:'GROUP BY ve HAVING', group:'Hesaplama',
+body:`
+<p class="lead">"Her ülkeden kaç müşteri var?" COUNT tek bir sayı verir, ama biz her ülke için ayrı bir sayı istiyoruz. Bunun için <code>GROUP BY</code> var.</p>
+<pre class="ex">SELECT Country, COUNT(CustomerID)
+FROM Customers
+GROUP BY Country;</pre>
+<h3>Kafanda nasıl canlandırmalı?</h3>
+<p>GROUP BY satırları kutulara ayırır: aynı ülkedeki müşteriler aynı kutuya. Sonra COUNT, SUM, AVG <b>her kutu için ayrı</b> hesaplanır ve her kutu sonuçta tek satır olur.</p>
+<div class="gviz" id="gviz"></div>
+<p>Soruda <b>"her ... için"</b>, <b>"... başına"</b>, <b>"...'e göre"</b>, <b>"... kırılımında"</b> görürsen GROUP BY lazım.</p>
+<h3>Altın kural</h3>
+<p>SELECT'te fonksiyonun içinde olmayan her sütun GROUP BY'da da olmalı. Yukarıda <code>Country</code> SELECT'te var, o yüzden GROUP BY'da da var.</p>
+<h3>Birden çok sütuna göre gruplamak</h3>
+<p>"Önce ülkeye sonra şehre göre" demek, kutuların ülke+şehir ikilisine göre ayrılması demek:</p>
+<pre class="ex">SELECT Country, City, COUNT(CustomerID)
+FROM Customers
+GROUP BY Country, City;</pre>
+<h3>Sıralamayla birlikte</h3>
+<pre class="ex">SELECT Country, COUNT(*) AS musteri_sayisi
+FROM Customers
+GROUP BY Country
+ORDER BY musteri_sayisi DESC;</pre>
+<h3>HAVING: grupları süzmek</h3>
+<p>WHERE gruplamadan <b>önce</b> satırları süzer. Grupladıktan <b>sonra</b> "3'ten fazla müşterisi olan ülkeler" gibi bir süzgeç için <code>HAVING</code> kullanılır:</p>
+<pre class="ex">SELECT Country, COUNT(*) AS musteri_sayisi
+FROM Customers
+GROUP BY Country
+HAVING COUNT(*) > 3;</pre>
+<p>Kural: koşulda COUNT/SUM/AVG gibi bir fonksiyon varsa HAVING, yoksa WHERE.</p>
+<pre class="ex">SELECT CategoryID, AVG(Price)
+FROM Products
+WHERE Price > 20
+GROUP BY CategoryID;</pre>
+<p>Bu sorgu önce 20'den pahalı ürünleri alıyor (WHERE), sonra onları kategorilere ayırıyor, her kategorinin ortalamasını hesaplıyor.</p>`,
+tasks:[
+ {q:'Her ülkeden kaç müşteri var? (ülke ve sayı)', src:'Hocanın sorusu', sol:`SELECT Country, COUNT(CustomerID) FROM Customers GROUP BY Country;`, hint:'GROUP BY Country'},
+ {q:'Önce ülkeye sonra şehre göre gruplayıp müşteri sayısını bul.', src:'Hocanın sorusu', sol:`SELECT Country, City, COUNT(CustomerID) FROM Customers GROUP BY Country, City;`, hint:'GROUP BY Country, City'},
+ {q:'Her kategori (<code>CategoryID</code>) için ürün sayısı ve ortalama fiyat.', sol:`SELECT CategoryID, COUNT(*), AVG(Price) FROM Products GROUP BY CategoryID;`, hint:'SELECT CategoryID, COUNT(*), AVG(Price) ... GROUP BY CategoryID'},
+ {q:'Her çalışanın (<code>EmployeeID</code>) aldığı sipariş sayısı, çoktan aza.', sol:`SELECT EmployeeID, COUNT(*) AS n FROM Orders GROUP BY EmployeeID ORDER BY n DESC;`, ordered:[1], hint:'Orders tablosu, GROUP BY EmployeeID, ORDER BY ... DESC'},
+ {q:'4\'ten fazla müşterisi olan ülkeler ve müşteri sayıları.', sol:`SELECT Country, COUNT(*) FROM Customers GROUP BY Country HAVING COUNT(*) > 4;`, hint:'Koşulda COUNT var, yani HAVING.'},
+ {q:'Toplam adedi 100\'den fazla olan siparişlerin numarası (<code>OrderID</code>) ve toplam adedi.', sol:`SELECT OrderID, SUM(Quantity) FROM OrderDetails GROUP BY OrderID HAVING SUM(Quantity) > 100;`, hint:'OrderDetails, GROUP BY OrderID, HAVING SUM(Quantity) > 100'},
+ {mcq:true, q:'"Ortalama fiyatı 30\'dan büyük kategoriler" için koşul nereye yazılır?', options:['WHERE AVG(Price) > 30','HAVING AVG(Price) > 30','GROUP BY AVG(Price) > 30','ORDER BY AVG(Price) > 30'], answer:1, explain:'Koşul bir fonksiyonun (AVG) sonucuna bakıyor, bu sonuç ancak gruplamadan sonra belli olur. O yüzden HAVING.'}
+]},
+
+/* ---------------------------------------------------- 9 */
+{id:'join', no:'9', title:'JOIN: iki tabloyu bağlamak', group:'Birleştirme',
+body:`
+<p class="lead">Şunu çalıştır:</p>
+<pre class="ex">SELECT ProductName, CategoryID FROM Products;</pre>
+<p>Ürünün kategorisi 1, 2, 8 gibi sayılarla duruyor. Kategorinin <b>adı</b> burada yok, <code>Categories</code> tablosunda:</p>
+<pre class="ex">SELECT * FROM Categories;</pre>
+<p>İki tabloda da <code>CategoryID</code> var. Bu ortak sütunla iki tabloyu yan yana yapıştırabiliriz: Products'taki her satırın yanına, CategoryID'si aynı olan Categories satırı gelir. Bunun adı <b>JOIN</b>.</p>
+<pre class="ex">SELECT ProductName, CategoryName
+FROM Products
+LEFT JOIN Categories ON Products.CategoryID = Categories.CategoryID;</pre>
+<p>Kalıp:</p>
+<pre class="code">SELECT ...
+FROM tablo1
+LEFT JOIN tablo2 ON tablo1.ortak_sutun = tablo2.ortak_sutun;</pre>
+<ul><li><code>ON</code>'dan sonra hangi sütunların eşleşeceğini yazarsın.</li>
+<li><code>Products.CategoryID</code> "Products tablosunun CategoryID sütunu" demek. Nokta "şu tablonun şu sütunu" anlamında.</li></ul>
+<h3>Neden Tablo.Sütun yazıyoruz?</h3>
+<p>İki tabloda da <code>CategoryID</code> var. Sadece <code>CategoryID</code> yazarsan veritabanı hangisini kastettiğini bilemez. Çalıştır, hataya bak:</p>
+<pre class="ex">SELECT ProductName, CategoryID, CategoryName
+FROM Products
+LEFT JOIN Categories ON Products.CategoryID = Categories.CategoryID;</pre>
+<p>"ambiguous" belirsiz demek. Düzeltmek için <code>Products.CategoryID</code> yaz. Sadece tek tabloda olan sütunlarda (ProductName gibi) gerek yok, yazsan da zararı yok.</p>
+<h3>Takma adlar: p, od, o, cu...</h3>
+<p>Tablo adını her seferinde yazmak uzun. FROM ya da JOIN'de tablonun arkasına kısa bir isim yazarsın, sonra hep onu kullanırsın:</p>
+<pre class="ex">SELECT p.ProductName, ca.CategoryName
+FROM Products p
+LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID;</pre>
+<p>Hocanın kodlarındaki <code>o</code> (Orders), <code>od</code> (OrderDetails), <code>p</code> (Products), <code>ca</code> (Categories), <code>cu</code> (Customers), <code>em</code> (Employees) bunlar. Takma ad verdiysen o tablo için artık hep takma adı kullan.</p>
+<p>Takma ad <b>boşlukla</b> yazılır: <code>FROM Orders o</code>. <code>FROM Orders.o</code> yazarsan hata alırsın (hocanın bir çözümünde bu yazım hatası var).</p>
+<h3>LEFT JOIN ile INNER JOIN farkı</h3>
+<p><code>LEFT JOIN</code>: soldaki (FROM'daki) tablonun <b>bütün</b> satırları kalır. Sağda eşi yoksa o sütunlar boş (NULL) gelir.<br>
+<code>INNER JOIN</code> (ya da sadece <code>JOIN</code>): sadece iki tarafta da eşi olan satırlar kalır.</p>
+<p>Bazı müşteriler hiç sipariş vermemiş. İkisini de çalıştır, satır sayılarını ve ilk satırları karşılaştır:</p>
+<pre class="ex">SELECT cu.CustomerName, o.OrderID
+FROM Customers cu
+LEFT JOIN Orders o ON cu.CustomerID = o.CustomerID
+ORDER BY o.OrderID;</pre>
+<pre class="ex">SELECT cu.CustomerName, o.OrderID
+FROM Customers cu
+INNER JOIN Orders o ON cu.CustomerID = o.CustomerID
+ORDER BY o.OrderID;</pre>
+<p>LEFT JOIN'de sipariş vermemiş müşteriler OrderID'si NULL olarak geldi (en üstte), INNER JOIN'de hiç yoklar. Hoca hep LEFT JOIN kullanıyor ve sorularının çoğunda ikisi aynı sonucu verir. Sen de LEFT JOIN yazabilirsin.</p>
+<h3>Boş değeri yakalamak: IS NULL</h3>
+<p>Boş değer <code>= NULL</code> ile değil <code>IS NULL</code> ile aranır. "Hiç sipariş vermemiş müşteriler":</p>
+<pre class="ex">SELECT cu.CustomerName
+FROM Customers cu
+LEFT JOIN Orders o ON cu.CustomerID = o.CustomerID
+WHERE o.OrderID IS NULL;</pre>`,
+tasks:[
+ {q:'Her ürünün adı ve kategori adı.', src:'Hocanın sorusu', sol:`SELECT p.ProductName, ca.CategoryName FROM Products p LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID;`, hint:'Products LEFT JOIN Categories ON ... CategoryID = ... CategoryID'},
+ {q:'Her ürünün adı ve tedarikçisinin adı (<code>SupplierName</code>).', sol:`SELECT p.ProductName, s.SupplierName FROM Products p LEFT JOIN Suppliers s ON p.SupplierID = s.SupplierID;`, hint:'Ortak sütun SupplierID.'},
+ {q:'Her siparişin numarası (<code>OrderID</code>) ve siparişi veren müşterinin adı.', sol:`SELECT o.OrderID, cu.CustomerName FROM Orders o LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID;`, hint:'Orders LEFT JOIN Customers, ortak sütun CustomerID.'},
+ {q:'Her siparişin numarası ve siparişi alan çalışanın adı (<code>FirstName</code>).', sol:`SELECT o.OrderID, em.FirstName FROM Orders o LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID;`, hint:'Orders LEFT JOIN Employees, ortak sütun EmployeeID.'},
+ {q:'Beverages kategorisindeki ürünlerin adları ve fiyatları.', sol:`SELECT p.ProductName, p.Price FROM Products p LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID WHERE ca.CategoryName = 'Beverages';`, hint:"JOIN'den sonra WHERE ca.CategoryName = 'Beverages'"},
+ {q:'Hiç sipariş vermemiş müşterilerin adları ve ülkeleri.', sol:`SELECT cu.CustomerName, cu.Country FROM Customers cu LEFT JOIN Orders o ON cu.CustomerID = o.CustomerID WHERE o.OrderID IS NULL;`, hint:'Customers LEFT JOIN Orders, sonra WHERE o.OrderID IS NULL'},
+ {mcq:true, q:'<code>ambiguous column name: CategoryID</code> hatası ne demek?', options:['CategoryID diye bir sütun yok','CategoryID iki tabloda da var, hangisi olduğunu belirtmelisin','CategoryID sayı değil','JOIN yazmayı unuttun'], answer:1, explain:'Başına tablo adı ya da takma ad koyarak düzeltirsin: <code>p.CategoryID</code>.'}
+]},
+
+/* ---------------------------------------------------- 10 */
+{id:'coklu-join', no:'10', title:'Zincirleme JOIN', group:'Birleştirme',
+body:`
+<p class="lead">Hocanın sorularının çoğu bu konudan. Mesela "USA'da yaşayan müşterilerin kazandırdığı toplam kazanç". Burada lazım olanlar:</p>
+<ul><li>müşterinin ülkesi → <code>Customers.Country</code></li><li>ürünün fiyatı → <code>Products.Price</code></li></ul>
+<p>Ama Customers ile Products arasında doğrudan bir bağ yok. Haritaya bak:</p>
+${MAP_HTML}
+<p>Customers'tan Products'a giden yol: <b>Customers → Orders → OrderDetails → Products</b>. Yoldaki her adım bir LEFT JOIN.</p>
+<h3>OrderDetails neden var?</h3>
+<p>Bir siparişte birden fazla ürün olabilir, bir ürün de birçok siparişte geçebilir. Bu yüzden arada bir köprü tablo var: <code>OrderDetails</code>'in her satırı "şu siparişte şu üründen şu kadar adet" der. Orders ile Products arasında her zaman OrderDetails'ten geçersin.</p>
+<h3>Tarif (her soruda aynı)</h3>
+<ol>
+<li><b>Hangi bilgiler lazım?</b> Her biri hangi tabloda? (ülke → Customers, fiyat → Products, kategori adı → Categories, çalışan adı → Employees, tarih → Orders, adet → OrderDetails)</li>
+<li><b>Yolu bul.</b> Haritada bu tabloları birleştiren yolu takip et.</li>
+<li><b>FROM ile başla, yoldaki her tablo için bir LEFT JOIN yaz.</b> Hoca genelde <code>FROM Orders o</code> ile başlıyor, çünkü Orders haritanın ortasında, herkese komşu.</li>
+<li><b>En son WHERE / GROUP BY / ORDER BY ekle.</b></li>
+</ol>
+<h3>Adım adım kuralım</h3>
+<p>Önce siparişler ve detayları:</p>
+<pre class="ex">SELECT o.OrderID, o.OrderDate, od.ProductID, od.Quantity
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID;</pre>
+<p>Ürün adı ve fiyatı için Products'ı ekle:</p>
+<pre class="ex">SELECT o.OrderID, p.ProductName, p.Price, od.Quantity
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+LEFT JOIN Products p ON od.ProductID = p.ProductID;</pre>
+<p>Müşterinin ülkesi için Customers'ı ekle (Customers, Orders'a bağlı):</p>
+<pre class="ex">SELECT o.OrderID, cu.CustomerName, cu.Country, p.ProductName, p.Price
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+LEFT JOIN Products p ON od.ProductID = p.ProductID
+LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID;</pre>
+<p>Elimizde tek bir büyük tablo var: her satır "bir siparişteki bir ürün", yanında müşteri bilgisi. Geriye süzmek ve toplamak kaldı:</p>
+<pre class="ex">SELECT SUM(p.Price)
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+LEFT JOIN Products p ON od.ProductID = p.ProductID
+LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID
+WHERE cu.Country = 'USA';</pre>
+<p>Bu hocanın çözümü. JOIN'lerin sırası çok önemli değil; önemli olan, ON kısmında kullandığın tablonun <b>daha önce eklenmiş</b> olması. (Mesela <code>od.ProductID</code> kullanmadan önce OrderDetails'i eklemiş olmalısın.)</p>
+<h3>Price mı, Price * Quantity mi?</h3>
+<p><code>Price</code> ürünün <b>tek adet</b> fiyatı, <code>Quantity</code> o siparişte kaç adet alındığı. Gerçek kazanç <code>SUM(p.Price * od.Quantity)</code> olur. Hoca derste <code>SUM(p.Price)</code> yazdı. Sınavda soru nasıl soruluyorsa öyle yaz: "adet", "miktar" geçiyorsa Quantity'yi kullan.</p>`,
+tasks:[
+ {q:'Her sipariş satırı için <code>OrderID</code>, ürün adı ve adet.', sol:`SELECT od.OrderID, p.ProductName, od.Quantity FROM OrderDetails od LEFT JOIN Products p ON od.ProductID = p.ProductID;`, hint:'Orders\'a gerek yok: OrderDetails\'te OrderID zaten var. OrderDetails LEFT JOIN Products.'},
+ {q:'10250 numaralı siparişteki ürünlerin adları ve kategori adları.', sol:`SELECT p.ProductName, ca.CategoryName FROM OrderDetails od LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID WHERE od.OrderID = 10250;`, hint:'Yol: OrderDetails → Products → Categories. WHERE od.OrderID = 10250'},
+ {q:'Almanya\'daki müşterilerin siparişlerinde geçen ürünler: müşteri adı ve ürün adı.', sol:`SELECT cu.CustomerName, p.ProductName FROM Orders o LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID WHERE cu.Country = 'Germany';`, hint:'Yol: Customers ← Orders → OrderDetails → Products'},
+ {q:'Speedy Express ile gönderilen siparişlerin numarası ve müşteri adı.', sol:`SELECT o.OrderID, cu.CustomerName FROM Orders o LEFT JOIN Shippers sh ON o.ShipperID = sh.ShipperID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE sh.ShipperName = 'Speedy Express';`, hint:'Orders\'a hem Shippers hem Customers bağlanır.'},
+ {q:'Nancy adlı çalışanın aldığı siparişlerdeki ürünler: <code>OrderID</code> ve ürün adı.', sol:`SELECT o.OrderID, p.ProductName FROM Orders o LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID WHERE em.FirstName = 'Nancy';`, hint:'Yol: Employees ← Orders → OrderDetails → Products'},
+ {mcq:true, q:'Müşterinin ülkesine göre kategori bazında ortalama fiyat isteniyor. Hangi tablolar gerekir?', options:['Customers, Products, Categories','Customers, Orders, Products, Categories','Customers, Orders, OrderDetails, Products, Categories','Orders, Categories'], answer:2, explain:'Customers ile Products arasında Orders ve OrderDetails köprüsü var. Kategori adı için de Categories gerekir.'}
+]},
+
+/* ---------------------------------------------------- 11 */
+{id:'hepsi', no:'11', title:'Hepsi bir arada', group:'Birleştirme',
+body:`
+<h3>Yazım sırası</h3>
+<pre class="code">SELECT    ne göstereyim
+FROM      hangi tablodan
+LEFT JOIN ... ON ...     (gerekirse, birkaç tane)
+WHERE     hangi satırlar   (gruplamadan önce)
+GROUP BY  neye göre grupla
+HAVING    hangi gruplar    (gruplamadan sonra)
+ORDER BY  nasıl sırala
+LIMIT     kaç satır;</pre>
+<p>Bu sıra değişmez. Hepsini kullanmak zorunda değilsin ama kullandıklarını bu sırayla yazarsın. WHERE'i GROUP BY'dan sonra yazarsan hata alırsın.</p>
+<h3>Sorudaki kelime → SQL</h3>
+<div class="tw"><table class="ref"><thead><tr><th>Soruda görürsen</th><th>SQL'de</th></tr></thead><tbody>
+<tr><td>ortalama, ort</td><td><code>AVG(...)</code></td></tr>
+<tr><td>toplam, kazanç, satış</td><td><code>SUM(...)</code></td></tr>
+<tr><td>kaç tane, sayısı</td><td><code>COUNT(...)</code></td></tr>
+<tr><td>eşsiz, farklı, tekrarsız</td><td><code>DISTINCT</code></td></tr>
+<tr><td>en yüksek / maks, en düşük</td><td><code>MAX(...)</code>, <code>MIN(...)</code></td></tr>
+<tr><td>her ... için, ... başına, ...'e göre, kırılımında</td><td><code>GROUP BY ...</code></td></tr>
+<tr><td>sırala, büyükten küçüğe (b&gt;k)</td><td><code>ORDER BY ... DESC</code></td></tr>
+<tr><td>...'da yaşayan, ...'dan verilen, ... yılında</td><td><code>WHERE ...</code></td></tr>
+<tr><td>içinde ... geçen, ... ile başlayan</td><td><code>LIKE '%...%'</code></td></tr>
+<tr><td>isimleri ile birlikte</td><td>ismin olduğu tabloyu <code>JOIN</code> ile bağla</td></tr>
+<tr><td>... arasında</td><td><code>BETWEEN ... AND ...</code></td></tr>
+</tbody></table></div>
+<h3>Örnek: soruyu parça parça çevirmek</h3>
+<p><b>Soru:</b> <span class="orig">"Çalışanları (employee) isimleri ile birlikte yaptıkları toplam satışlara göre sıralayınız."</span></p>
+<ol>
+<li><b>isimleri</b> → <code>em.FirstName</code> (Employees)</li>
+<li><b>toplam satış</b> → <code>SUM(p.Price)</code> (Products)</li>
+<li><b>her çalışanın toplamı</b> → <code>GROUP BY</code> çalışan</li>
+<li><b>sıralayınız</b> (en çok satan üstte) → <code>ORDER BY toplam_satis DESC</code></li>
+<li><b>yol:</b> Employees ← Orders → OrderDetails → Products</li>
+</ol>
+<p>Önce sadece JOIN'leri yaz ve <code>SELECT *</code> ile ortaya çıkan büyük tabloya bak:</p>
+<pre class="ex">SELECT *
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+LEFT JOIN Products p ON od.ProductID = p.ProductID
+LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID;</pre>
+<p>Sonra grupla, topla, sırala:</p>
+<pre class="ex">SELECT em.FirstName, SUM(p.Price) AS toplam_satis
+FROM Orders o
+LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+LEFT JOIN Products p ON od.ProductID = p.ProductID
+LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID
+GROUP BY em.FirstName
+ORDER BY toplam_satis DESC;</pre>
+<p class="tip">Çok tablolu her soruda bu iki adımlı yöntemi kullan: önce JOIN'ler + <code>SELECT *</code>, büyük tablo doğru görünüyorsa sonra WHERE/GROUP BY/ORDER BY.</p>
+<h3>Neden ORDER BY'da takma ad çalışıyor?</h3>
+<p>Veritabanı sorguyu yazdığın sırayla değil şu sırayla işler: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. <code>toplam_satis</code> ismi SELECT'te doğuyor; ORDER BY ondan sonra geldiği için ismi tanır. WHERE ve HAVING'de takma ad yerine ifadenin kendisini yaz (<code>HAVING SUM(p.Price) > 100</code>), standart SQL böyle ister.</p>`,
+tasks:[
+ {q:'Her kategori için ortalama ürün fiyatı, kategori adıyla birlikte.', src:'Hocanın sorusu', sol:`SELECT ca.CategoryName, AVG(p.Price) FROM Products p LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID GROUP BY ca.CategoryName;`, hint:'Products + Categories, GROUP BY CategoryName'},
+ {q:'USA\'da yaşayan müşterilerin kazandırdığı toplam kazanç (hocanın yaptığı gibi <code>SUM(p.Price)</code>).', src:'Hocanın sorusu', sol:`SELECT SUM(p.Price) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'USA';`, hint:'Yol: Customers ← Orders → OrderDetails → Products'},
+ {q:'Aynı soru, bu sefer gerçek kazanç: fiyat × adet.', sol:`SELECT SUM(p.Price * od.Quantity) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'USA';`, hint:'SUM(p.Price * od.Quantity)'},
+ {q:'Her müşterinin verdiği sipariş sayısı, müşteri adıyla, çoktan aza.', sol:`SELECT cu.CustomerName, COUNT(o.OrderID) AS n FROM Orders o LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID GROUP BY cu.CustomerName ORDER BY n DESC;`, ordered:[1], hint:'Orders + Customers, GROUP BY CustomerName, ORDER BY COUNT DESC'},
+ {q:'Müşteri ülkelerine göre satılan toplam adet (ülke ve adet), çoktan aza.', sol:`SELECT cu.Country, SUM(od.Quantity) AS adet FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID GROUP BY cu.Country ORDER BY adet DESC;`, ordered:[1], hint:'Adet OrderDetails\'te, ülke Customers\'ta, arada Orders.'},
+ {q:'En çok satan (toplam adedi en yüksek) 3 ürünün adı ve toplam adedi.', sol:`SELECT p.ProductName, SUM(od.Quantity) AS adet FROM OrderDetails od LEFT JOIN Products p ON od.ProductID = p.ProductID GROUP BY p.ProductName ORDER BY adet DESC LIMIT 3;`, ordered:[1], hint:'GROUP BY ürün, ORDER BY SUM(Quantity) DESC, LIMIT 3'}
+]},
+
+/* ---------------------------------------------------- 12 */
+{id:'degistirme', no:'12', title:'Tablo oluşturmak ve değiştirmek', group:'Birleştirme',
+body:`
+<p class="lead">Şimdiye kadar hep <b>okuduk</b> (SELECT). SQL ile tablo oluşturup değiştirebilirsin de. Hocanın "aşağıdakilerden hangisi bölüm alanını tabloya ekleyen kod" sorusu bu konudan.</p>
+<p class="aside">Bu sitede her <b>Çalıştır</b>'da veritabanı tertemiz baştan kurulur, yani istediğin kadar silip bozabilirsin. Değişikliği görmek için aynı kutunun sonuna bir SELECT ekle.</p>
+<h3>Komutları karıştırma</h3>
+<div class="tw"><table class="ref"><thead><tr><th>Komut</th><th>Ne yapar</th></tr></thead><tbody>
+<tr><td><code>CREATE TABLE</code></td><td>yeni tablo oluşturur</td></tr>
+<tr><td><code>ALTER TABLE ... ADD</code></td><td>var olan tabloya yeni <b>sütun</b> (alan) ekler</td></tr>
+<tr><td><code>INSERT INTO</code></td><td>tabloya yeni <b>satır</b> (kayıt) ekler</td></tr>
+<tr><td><code>UPDATE ... SET</code></td><td>var olan satırlardaki değeri değiştirir</td></tr>
+<tr><td><code>DELETE FROM</code></td><td>satır siler</td></tr>
+<tr><td><code>DROP TABLE</code></td><td>tabloyu tamamen siler</td></tr>
+</tbody></table></div>
+<p>Akılda tutma: <b>sütun/alan</b> ekliyorsan ALTER, <b>satır/kayıt</b> ekliyorsan INSERT.</p>
+<h3>ALTER TABLE: sütun eklemek</h3>
+<pre class="ex">ALTER TABLE Employees ADD Bolum TEXT;
+SELECT * FROM Employees;</pre>
+<p>Yeni sütun eklendi ama içi boş (NULL). <code>ADD COLUMN Bolum TEXT</code> diye de yazılır, ikisi aynı. Bazı kaynaklarda <code>VARCHAR(50)</code> görürsün: en fazla 50 karakterlik metin demek.</p>
+<h3>Veri tipleri</h3>
+<ul><li><code>INTEGER</code> / <code>INT</code>: tam sayı</li><li><code>REAL</code> / <code>DECIMAL</code> / <code>FLOAT</code>: ondalıklı sayı</li><li><code>TEXT</code> / <code>VARCHAR(n)</code>: metin</li><li><code>DATE</code>: tarih</li></ul>
+<h3>UPDATE: değer değiştirmek</h3>
+<pre class="ex">ALTER TABLE Employees ADD Bolum TEXT;
+UPDATE Employees SET Bolum = 'Satis' WHERE EmployeeID = 1;
+SELECT * FROM Employees;</pre>
+<p><b>WHERE'i unutma.</b> <code>UPDATE Employees SET Bolum = 'Satis';</code> yazarsan herkesin bölümü Satis olur.</p>
+<h3>INSERT INTO: satır eklemek</h3>
+<pre class="ex">INSERT INTO Shippers (ShipperID, ShipperName, Phone)
+VALUES (4, 'Aras Kargo', '444 25 52');
+SELECT * FROM Shippers;</pre>
+<p>Parantezdeki sütunlar ile VALUES'taki değerler sırayla eşleşir. Bütün sütunlara sırayla değer veriyorsan sütun listesini atlayabilirsin: <code>INSERT INTO Shippers VALUES (4, 'Aras Kargo', '444 25 52');</code></p>
+<h3>DELETE: satır silmek</h3>
+<pre class="ex">DELETE FROM Shippers WHERE ShipperID = 3;
+SELECT * FROM Shippers;</pre>
+<p>Yine: WHERE yoksa bütün satırlar silinir.</p>
+<h3>CREATE TABLE: yeni tablo</h3>
+<pre class="ex">CREATE TABLE Ogrenciler (
+  OgrenciID INTEGER PRIMARY KEY,
+  Ad TEXT,
+  Bolum TEXT
+);
+INSERT INTO Ogrenciler VALUES (1, 'Ayse', 'Bilgisayar');
+INSERT INTO Ogrenciler VALUES (2, 'Mehmet', 'Endustri');
+SELECT * FROM Ogrenciler;</pre>
+<p><code>PRIMARY KEY</code>: her satırı tek başına tanımlayan sütun, aynı değer iki kere olamaz. CustomerID, ProductID gibi.</p>
+<h3>Hocanın 23 Mart dersindeki sıra</h3>
+<p>Hoca Colab'da önce bir tablo oluşturup sildi, sonra başka bir tabloya kayıt ekledi:</p>
+<pre class="ex">CREATE TABLE deneme(adsoyad varchar(30),
+                    numara integer(11));
+DROP TABLE deneme;
+CREATE TABLE yeni_tablo(adsoyad varchar(30), numara integer(11));
+INSERT INTO yeni_tablo VALUES('fatih', '1453');
+SELECT * FROM yeni_tablo;</pre>
+<p><code>integer(11)</code> "en fazla 11 haneli tam sayı" demek. <code>DROP TABLE</code> tabloyu içindekilerle birlikte tamamen siler; DELETE gibi satır silmez, tablonun kendisini yok eder.</p>
+<h3>DB Browser'daki örnekler</h3>
+<p>Hocanın DB Browser dosyasında (<code>eyl28.db</code>) iki tablo var. Birincisinde numara otomatik artıyor:</p>
+<pre class="ex">CREATE TABLE Deneme1 (
+  No INTEGER PRIMARY KEY AUTOINCREMENT,
+  Ad TEXT,
+  Soyad TEXT
+);
+INSERT INTO Deneme1 (Ad, Soyad) VALUES ('Ali', 'Kaya');
+INSERT INTO Deneme1 (Ad, Soyad) VALUES ('Ayse', 'Demir');
+SELECT * FROM Deneme1;</pre>
+<p><code>AUTOINCREMENT</code> sayesinde <code>No</code>'yu yazmadık, 1, 2 diye kendisi verdi. İkinci tabloda sütun adlarında <b>boşluk</b> var; böyle adlar çift tırnak (ya da Access'teki gibi köşeli parantez) içinde yazılır:</p>
+<pre class="ex">CREATE TABLE Yazgelistir ("Ad Soyad" TEXT, "Kimlik No" INTEGER);
+ALTER TABLE Yazgelistir ADD il TEXT;
+SELECT * FROM Yazgelistir WHERE 1 = 0;</pre>
+<p>Son satır hocanın "sütun adlarını gör" hilesi: tablo boş, ama üç sütunu da görüyorsun.</p>`,
+tasks:[
+ {mcq:true, src:'Hocanın sorusu', q:'Aşağıdakilerden hangisi <code>Employees</code> tablosuna bölüm (<code>Bolum</code>) alanını ekler?', options:["INSERT INTO Employees (Bolum) VALUES ('Satis');","ALTER TABLE Employees ADD Bolum VARCHAR(50);","UPDATE Employees SET Bolum = 'Satis';","CREATE TABLE Employees (Bolum VARCHAR(50));","SELECT Bolum FROM Employees;"], answer:1, explain:'Alan (sütun) eklemek tablonun yapısını değiştirmek demek: ALTER TABLE. INSERT satır ekler, UPDATE var olan değeri değiştirir (Bolum zaten olmalı), CREATE yeni tablo kurar, SELECT sadece okur.'},
+ {q:'<code>Employees</code> tablosuna <code>Bolum</code> adında metin sütunu ekle.', sol:`ALTER TABLE Employees ADD Bolum TEXT;`, verify:`SELECT EmployeeID, Bolum FROM Employees;`, hint:'ALTER TABLE tablo ADD sütun tip;'},
+ {q:'<code>Customers</code> tablosuna <code>Telefon</code> adında bir sütun ekle.', sol:`ALTER TABLE Customers ADD Telefon TEXT;`, verify:`SELECT CustomerID, Telefon FROM Customers;`, hint:'ALTER TABLE Customers ADD ...'},
+ {q:'<code>Shippers</code> tablosuna ShipperID 4, adı \'Yurtici Kargo\', telefonu \'444 99 99\' olan firmayı ekle.', sol:`INSERT INTO Shippers VALUES (4, 'Yurtici Kargo', '444 99 99');`, verify:`SELECT * FROM Shippers;`, hint:'INSERT INTO Shippers VALUES (...);'},
+ {q:'1 numaralı ürünün fiyatını 20 yap.', sol:`UPDATE Products SET Price = 20 WHERE ProductID = 1;`, verify:`SELECT ProductID, Price FROM Products;`, hint:'UPDATE ... SET Price = 20 WHERE ProductID = 1;'},
+ {q:'<code>CustomerID</code>\'si 22 olan müşteriyi sil.', sol:`DELETE FROM Customers WHERE CustomerID = 22;`, verify:`SELECT CustomerID FROM Customers;`, hint:'DELETE FROM ... WHERE ...;'},
+ {q:'<code>Employees</code>\'a <code>Bolum</code> sütunu ekle, sonra 1, 2 ve 3 numaralı çalışanların bölümünü \'Satis\' yap.', sol:`ALTER TABLE Employees ADD Bolum TEXT; UPDATE Employees SET Bolum = 'Satis' WHERE EmployeeID IN (1, 2, 3);`, verify:`SELECT EmployeeID, Bolum FROM Employees;`, hint:'İki komut alt alta: önce ALTER, sonra UPDATE ... WHERE EmployeeID IN (1, 2, 3);'}
+]},
+
+/* ---------------------------------------------------- 13 access */
+{id:'access', no:'13', title:'Access dersleri ve UNION', group:'Birleştirme',
+body:`
+<p class="lead">Dönem başında hoca Access'te (<code>veritabanuygulama.accdb</code>) küçük tablolar üzerinde sorgular kaydetmişti. O tablolar ve sorgular burada da var. Çoğu aynen çalışıyor; birkaç Access'e özel yazımı aşağıda gösterdim.</p>
+<h3>Tablolar</h3>
+<pre class="ex">SELECT * FROM musteri;</pre>
+<pre class="ex">SELECT * FROM siparis;</pre>
+<p><code>musteri</code>: müşteri numarası (<code>no</code>), ad soyad, memleket, telefon, bakiye. <code>siparis</code>: hangi müşterinin (<code>no</code>) hangi siparişi verdiği. İki tablo <code>no</code> sütunuyla bağlı. Ayrıca <code>Tablo1</code> (no, adsoyad, memleket), <code>Tablo2</code> (toplam, odenmis, kalan, cinsiyet) ve <code>silin</code> tabloları var.</p>
+<p class="aside">Hocanın <code>Tablo1</code>'inde 1 ve 7 numaralı satırlar yoktu (DELETE sorgusuyla silinmişler). DELETE'i deneyebilesin diye buraya memleketi adana olan iki satır koydum. Ayrıca <code>musteri</code> tablosunda <code>bolum</code> ve <code>dogumgunu</code> sütunları başta yok, çünkü hocanın sorguları onları sonradan ALTER ile ekliyor.</p>
+<h3>Access'te kayıtlı hesap sorguları</h3>
+<p>Sorgu adları hocanın verdiği adlar (avg, count, sum...):</p>
+<pre class="ex">SELECT AVG(bakiye) AS ortalama FROM musteri;</pre>
+<pre class="ex">SELECT COUNT(adsoyad) FROM musteri;</pre>
+<pre class="ex">SELECT SUM([bakiye]) AS toplam FROM musteri;</pre>
+<p><code>[bakiye]</code>: Access tablo ve sütun adlarını köşeli parantez içine alır. Ad boşluk ya da Türkçe karakter içeriyorsa zorunlu, değilse isteğe bağlı. Bu sitede de çalışıyor.</p>
+<pre class="ex">SELECT musteri.*
+FROM musteri
+WHERE musteri.bakiye BETWEEN 3001 AND 6000;</pre>
+<p><code>musteri.*</code> "musteri tablosunun bütün sütunları" demek. Tek tablo varken <code>*</code> ile aynı.</p>
+<pre class="ex">SELECT musteri.[no], *
+FROM musteri
+ORDER BY musteri.[adsoyad];</pre>
+<p>Önce <code>no</code>, sonra bütün sütunlar (no iki kere görünür), ada göre sıralı.</p>
+<pre class="ex">SELECT Tablo2.*, [Tablo2].[toplam] * 2 AS kalan
+FROM Tablo2;</pre>
+<h3>INNER JOIN ve LEFT JOIN, küçük tabloda</h3>
+<p>7 müşteri var ama sadece 3'ünün siparişi var. Fark burada çok net görünüyor:</p>
+<pre class="ex">SELECT musteri.no, musteri.adsoyad, musteri.bakiye, siparis.siparisno, siparis.ürün, siparis.kargoteslim, siparis.tarih
+FROM musteri INNER JOIN siparis ON musteri.no = siparis.no;</pre>
+<pre class="ex">SELECT musteri.adsoyad, siparis.siparisno
+FROM musteri LEFT JOIN siparis ON musteri.[no] = siparis.[no]
+ORDER BY musteri.adsoyad;</pre>
+<p>INNER: 3 satır (sadece siparişi olanlar). LEFT: 7 satır, siparişi olmayanların siparisno'su NULL.</p>
+<h3>UNION: iki sorgunun sonucunu alt alta koymak</h3>
+<p>JOIN tabloları <b>yan yana</b> koyar. UNION ise iki SELECT'in sonucunu <b>alt alta</b> ekler. Hocanın <code>Sorgu1</code>'i:</p>
+<pre class="ex">SELECT no, adsoyad, tel FROM musteri
+UNION
+SELECT siparisno, ürün, kargoteslim FROM siparis;</pre>
+<ul>
+<li>İki SELECT'te <b>sütun sayısı aynı</b> olmalı (burada ikisinde de 3).</li>
+<li>Sütun adları birinci SELECT'ten gelir. O yüzden ürün adları "adsoyad" başlığının altında görünüyor; UNION anlamla ilgilenmez, sırayla eşler.</li>
+<li><code>UNION</code> tekrar eden satırları atar. Tekrarları da istiyorsan <code>UNION ALL</code>.</li>
+</ul>
+<pre class="ex">SELECT memleket FROM musteri
+UNION
+SELECT memleket FROM Tablo1;</pre>
+<p>İki tablodaki bütün memleketler, her biri bir kez. <code>UNION ALL</code> yazıp farkı gör.</p>
+<h3>Yapıyı değiştiren sorgular (hocanın sırasıyla)</h3>
+<p>Hoca bunları Access'te tek tek kaydetmişti. Bu kutu temiz veritabanında baştan sona çalışır:</p>
+<pre class="ex">-- create: yeni tablo
+CREATE TABLE deneme(
+  no Long PRIMARY KEY,
+  adsoyad Text(70),
+  memleket Text(70)
+);
+-- alter: deneme tablosuna telefon alanı
+ALTER TABLE deneme ADD tel varchar(20);
+-- ADDkomutu: musteri tablosuna bölüm alanı
+ALTER TABLE musteri ADD bolum char(15);
+-- updatekomutu: samsunluların bölümü
+UPDATE musteri SET bolum = 'cografya' WHERE memleket = 'samsun';
+-- tarihalanıekle: tarih tipinde alan
+ALTER TABLE musteri ADD dogumgunu DATE;
+SELECT * FROM musteri;</pre>
+<p><code>bolum</code> sadece samsunlularda dolu, diğerleri NULL. <code>dogumgunu</code> herkesde boş.</p>
+<pre class="ex">-- sütun silme (sütunsilmealterdrop)
+ALTER TABLE musteri ADD deneme char(15);
+ALTER TABLE musteri DROP deneme;
+SELECT * FROM musteri WHERE 1 = 0;</pre>
+<p><code>ALTER TABLE ... DROP sütun</code> sütunu siler (<code>DROP COLUMN</code> diye de yazılır). <code>DROP TABLE</code> ise tablonun tamamını siler, karıştırma.</p>
+<pre class="ex">-- insert
+INSERT INTO silin VALUES (22, 'istatistik bölümü', 'Samsun');
+-- delete (Access'te: DELETE * FROM tablo1 WHERE memleket='adana';)
+DELETE FROM Tablo1 WHERE memleket = 'adana';
+SELECT * FROM silin;
+SELECT * FROM Tablo1;</pre>
+<pre class="ex">-- drop: silin tablosunu tamamen kaldır
+DROP TABLE silin;
+SELECT name FROM sqlite_master WHERE type = 'table';</pre>
+<h3>Access ile buradaki SQL arasındaki farklar</h3>
+<div class="tw"><table class="ref"><thead><tr><th>Access'te</th><th>Standart SQL / SQLite</th></tr></thead><tbody>
+<tr><td><code>DELETE * FROM tablo1 WHERE ...</code></td><td><code>DELETE FROM tablo1 WHERE ...</code> (yıldız yok)</td></tr>
+<tr><td><code>[musteri].[adsoyad]</code></td><td><code>musteri.adsoyad</code> (köşeli parantez burada da çalışır)</td></tr>
+<tr><td><code>Long</code>, <code>Text(70)</code></td><td><code>INTEGER</code>, <code>VARCHAR(70)</code> / <code>TEXT</code></td></tr>
+<tr><td><code>char(15)</code> değeri 15 karaktere boşlukla tamamlar (<code>'matematik      '</code>)</td><td><code>VARCHAR</code> / <code>TEXT</code> tamamlamaz</td></tr>
+<tr><td>Boş tabloya <code>ADD tel varchar(20) NOT NULL</code> olur</td><td>SQLite'ta <code>NOT NULL DEFAULT ''</code> ister</td></tr>
+<tr><td><code>SELECT DISTINCTROW</code></td><td>Access'e özel; <code>SELECT DISTINCT</code> kullan</td></tr>
+</tbody></table></div>`,
+tasks:[
+ {q:'<code>musteri</code> tablosundaki bakiyelerin ortalaması.', src:'Hocanın Access sorgusu: avg', sol:`SELECT AVG(bakiye) AS ortalama FROM musteri;`, hint:'AVG(bakiye)'},
+ {q:'<code>musteri</code> tablosunda kaç kişi var (<code>adsoyad</code> sayısı)?', src:'Hocanın Access sorgusu: count', sol:`SELECT COUNT(adsoyad) FROM musteri;`, hint:'COUNT(adsoyad)'},
+ {q:'Bakiyelerin toplamı.', src:'Hocanın Access sorgusu: sum', sol:`SELECT SUM(bakiye) AS toplam FROM musteri;`, hint:'SUM(bakiye)'},
+ {q:'Bakiyesi 3001 ile 6000 arasında olan müşterilerin bütün bilgileri.', src:'Hocanın Access sorgusu: wherebetween', sol:`SELECT * FROM musteri WHERE bakiye BETWEEN 3001 AND 6000;`, hint:'BETWEEN 3001 AND 6000'},
+ {q:'Müşterilerin tüm bilgileri, ad soyada göre alfabetik.', src:'Hocanın Access sorgusu: orderby', sol:`SELECT * FROM musteri ORDER BY adsoyad;`, ordered:[1], hint:'ORDER BY adsoyad'},
+ {q:'<code>Tablo2</code>\'nin bütün sütunları ve <code>toplam</code>\'ın 2 katı, <code>kalan</code> adıyla.', src:'Hocanın Access sorgusu: islem', sol:`SELECT Tablo2.*, toplam * 2 AS kalan FROM Tablo2;`, hint:'SELECT Tablo2.*, toplam * 2 AS kalan ...'},
+ {q:'Siparişi olan müşterilerin adı ve sipariş numarası (sadece eşleşenler).', src:'Hocanın Access sorgusu: musteri Sorgu', sol:`SELECT musteri.adsoyad, siparis.siparisno FROM musteri INNER JOIN siparis ON musteri.no = siparis.no;`, hint:'INNER JOIN ... ON musteri.no = siparis.no'},
+ {q:'Bütün müşterilerin adı ve (varsa) sipariş numarası, ada göre sıralı.', src:'Hocanın Access sorgusu: leftjoin', sol:`SELECT musteri.adsoyad, siparis.siparisno FROM musteri LEFT JOIN siparis ON musteri.no = siparis.no ORDER BY musteri.adsoyad;`, ordered:[0], hint:'LEFT JOIN, sonra ORDER BY adsoyad'},
+ {q:'<code>musteri</code>\'den no, adsoyad, tel ile <code>siparis</code>\'ten siparisno, ürün, kargoteslim bilgilerini alt alta birleştir.', src:'Hocanın Access sorgusu: Sorgu1', sol:`SELECT no, adsoyad, tel FROM musteri UNION SELECT siparisno, ürün, kargoteslim FROM siparis;`, hint:'SELECT ... FROM musteri UNION SELECT ... FROM siparis'},
+ {q:'<code>musteri</code> ve <code>Tablo1</code> tablolarındaki bütün ad soyadlar, tekrarlar <b>dahil</b>.', sol:`SELECT adsoyad FROM musteri UNION ALL SELECT adsoyad FROM Tablo1;`, hint:'Tekrarlar dahil = UNION ALL'},
+ {q:'<code>musteri</code> tablosuna <code>bolum</code> alanı ekle (char(15)), sonra memleketi samsun olanların bölümünü \'cografya\' yap.', src:'Hocanın Access sorguları: ADDkomutu + updatekomutu', sol:`ALTER TABLE musteri ADD bolum char(15); UPDATE musteri SET bolum = 'cografya' WHERE memleket = 'samsun';`, verify:`SELECT no, bolum FROM musteri;`, hint:'Önce ALTER TABLE ... ADD, sonra UPDATE ... SET ... WHERE memleket = \'samsun\';'},
+ {q:'<code>musteri</code> tablosuna tarih tipinde <code>dogumgunu</code> alanı ekle.', src:'Hocanın Access sorgusu: tarihalanıekle', sol:`ALTER TABLE musteri ADD dogumgunu DATE;`, verify:`SELECT no, dogumgunu FROM musteri;`, hint:'ALTER TABLE musteri ADD dogumgunu DATE;'},
+ {q:'<code>Tablo1</code>\'den memleketi adana olanları sil.', src:'Hocanın Access sorgusu: delete', sol:`DELETE FROM Tablo1 WHERE memleket = 'adana';`, verify:`SELECT * FROM Tablo1;`, hint:"DELETE FROM (yıldız yok!) Tablo1 WHERE memleket = 'adana';"},
+ {q:'<code>silin</code> tablosuna (22, \'istatistik bölümü\', \'Samsun\') kaydını ekle.', src:'Hocanın Access sorgusu: insert', sol:`INSERT INTO silin VALUES (22, 'istatistik bölümü', 'Samsun');`, verify:`SELECT * FROM silin;`, hint:'INSERT INTO silin VALUES (...);'},
+ {q:'<code>silin</code> tablosunu tamamen kaldır.', src:'Hocanın Access sorgusu: drop', sol:`DROP TABLE silin;`, verify:`SELECT COUNT(*) FROM sqlite_master WHERE name = 'silin';`, hint:'DROP TABLE ...;'},
+ {q:'<code>deneme</code> tablosunu oluştur (no Long Primary Key, adsoyad Text(70), memleket Text(70)), sonra tabloya <code>tel</code> varchar(20) alanı ekle.', src:'Hocanın Access sorguları: create + alter', sol:`CREATE TABLE deneme(no Long PRIMARY KEY, adsoyad Text(70), memleket Text(70)); ALTER TABLE deneme ADD tel varchar(20);`, verify:`SELECT * FROM deneme WHERE 1 = 0;`, hint:'Önce CREATE TABLE deneme(...); sonra ALTER TABLE deneme ADD tel varchar(20);'},
+ {mcq:true, q:"Access'te yazılan <code>DELETE * FROM tablo1 WHERE memleket='adana';</code> standart SQL'de nasıl yazılır?", options:["DELETE * FROM tablo1 WHERE memleket='adana';","DELETE FROM tablo1 WHERE memleket='adana';","DROP tablo1 WHERE memleket='adana';","REMOVE FROM tablo1 WHERE memleket='adana';"], answer:1, explain:'Standart SQL\'de DELETE\'ten sonra yıldız yazılmaz, çünkü DELETE zaten bütün satırı siler; sütun seçilmez.'},
+ {mcq:true, q:'<code>ALTER TABLE musteri DROP deneme;</code> ne yapar?', options:['musteri tablosunu siler','deneme tablosunu siler','musteri tablosundaki deneme sütununu siler','deneme adlı satırları siler'], answer:2, explain:'ALTER TABLE tablonun yapısını değiştirir; DROP ile bir sütun kaldırılır. Tablonun tamamını silmek <code>DROP TABLE</code>.'},
+ {mcq:true, q:'UNION ile ilgili hangisi doğru?', options:['İki tabloyu ortak sütun üzerinden yan yana koyar','İki SELECT\'in sonucunu alt alta koyar, iki tarafta sütun sayısı aynı olmalı','Sadece aynı tablodan iki sorguyu birleştirir','Tekrar eden satırları da her zaman gösterir'], answer:1, explain:'Yan yana koyan JOIN. UNION alt alta koyar ve tekrarları atar; tekrarları görmek için UNION ALL.'}
+]},
+
+/* ---------------------------------------------------- 13 hoca */
+{id:'hoca', no:'H', title:'Hocanın soruları', group:'Sınava hazırlık', teacher:true,
+body:`
+<p class="lead">Hocanın derste verdiği soruların hepsi burada, notlardaki sırayla. Önce kendin çöz ve <b>Kontrol et</b>'e bas. Sonra <b>Hocanın çözümü ve notlar</b>'ı aç.</p>
+<p class="aside">Ders notundaki bazı çözümler aceleyle yazılmış ve küçük hatalar var (eksik yıldız, kapanmamış parantez, <code>Product</code> yerine <code>Products</code> gibi). Her birinin nerede olduğunu notlarda yazdım. Sınavda bu hataları sen yapma.</p>`,
+tasks:[
+ {date:'2.11.2026', q:'orders tablosunda kaç müşteri olduğunu bul', lesson:'fonksiyon',
+  teacher:`SELECT COUNT(CustomerID) FROM Orders;`, note:`Doğru çalışır, ama bu aslında <b>sipariş</b> sayısı: aynı müşteri her siparişinde tekrar sayılır. Bir sonraki soru farkı gösteriyor.`,
+  sol:`SELECT COUNT(CustomerID) FROM Orders;`},
+ {date:'2.11.2026', q:'orders tablosunda eşsiz müşteri nasıl bulunur', lesson:'fonksiyon',
+  teacher:`SELECT COUNT(DISTINCT CustomerID) FROM Orders;`, note:'Doğru. "Eşsiz" = DISTINCT.',
+  sol:`SELECT COUNT(DISTINCT CustomerID) FROM Orders;`},
+ {date:'2.11.2026', q:'customers tablosunda hangi ülkeden kaçar tane olduğunu bulma', lesson:'grup',
+  teacher:`SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country*`, note:'Sondaki <code>*</code> yazım hatası, yerinde <code>;</code> olmalı. Gerisi doğru.',
+  sol:`SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country;`},
+ {date:'2.11.2026', q:'Brezilya ve usa olanları buldurur', lesson:'mantik',
+  teacher:`SELECT FROM Customers WHERE Country in ('Brazil','USA');`, note:'SELECT ile FROM arası boş kalmış, ne istendiği yazılmamış. <code>SELECT *</code> olmalı.',
+  sol:`SELECT * FROM Customers WHERE Country IN ('Brazil', 'USA');`},
+ {date:'2.11.2026', q:'Önce ülkeye sonra şehre göre group by işlem yapıp bu kırılımda müşteri sayısını bulunuz', lesson:'grup',
+  teacher:`SELECT COUNT(CustomerID, Country, City FROM Customers GROUP BY Country, City;`, note:'COUNT\'un parantezi yanlış yerde: sadece saydığın sütunu sarmalı. <code>COUNT(CustomerID), Country, City</code>.',
+  sol:`SELECT COUNT(CustomerID), Country, City FROM Customers GROUP BY Country, City;`},
+ {date:'2.11.2026', q:'Müşteri adreslerinin herhangi bir yerinde "da" ifadesi geçen tüm adresleri bulma', lesson:'like',
+  teacher:`SELECT * FROM products WHERE ProductName LIKE '%ha%'`, note:'Bu hücreye derste gösterilen örnek kopyalanmış, soruyla ilgisi yok. Soru Customers tablosundaki adresleri istiyor.',
+  sol:`SELECT Address FROM Customers WHERE Address LIKE '%da%';`},
+ {date:'2.11.2026', q:'Germany-Berlinde yaşayan müşterilerin isimleri', lesson:'mantik',
+  teacher:`SELECT CustomerName FROM Customers WHERE Country = 'Germany' and City = 'Berlin'`, note:'Doğru. <code>and</code> küçük harf olması fark etmez.',
+  sol:`SELECT CustomerName FROM Customers WHERE Country = 'Germany' AND City = 'Berlin';`},
+ {date:'2.11.2026', q:"Canada da yaşayıp isimlerinde 'in' ifadesi geçen müşterileri bulma", lesson:'like',
+  teacher:`SELECT CustomerName FROM Customers WHERE CustomerName LIKE '%in%' AND Country= 'Canada';`, note:'Doğru.',
+  sol:`SELECT CustomerName FROM Customers WHERE CustomerName LIKE '%in%' AND Country = 'Canada';`},
+ {date:'2.11.2026', q:'Fiyatı 40 ile 90 tl arasında olan ürünlerin isimleri ve fiyatları nelerdir?', lesson:'mantik',
+  teacher:`SELECT ProductName FROM Product WHERE Price BETWEEN 40 AND 90;`, note:'İki sorun: tablo adı <code>Products</code> (çoğul) olmalı, ve soru fiyatları da istiyor, <code>Price</code> eksik.',
+  sol:`SELECT ProductName, Price FROM Products WHERE Price BETWEEN 40 AND 90;`},
+ {date:'2.11.2026', q:'Fiyatı 30 tlden büyük olan ürünlerin isimleri, fiyatlarını ve fiyatlarının karesini bulunuz', lesson:'hesap',
+  teacher:'', note:'Notta bu sorunun çözümü boş kalmış. Çözüm 2. ve 3. konuda anlatıldı.',
+  sol:`SELECT ProductName, Price, Price * Price AS fiyat_karesi FROM Products WHERE Price > 30;`},
+ {date:'2.11.2026', q:"Products tablosundaki category_id'lerin yani kategori isimleri ne? (her ürünün adı ve kategori adı)", lesson:'join',
+  teacher:`SELECT\nFROM Products\nLEFT JOIN Categories on Products.CategoryID = Categories.CategoryID;`, note:'SELECT\'ten sonrası notta görünmüyor. Ürün adı ve kategori adı yazılınca tamam. JOIN kısmı doğru.',
+  sol:`SELECT Products.ProductName, Categories.CategoryName FROM Products LEFT JOIN Categories ON Products.CategoryID = Categories.CategoryID;`},
+ {date:'2.11.2026', q:'Aşağıdakilerden hangisi bölüm alanını tabloya ekleyen kod? (Employees tablosuna Bolum alanını ekleyen kodu yaz)', lesson:'degistirme',
+  teacher:'', note:'Soru çoktan seçmeli sorulmuş. Alan (sütun) eklemek = <code>ALTER TABLE ... ADD</code>. Hocanın Access dosyasında bunun kayıtlı cevabı var (sorgu adı ADDkomutu): <code>ALTER TABLE musteri ADD bolum char(15);</code>. 12. ve 13. konudaki çoktan seçmeli sorulara da bak.',
+  sol:`ALTER TABLE Employees ADD Bolum TEXT;`, verify:`SELECT EmployeeID, Bolum FROM Employees;`},
+ {date:'Sonraki ders', q:'beverages ürün kategorisindeki ürünlerin fiyat ortalaması nedir?', lesson:'join',
+  teacher:`%%sql\nSELECT AVG(Price)\nFROM Products\nLEFT JOIN Categories on Products.CategoryID= categories.CategoryID\nWHERE CategoryNanem = 'Beverages';`, note:'<code>CategoryNanem</code> yazım hatası, <code>CategoryName</code> olmalı. <code>%%sql</code> Colab etiketi, burada yazma.',
+  sol:`SELECT AVG(Price) FROM Products LEFT JOIN Categories ON Products.CategoryID = Categories.CategoryID WHERE CategoryName = 'Beverages';`},
+ {date:'Sonraki ders', q:'USA da yaşayan müşterilerin kazandırdığı toplam kazancı bulunuz', lesson:'coklu-join',
+  teacher:`SELECT SUM(p.Price)\nFROM Orders o\nLEFT JOIN OrderDetails od on o.OrderID = od.OrderID\nLEFT JOIN Products p on od.ProductID = p.ProductID\nLEFT JOIN Customers cu on o.CustomerID= cu.CustomerID where cu.Country = 'USA';`, note:'Doğru. Gerçek kazanç için <code>SUM(p.Price * od.Quantity)</code> daha doğru olurdu; soru adet demediği için hocanın hâli de kabul.',
+  sol:`SELECT SUM(p.Price) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'USA';`},
+ {date:'Sonraki ders', q:'product tablosundaki category_id\'lerin isimlerini bulunuz ve sonrasında kategori başına ortalama ürün fiyatını gösteriniz', lesson:'hepsi',
+  teacher:`SELECT AVG(Price),CategoryName\nFROM Products\nLEFT JOIN Categories on Products.CategoryID = Categories.CategoryID\nGROUP BY CategoryName;`, note:'Doğru. "Kategori başına" = GROUP BY CategoryName.',
+  sol:`SELECT AVG(Price), CategoryName FROM Products LEFT JOIN Categories ON Products.CategoryID = Categories.CategoryID GROUP BY CategoryName;`},
+ {date:'Sonraki ders', q:'Çalışanları (employee) isimleri ile birlikte yaptıkları toplam satışlara göre sıralayınız', lesson:'hepsi', ordered:[1],
+  teacher:`SELECT em.FirstName, SUM(p.Price) toplam_satis\nFROM Orders.o\nLEFT JOIN OrderDetails od on o.OrderID = od.OrderID\nLEFT JOIN Products p on od.ProductID =p.ProductID\nLEFT JOIN Employees em on o.EmployeeID= em.EmployeeID\nGROUP BY o.EmployeeID\nORDER BY toplam_satis DESC;`, note:'<code>FROM Orders.o</code> hatalı: takma ad boşlukla yazılır, <code>FROM Orders o</code>. <code>GROUP BY o.EmployeeID</code> bu veritabanında çalışır, ama SELECT\'te <code>em.FirstName</code> olduğu için <code>GROUP BY em.FirstName</code> yazmak daha temiz.',
+  sol:`SELECT em.FirstName, SUM(p.Price) AS toplam_satis FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID GROUP BY em.FirstName ORDER BY toplam_satis DESC;`},
+ {date:'Sonraki ders', q:'Almanyadan verilen siparişlerin kategorilerine göre ort fiyatlar?', lesson:'hepsi',
+  teacher:`SELECT ca.CategoryName, AVG(p.Price)\nFROM Orders o\nLEFT JOIN OrderDetails od on o.OrderID =od.OrderID\nLEFT JOIN Products p on od.ProductID =p.ProductID\nLEFT JOIN Categories ca on p.CategoryID= ca.CategoryID\nLEFT JOIN Customers cu on o.CustomerID=cu.CustomerID\nWHERE cu.Country = 'Germany' OR cu.Country = 'USA' GROUP BY CategoryName;`, note:'JOIN\'ler doğru. Ama soru sadece Almanya diyor, <code>OR cu.Country = \'USA\'</code> fazladan (muhtemelen deneme için eklenmiş). Sınavda soru ne diyorsa onu yaz.',
+  sol:`SELECT ca.CategoryName, AVG(p.Price) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'Germany' GROUP BY ca.CategoryName;`},
+ {date:'Sonraki ders', q:'Haziran Temmuz Ağustos aylarında verilen siparişlerin ort fiyatı?', lesson:'like',
+  teacher:`SELECT AVG(Products.Price)\nFROM Products\nLEFT JOIN OrderDetails on OrderDetails.ProductID =products.ProductID\nLEFT JOIN Orders on OrderDetails.OrderID=Orders.OrderID\nWHERE OrderDate like '%06%' or OrderDate like '%07%' or OrderDate like '%08%'`, note:'Doğru, ve bu veride aynı sonucu verir: tarihler <code>4.07.1996</code> biçiminde ve günler sıfırsız yazıldığı için <code>\'%07%\'</code> sadece ayı yakalar. Yine de en garantisi ayı noktalarla aramak: <code>\'%.07.%\'</code> (5. konudaki <code>\'%12%\'</code> örneğine bak; Aralık için aynı yöntem bozuluyor). Bu veride Haziran siparişi yok, sonuç Temmuz ve Ağustos 1996\'dan geliyor.',
+  sol:`SELECT AVG(p.Price) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID WHERE o.OrderDate LIKE '%.06.%' OR o.OrderDate LIKE '%.07.%' OR o.OrderDate LIKE '%.08.%';`},
+ {date:'Sonraki ders', q:'Müşterilerin 1997 yılına ait siparişlerinin maks miktarlarını bulup müşterilerin isimleri ile birlikte b>k sırala', lesson:'hepsi', ordered:[1],
+  teacher:`SELECT CustomerName, MAX(Price) maks\nFROM Products\nLEFT JOIN OrderDetails on Products.ProductID =OrderDetails.ProductID\nLEFT JOIN Orders on OrderDetails.OrderID=`, note:'Notta yarım kalmış. Tamamlanmış hâli: Customers tablosunu da bağla (müşteri adı için), 1997 için WHERE, müşteri başına MAX için GROUP BY, b&gt;k (büyükten küçüğe) için ORDER BY DESC. Hoca "maks" için <code>MAX(Price)</code> yazmış; "miktar" adet anlamında sorulursa <code>MAX(od.Quantity)</code> kullanılır.',
+  sol:`SELECT cu.CustomerName, MAX(p.Price) AS maks FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE o.OrderDate LIKE '%1997%' GROUP BY cu.CustomerName ORDER BY maks DESC;`},
+ {date:'Sonraki ders', q:"(Soru metni notta yok. Koddan anlaşılan: 1997'de her çalışanın aldığı sipariş sayısı ve adı, çoktan aza.)", lesson:'hepsi', ordered:[0],
+  teacher:`SELECT COUNT(*) n, em.FirstName\nFROM Orders\nSELECT ca.CategoryName, AVG(p.Price)\nFROM Orders o\nLEFT JOIN Employees em on Orders.EmployeeID=em.EmployeeID\nWHERE OrderDate like'%1997%'\nGROUP BY em.FirstName\nORDER BY n DESC;`, note:'İki ayrı sorgu birbirine karışmış: ortadaki <code>SELECT ca.CategoryName, AVG(p.Price)</code> ve <code>FROM Orders o</code> satırları başka bir sorudan. Onları silince sorgu çalışır.',
+  sol:`SELECT COUNT(*) AS n, em.FirstName FROM Orders LEFT JOIN Employees em ON Orders.EmployeeID = em.EmployeeID WHERE OrderDate LIKE '%1997%' GROUP BY em.FirstName ORDER BY n DESC;`}
+]},
+
+/* ---------------------------------------------------- 14 prova */
+{id:'prova', no:'P', title:'Sınav provası', group:'Sınava hazırlık',
+body:`
+<p class="lead">Hocanın tarzında yeni sorular. Konu anlatımı yok; her biri için önce tarifi uygula: hangi bilgiler lazım, hangi tablolarda, yol ne?</p>
+<p class="tip">Takılırsan haritaya bak:</p>
+${MAP_HTML}`,
+tasks:[
+ {q:'Seafood kategorisindeki ürünlerin ortalama fiyatı nedir?', sol:`SELECT AVG(p.Price) FROM Products p LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID WHERE ca.CategoryName = 'Seafood';`, hint:'Beverages sorusunun aynısı.'},
+ {q:'Fransa\'daki (<code>France</code>) müşterilerin verdiği toplam sipariş sayısı.', sol:`SELECT COUNT(o.OrderID) FROM Orders o LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'France';`, hint:'Orders + Customers, COUNT, WHERE Country'},
+ {q:'Her kargo firmasının adı ve taşıdığı sipariş sayısı.', sol:`SELECT sh.ShipperName, COUNT(o.OrderID) FROM Orders o LEFT JOIN Shippers sh ON o.ShipperID = sh.ShipperID GROUP BY sh.ShipperName;`, hint:'Orders + Shippers, GROUP BY ShipperName'},
+ {q:'1996 yılında her çalışanın soyadı (<code>LastName</code>) ve aldığı sipariş sayısı, çoktan aza.', sol:`SELECT em.LastName, COUNT(*) AS n FROM Orders o LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID WHERE o.OrderDate LIKE '%1996%' GROUP BY em.LastName ORDER BY n DESC;`, ordered:[1], hint:"WHERE OrderDate LIKE '%1996%' ... GROUP BY ... ORDER BY ... DESC"},
+ {q:'Kategori adlarına göre satılan toplam adet, çoktan aza.', sol:`SELECT ca.CategoryName, SUM(od.Quantity) AS adet FROM OrderDetails od LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID GROUP BY ca.CategoryName ORDER BY adet DESC;`, ordered:[1], hint:'Yol: OrderDetails → Products → Categories'},
+ {q:'Ortalama ürün fiyatı 30\'dan yüksek olan kategorilerin adları ve ortalamaları.', sol:`SELECT ca.CategoryName, AVG(p.Price) FROM Products p LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID GROUP BY ca.CategoryName HAVING AVG(p.Price) > 30;`, hint:'Grup sonrası koşul: HAVING'},
+ {q:'Brezilya\'dan verilen siparişlerdeki en pahalı ürünün fiyatı.', sol:`SELECT MAX(p.Price) FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID WHERE cu.Country = 'Brazil';`, hint:'USA kazanç sorusu gibi, SUM yerine MAX.'},
+ {q:'En çok harcama yapan (fiyat × adet) 5 müşterinin adı ve harcaması.', sol:`SELECT cu.CustomerName, SUM(p.Price * od.Quantity) AS harcama FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID GROUP BY cu.CustomerName ORDER BY harcama DESC LIMIT 5;`, ordered:[1], hint:'SUM(p.Price * od.Quantity), GROUP BY müşteri, ORDER BY DESC, LIMIT 5'},
+ {q:'Tedarikçisi Almanya\'da olan ürünlerin adları ve kategori adları.', sol:`SELECT p.ProductName, ca.CategoryName FROM Products p LEFT JOIN Suppliers s ON p.SupplierID = s.SupplierID LEFT JOIN Categories ca ON p.CategoryID = ca.CategoryID WHERE s.Country = 'Germany';`, hint:'Products\'a iki tablo bağlanıyor: Suppliers ve Categories. Ülke Suppliers\'ta.'},
+ {q:'Nancy adlı çalışanın sipariş aldığı farklı müşteri sayısı.', sol:`SELECT COUNT(DISTINCT o.CustomerID) FROM Orders o LEFT JOIN Employees em ON o.EmployeeID = em.EmployeeID WHERE em.FirstName = 'Nancy';`, hint:'"Farklı" = COUNT(DISTINCT ...)'},
+ {q:'1996\'nın son üç ayında (Ekim, Kasım, Aralık) verilen sipariş sayısı.', sol:`SELECT COUNT(*) FROM Orders WHERE OrderDate LIKE '%.10.1996' OR OrderDate LIKE '%.11.1996' OR OrderDate LIKE '%.12.1996';`, hint:"Üç LIKE, OR ile. '%10%' gibi yazarsan ayın 10'u, 11'i, 12'si de gelir; noktalarla ara: '%.10.1996'."},
+ {q:'Her müşteri ülkesi için sipariş edilen ürünlerin ortalama fiyatı; sadece ortalaması 25\'ten büyük olanlar, büyükten küçüğe.', sol:`SELECT cu.Country, AVG(p.Price) AS ort FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID GROUP BY cu.Country HAVING AVG(p.Price) > 25 ORDER BY ort DESC;`, ordered:[1], hint:'GROUP BY Country, HAVING AVG(...) > 25, ORDER BY ... DESC'}
+]},
+
+/* ---------------------------------------------------- 15 kopya */
+{id:'kopya', no:'K', title:'Kopya kağıdı', group:'Sınava hazırlık',
+body:`
+<p class="lead">Sınavdan önce son tekrar için her şey tek sayfada.</p>
+<div class="cheat">
+<div><h4>Temel kalıp ve sıra</h4><pre class="code">SELECT sütunlar
+FROM tablo t
+LEFT JOIN tablo2 t2 ON t.x = t2.x
+WHERE koşul
+GROUP BY sütun
+HAVING fonksiyonlu_koşul
+ORDER BY sütun DESC
+LIMIT n;</pre></div>
+<div><h4>WHERE işaretleri</h4><pre class="code">=  &lt;&gt;  &gt;  &lt;  &gt;=  &lt;=
+AND  OR  NOT
+Country IN ('Brazil','USA')
+Price BETWEEN 40 AND 90
+Name LIKE '%ha%'
+x IS NULL / IS NOT NULL</pre><p>Metin tırnaklı, sayı tırnaksız. AND+OR varsa parantez.</p></div>
+<div><h4>LIKE</h4><pre class="code">'C%'      C ile başlar
+'%a'      a ile biter
+'%in%'    içinde in geçer
+'_a%'     2. harf a
+'%1997%'     1997 yılı
+'%.07.%'     Temmuz (her yıl)
+'%.12.1996'  Aralık 1996
+(tarih biçimi: 4.07.1996)</pre></div>
+<div><h4>Fonksiyonlar</h4><pre class="code">COUNT(*)              satır sayısı
+COUNT(DISTINCT col)   farklı değer sayısı
+SUM(col)  AVG(col)
+MIN(col)  MAX(col)
+ROUND(AVG(col), 2)
+Price * Price AS kare</pre></div>
+<div><h4>GROUP BY</h4><p>"her ... için", "... başına", "...'e göre" → GROUP BY. SELECT'te fonksiyon dışındaki her sütun GROUP BY'da olmalı. Fonksiyonlu koşul HAVING'e, diğerleri WHERE'e.</p></div>
+<div><h4>Tablo değiştirme</h4><pre class="code">ALTER TABLE t ADD Bolum TEXT;   -- sütun ekle
+INSERT INTO t VALUES (...);    -- satır ekle
+UPDATE t SET c = v WHERE ...;  -- değiştir
+DELETE FROM t WHERE ...;       -- sil
+CREATE TABLE t (id INTEGER PRIMARY KEY, ad TEXT);
+ALTER TABLE t DROP sutun;       -- sütun sil
+DROP TABLE t;                  -- tabloyu sil</pre></div>
+<div><h4>UNION ve hileler</h4><pre class="code">SELECT a, b FROM t1
+UNION            -- alt alta, tekrarsız
+SELECT c, d FROM t2;   (UNION ALL: tekrarlı)
+
+SELECT name FROM sqlite_master
+  WHERE type = 'table';  -- tablolar
+SELECT * FROM t WHERE 1 = 0;  -- sütunlar</pre></div>
+<div style="grid-column:1/-1"><h4>JOIN haritası</h4>${MAP_HTML}</div>
+<div><h4>Takma adlar (hocanın)</h4><pre class="code">Orders o        OrderDetails od
+Products p      Categories ca
+Customers cu    Employees em
+Shippers sh     Suppliers s</pre><p>Boşlukla yazılır: <code>FROM Orders o</code>.</p></div>
+<div><h4>Sık yapılan hatalar</h4><ul>
+<li><code>Product</code> değil <code>Products</code></li>
+<li><code>SELECT FROM</code>: arada ne istediğini yaz</li>
+<li><code>COUNT(a, b)</code> değil <code>COUNT(a), b</code></li>
+<li>Son sütundan sonra virgül yok</li>
+<li><code>Country = 'Brazil' OR 'USA'</code> değil, sütunu tekrar yaz ya da IN</li>
+<li><code>'%12%'</code> ayın 12'sini de yakalar; ay için <code>'%.12.%'</code></li>
+<li>Access'teki <code>DELETE * FROM</code> burada <code>DELETE FROM</code></li>
+<li>Fiyat tam sayı: <code>21 / 2</code> = 10, küsurat için <code>/ 2.0</code></li>
+<li>Aynı sütun iki tabloda varsa <code>p.CategoryID</code> yaz</li>
+</ul></div>
+</div>`,
+tasks:[]},
+
+/* ---------------------------------------------------- 16 serbest */
+{id:'serbest', no:'S', title:'Serbest alan', group:'Sınava hazırlık', play:true,
+body:`
+<p class="lead">Burası boş bir deneme alanı. Buradaki değişiklikler (ALTER, INSERT...) sen sıfırlayana kadar kalır; mesela önce bir tablo oluşturup sonra ayrı ayrı sorgulayabilirsin.</p>
+<div id="playbox"></div>
+<p><button id="playreset">Veritabanını baştan kur</button></p>
+<h3>Tablolar ve sütunlar</h3>
+<div id="tablolar2"></div>
+${MAP_HTML}`,
+tasks:[]}
+];
+
+/* =========================================================
+   5) ARAYÜZ
+   ========================================================= */
+const ORDER = LESSONS.map(l=>l.id);
+function taskId(l,i){ return l.id+'-'+i; }
+function lessonCount(l){ const n=l.tasks.length; let s=0; l.tasks.forEach((t,i)=>{ if(SOLVED[taskId(l,i)]) s++; }); return [s,n]; }
+
+/* ikonlar (Lucide çizgileri) */
+const PATHS = {
+  play:'<polygon points="7 4 20 12 7 20 7 4"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  checkc:'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+  reset:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  bulb:'<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>',
+  table:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+  eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  book:'<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>',
+  copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
+};
+const ic = (n, cls='') => `<svg class="ic ${n==='play'?'fill ':''}${cls}" viewBox="0 0 24 24" aria-hidden="true">${PATHS[n]}</svg>`;
+
+/* SQL renklendirme */
+const KW = new Set('SELECT FROM WHERE AND OR NOT IN BETWEEN LIKE IS NULL AS ON JOIN LEFT RIGHT INNER OUTER FULL GROUP BY ORDER HAVING LIMIT DISTINCT ASC DESC INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER ADD COLUMN DROP PRIMARY KEY AUTOINCREMENT UNION ALL INTEGER TEXT REAL VARCHAR CHAR DATE LONG INT DEFAULT CASE WHEN THEN ELSE END EXISTS DISTINCTROW'.split(' '));
+const FN = new Set('COUNT SUM AVG MIN MAX ROUND STRFTIME LENGTH UPPER LOWER'.split(' '));
+function highlight(src){
+  const re=/(--[^\n]*|#[^\n]*)|('(?:[^']|'')*'?)|("[^"\n]*"?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_ÇĞİÖŞÜçğıöşü][\wÇĞİÖŞÜçğıöşü]*)|([\s\S])/g;
+  let out='', m;
+  while((m=re.exec(src))){
+    const [tok,com,str,dq,num,word] = m;
+    if(com) out+=`<span class="t-c">${esc(com)}</span>`;
+    else if(str) out+=`<span class="t-s">${esc(str)}</span>`;
+    else if(dq) out+=`<span class="t-s">${esc(dq)}</span>`;
+    else if(num) out+=`<span class="t-n">${num}</span>`;
+    else if(word){ const u=word.toUpperCase(); out += KW.has(u)?`<span class="t-k">${esc(word)}</span>` : FN.has(u)?`<span class="t-f">${esc(word)}</span>` : esc(word); }
+    else out+=esc(tok);
+  }
+  return out;
+}
+
+function updateOverall(){
+  let s=0,n=0; LESSONS.forEach(l=>{ const [a,b]=lessonCount(l); s+=a; n+=b; });
+  document.getElementById('ovS').textContent=s; document.getElementById('ovN').textContent=n;
+  const p = n? Math.round(s/n*100):0;
+  document.getElementById('ovBar').style.width=p+'%';
+  document.getElementById('ovBarWrap').setAttribute('aria-valuenow', p);
+}
+
+function buildNav(){
+  const side=document.getElementById('side'), sel=document.getElementById('navsel');
+  const cur = currentId();
+  let h='', g=null, o='';
+  for(const l of LESSONS){
+    if(l.group!==g){ g=l.group; h+=`<div class="grp">${esc(g)}</div>`; o+= (o?'</optgroup>':'')+`<optgroup label="${esc(g)}">`; }
+    const [s,n]=lessonCount(l), done = n && s===n;
+    h += `<a href="#${l.id}" class="nv${l.id===cur?' on':''}${done?' done':''}"${l.id===cur?' aria-current="page"':''}><span class="nv-no">${done?ic('check'):esc(l.no)}</span><span class="nv-t">${esc(l.title)}</span><span class="nv-c">${n?`${s}/${n}`:''}</span></a>`;
+    o += `<option value="${l.id}" ${l.id===cur?'selected':''}>${esc(l.no)} · ${esc(l.title)}${n?` (${s}/${n})`:''}</option>`;
+  }
+  side.innerHTML=h; sel.innerHTML=o+'</optgroup>';
+  updateOverall();
+}
+document.getElementById('navsel').addEventListener('change', e=>{ location.hash = e.target.value; });
+
+function currentId(){ const h=location.hash.slice(1); return ORDER.includes(h)?h:ORDER[0]; }
+
+let edSeq=0;
+function autosize(ta){ const lines=ta.value.split('\n').length; ta.rows=Math.max(3, Math.min(lines+1, 26)); }
+
+/* Kod kutusu. opts: {code, id, task, play} */
+function makeEditor(opts){
+  const wrap=document.createElement('div'); wrap.className='ed';
+  const id = opts.id || ('ed-'+(++edSeq));
+  const t = opts.task;
+  const draftKey = t ? 'draft.'+t.id : null;
+  const initial = draftKey ? store.get(draftKey, opts.code||'') : (opts.code||'');
+  wrap.innerHTML = `<div class="ed-head"><span class="lbl">SQL</span><span>${t?'senin cevabın':opts.play?'serbest alan · değişiklikler kalır':'örnek · değiştirip dene'}</span><span class="kh"><kbd>Ctrl</kbd>+<kbd>Enter</kbd>${t?' çalıştır · +<kbd>Shift</kbd> kontrol':' çalıştır'}</span></div>
+   <div class="cw"><pre class="hl" aria-hidden="true"></pre><textarea id="${id}" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="SQL kodu" placeholder="${t?'-- sorgunu buraya yaz':''}"></textarea></div>
+   <div class="bar">
+     ${t ? `<button class="pri" data-a="check">${ic('checkc')}Kontrol et</button><button data-a="run">${ic('play')}Çalıştır</button>`
+         : `<button class="pri" data-a="run">${ic('play')}Çalıştır</button>`}
+     ${t&&t.hint?`<button class="ghost" data-a="hint">${ic('bulb')}İpucu</button>`:''}
+     ${t?`<button class="ghost" data-a="exp">${ic('table')}Beklenen sonuç</button><button class="ghost" data-a="sol">${ic('eye')}Çözüm</button>`:''}
+     <span class="sp"></span>
+     <button class="ghost" data-a="reset" title="${t?'Kutuyu temizle':'İlk hâline döndür'}">${ic('reset')}${t?'Temizle':'Sıfırla'}</button>
+   </div>
+   <div class="out" aria-live="polite"></div>`;
+  const ta=wrap.querySelector('textarea'), hl=wrap.querySelector('pre.hl'), out=wrap.querySelector('.out');
+  const paint = ()=>{ hl.innerHTML = highlight(ta.value) + (ta.value.endsWith('\n')||!ta.value?' ':''); hl.scrollLeft = ta.scrollLeft; };
+  ta.value=initial; autosize(ta); paint();
+  ta.addEventListener('input', ()=>{ autosize(ta); paint(); if(draftKey) store.set(draftKey, ta.value); });
+  ta.addEventListener('scroll', ()=>{ hl.scrollLeft = ta.scrollLeft; });
+  ta.addEventListener('keydown', e=>{
+    if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); t&&e.shiftKey ? doCheck() : doRun(); }
+  });
+  async function doRun(){
+    out.innerHTML='<div class="msg info">Çalışıyor…</div>';
+    await READY;
+    const code=ta.value; if(!code.trim()){ out.innerHTML='<div class="msg warn"><b>Kutu boş.</b> Önce bir sorgu yaz.</div>'; return; }
+    let db = opts.play ? PLAY : fresh();
+    const r = run(db, code); if(!opts.play) db.close();
+    out.innerHTML = resultHtml(r);
+  }
+  async function doCheck(){
+    out.innerHTML='<div class="msg info">Kontrol ediliyor…</div>';
+    await READY;
+    const code=ta.value; if(!code.trim()){ out.innerHTML='<div class="msg warn"><b>Kutu boş.</b> Önce sorgunu yaz.</div>'; return; }
+    const exp=expected(t);
+    if(!exp){ out.innerHTML='<div class="msg err">Bu sorunun kontrolü kurulamadı.</div>'; return; }
+    const db=fresh(); const r=run(db, code); let uset=null, extra='';
+    if(r.error){ db.close(); out.innerHTML = errorHtml(r.error) + '<div class="msg warn">Sorgu hata verdiği için kontrol edemedim. Hatayı düzeltip tekrar dene.</div>'; return; }
+    if(t.verify){
+      const v=run(db, t.verify);
+      if(v.error){ db.close(); out.innerHTML=`<div class="msg warn"><b>Değişiklik bulunamadı.</b><p>Kontrol için <code>${esc(t.verify)}</code> çalıştırdım ama hata verdi: <code>${esc(v.error)}</code>. ${explainError(v.error)}</p></div>`; return; }
+      uset=v.sets[v.sets.length-1]; extra = tableHtml(uset, 'Kontrol sorgusu: '+t.verify);
+    } else { uset=r.sets[r.sets.length-1]; if(uset) extra=tableHtml(uset,'Senin sonucun'); }
+    db.close();
+    const c=compare(uset, exp, t.ordered);
+    out.innerHTML = c.html + extra;
+    if(c.ok){ markSolved(t.id); wrap.closest('.task')?.classList.add('solved'); refreshHead(); }
+  }
+  wrap.addEventListener('click', async e=>{
+    const a=e.target.closest('button')?.dataset.a; if(!a) return;
+    if(a==='run') doRun();
+    else if(a==='check') doCheck();
+    else if(a==='reset'){ ta.value = t ? '' : (opts.code||''); autosize(ta); paint(); if(draftKey) store.set(draftKey, ta.value); out.innerHTML=''; ta.focus(); }
+    else if(a==='hint') out.innerHTML = `<div class="msg info"><b>İpucu:</b> ${esc(t.hint)}</div>`;
+    else if(a==='sol') out.innerHTML = `<div class="msg info"><b>Örnek çözüm.</b> Aynı sonucu veren başka yazımlar da doğru sayılır.<pre class="code">${highlight(pretty(t.sol))}</pre></div>`;
+    else if(a==='exp'){ await READY; const s=expected(t); out.innerHTML = s ? tableHtml(s, t.verify?'Beklenen (kontrol sorgusu: '+t.verify+')':'Beklenen sonuç') : ''; }
+  });
+  return wrap;
+}
+
+/* çözümleri okunur yap: anahtar kelimelerden önce satır başı */
+function pretty(sql){
+  if(sql.includes('\n')) return sql;
+  return sql.replace(/\s+(FROM|LEFT JOIN|INNER JOIN|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT|UNION ALL|UNION)\s/g, '\n$1 ').replace(/;\s+(?=\S)/g, ';\n');
+}
+
+function makeTask(l, t, i){
+  t.id = taskId(l,i);
+  const box=document.createElement('div'); box.className='task'+(SOLVED[t.id]?' solved':'');
+  const num = i+1;
+  const done = `<span class="chip done">${ic('check')}Çözüldü</span>`;
+  if(t.mcq){
+    box.innerHTML = `<div class="q"><span class="no">${num}</span><div class="txt"><div class="chips"><span class="chip">Çoktan seçmeli</span>${t.src?`<span class="chip src">${esc(t.src)}</span>`:''}${done}</div>${t.q}</div></div><div class="mcq">${t.options.map((o,k)=>`<button data-k="${k}">${String.fromCharCode(65+k)})&nbsp; ${esc(o)}</button>`).join('')}<div class="why" aria-live="polite"></div></div>`;
+    box.querySelector('.mcq').addEventListener('click', e=>{
+      const b=e.target.closest('button'); if(!b) return; const k=+b.dataset.k;
+      box.querySelectorAll('.mcq button').forEach(x=>x.classList.remove('right','wrong'));
+      const why=box.querySelector('.why');
+      if(k===t.answer){ b.classList.add('right'); why.innerHTML=`<div class="msg ok"><b>Doğru.</b> ${t.explain}</div>`; markSolved(t.id); box.classList.add('solved'); refreshHead(); }
+      else { b.classList.add('wrong'); why.innerHTML=`<div class="msg warn"><b>Bu değil.</b> Bir daha düşün.</div>`; }
+    });
+    return box;
+  }
+  let qhtml;
+  if(l.teacher){
+    const rel = LESSONS.find(x=>x.id===t.lesson);
+    qhtml = `<div class="chips"><span class="chip src">${esc(t.date)}</span><a class="chip" href="#${t.lesson}">${ic('book')}${esc(rel.no)}. ${esc(rel.title)}</a>${done}</div><span class="orig">${esc(t.q)}</span>`;
+  } else {
+    qhtml = `<div class="chips">${t.src?`<span class="chip src">${esc(t.src)}</span>`:''}${done}</div>${t.q}${t.verify?`<span class="verify">Kontrol ederken senin kodundan sonra <code>${esc(t.verify)}</code> çalıştırılır.</span>`:''}`;
+  }
+  box.innerHTML = `<div class="q"><span class="no">${num}</span><div class="txt">${qhtml}</div></div>`;
+  box.appendChild(makeEditor({task:t, id:'ed-'+t.id}));
+  if(l.teacher){
+    const rv=document.createElement('div'); rv.className='reveal';
+    rv.innerHTML = `<button class="ghost" aria-expanded="false">${ic('eye')}<span>Hocanın çözümü ve notlar</span></button><div hidden>
+      <p><b>Notta yazan:</b></p>${t.teacher?`<pre class="code">${highlight(t.teacher)}</pre>`:'<p><i>(boş)</i></p>'}
+      <div class="aside"><b>Not:</b> ${t.note}</div>
+      <p><b>Düzeltilmiş hâli:</b></p><pre class="code">${highlight(pretty(t.sol))}</pre>
+      ${t.teacher&&!t.verify?`<button data-try>${ic('copy')}Hocanın yazdığını kutuya kopyala</button> <span class="src">hatayı kendin gör</span>`:''}
+    </div>`;
+    const btn=rv.querySelector('button'), body=rv.querySelector('div');
+    btn.addEventListener('click', ()=>{ body.hidden=!body.hidden; btn.setAttribute('aria-expanded', String(!body.hidden)); btn.querySelector('span').textContent = body.hidden?'Hocanın çözümü ve notlar':'Gizle'; });
+    rv.querySelector('[data-try]')?.addEventListener('click', ()=>{
+      const ta=box.querySelector('textarea'); ta.value=t.teacher.replace(/^%%sql\n/,''); ta.dispatchEvent(new Event('input')); ta.focus();
+    });
+    box.appendChild(rv);
+  }
+  return box;
+}
+
+/* ders başlığındaki ilerlemeyi yeniden çiz */
+function refreshHead(){
+  const l=LESSONS.find(x=>x.id===currentId()); const [s,n]=lessonCount(l);
+  const p=document.querySelector('.lprog'); if(!p) return;
+  p.querySelector('i').style.width=(n?Math.round(s/n*100):0)+'%'; p.querySelector('span').textContent=`${s}/${n} çözüldü`;
+}
+
+function renderLesson(){
+  const id=currentId(), l=LESSONS.find(x=>x.id===id), idx=ORDER.indexOf(id);
+  const el=document.getElementById('lesson');
+  const [s,n]=lessonCount(l);
+  const eyebrow = /^\d+$/.test(l.no) ? `Konu ${l.no} · ${l.group}` : l.group;
+  el.innerHTML = `<div class="lhead"><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(l.title)}</h2>${n?`<div class="lprog"><div class="bar-p"><i style="width:${Math.round(s/n*100)}%"></i></div><span>${s}/${n} çözüldü</span></div>`:''}</div><div class="body">${l.body}</div>`;
+  let k=0;
+  el.querySelectorAll('pre.ex').forEach(pre=>{
+    const code=pre.textContent.replace(/^\n+/,'').replace(/\s+$/,'');
+    pre.replaceWith(makeEditor({code, id:`ex-${l.id}-${++k}`}));
+  });
+  el.querySelectorAll('.body pre.code').forEach(p=>{ p.innerHTML = highlight(p.textContent); });
+  if(l.play){
+    document.getElementById('playbox').appendChild(makeEditor({code:'SELECT * FROM Orders LIMIT 10;', id:'play-ed', play:true}));
+    const pr=document.getElementById('playreset'); pr.innerHTML = ic('reset')+'Veritabanını baştan kur';
+    pr.addEventListener('click', async ()=>{ await READY; PLAY.close(); PLAY=new SQL.Database(BASE); document.querySelector('#playbox .out').innerHTML='<div class="msg ok"><b>Tamam.</b> Veritabanı ilk hâline döndü.</div>'; });
+  }
+  if(l.tasks.length){
+    const sec=document.createElement('section'); sec.className='tasks';
+    sec.innerHTML = `<div class="tasks-head"><h3>${l.teacher||l.id==='prova'?'Sorular':'Pratik'}</h3><span class="src">${l.tasks.length} soru</span></div><p class="lead" style="margin-top:10px">Sorguyu yaz, <b>Kontrol et</b>'e bas. Sütun adlarının ya da sütun sırasının farklı olması sorun değil; önemli olan gelen değerler.</p>`;
+    l.tasks.forEach((t,i)=>sec.appendChild(makeTask(l,t,i)));
+    el.appendChild(sec);
+  }
+  const prev=LESSONS[idx-1], next=LESSONS[idx+1];
+  const pg=document.createElement('nav'); pg.className='pager'; pg.setAttribute('aria-label','Önceki ve sonraki konu');
+  pg.innerHTML = `${prev?`<a href="#${prev.id}"><small>← Önceki</small>${esc(prev.title)}</a>`:''}${next?`<a class="nx" href="#${next.id}"><small>Sonraki →</small>${esc(next.title)}</a>`:''}`;
+  el.appendChild(pg);
+  if(SQL) fillDynamic();
+}
+
+/* veritabanı gerektiren parçalar */
+function fillDynamic(){
+  const tb = document.getElementById('tablolar') || document.getElementById('tablolar2');
+  if(tb && !tb.dataset.done){
+    const db=fresh(); let h='<div class="tw"><table class="ref"><thead><tr><th>Tablo</th><th>Ne tutar</th><th>Sütunlar</th></tr></thead><tbody>';
+    for(const [name,[desc,cols]] of Object.entries(TABLE_INFO)){
+      const cnt=db.exec(`SELECT COUNT(*) FROM ${name}`)[0].values[0][0];
+      h += `<tr><td><code>${name}</code><br><span class="src">${cnt} satır</span></td><td>${esc(desc)}</td><td>${Object.entries(cols).map(([c,d])=>`<code>${c}</code> ${esc(d)}`).join('<br>')}</td></tr>`;
+    }
+    db.close(); tb.innerHTML = h+'</tbody></table></div>'; tb.dataset.done='1';
+  }
+  const gv=document.getElementById('gviz');
+  if(gv && !gv.dataset.done){
+    const db=fresh(); const r=db.exec(`SELECT Country, CustomerName FROM Customers WHERE Country IN ('Germany','Brazil','Canada') ORDER BY Country, CustomerName`)[0].values; db.close();
+    const g={}; r.forEach(([c,n])=>(g[c]=g[c]||[]).push(n));
+    gv.innerHTML = Object.entries(g).map(([c,ns])=>`<div class="box"><b>${esc(c)}</b>${ns.map(n=>`<span>${esc(n)}</span>`).join('')}<div class="sum">COUNT = ${ns.length}</div></div>`).join('')
+      + `<p class="src" style="flex-basis:100%;margin:0">Diğer ülkeler de aynı şekilde kendi kutularında. Sonuçta her kutu tek satır olur: <code>Germany | ${g.Germany.length}</code>, <code>Brazil | ${g.Brazil.length}</code>...</p>`;
+    gv.dataset.done='1';
+  }
+}
+
+window.addEventListener('hashchange', ()=>{ buildNav(); renderLesson(); window.scrollTo(0,0); });
+buildNav(); renderLesson();
+</script>
+</body>
+</html>
