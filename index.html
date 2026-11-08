@@ -243,6 +243,32 @@ button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:tra
 .cheat pre.code{font-size:.78rem}
 .cheat ul{padding-left:1.1em;font-size:.92rem}
 #playreset{margin-top:4px}
+
+/* ---- Tablolar paneli (her sayfada, sağ altta) ---- */
+.fab{position:fixed;right:max(16px, env(safe-area-inset-right, 0px));bottom:max(16px, env(safe-area-inset-bottom, 0px));z-index:30;min-height:46px;border-radius:99px;padding:0 20px;box-shadow:0 6px 20px -4px rgba(0,0,0,.35);font-weight:600}
+#schema{position:fixed;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(max(16px, env(safe-area-inset-bottom, 0px)) + 58px);z-index:30;width:min(400px, calc(100vw - 32px));max-height:min(74vh, 680px);overflow:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);box-shadow:0 14px 44px -10px rgba(0,0,0,.4);overscroll-behavior:contain}
+.sc-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sc-head b{font-family:var(--font-display);font-size:1.05rem;flex:1}
+.sc-sec{padding:4px 16px 8px;border-bottom:1px solid var(--line)}
+.sc-sec:last-child{border-bottom:0}
+.sc-sec summary{cursor:pointer;font-weight:600;font-size:.9rem;padding:10px 0;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px}
+.sc-sec summary::-webkit-details-marker{display:none}
+.sc-sec summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+.sc-sec[open] summary::before{transform:rotate(45deg)}
+.sc-note{font-size:.8rem;color:var(--muted);margin:0 0 8px;line-height:1.5}
+table.lk{border-collapse:collapse;width:100%;font-size:.82rem;margin-bottom:6px}
+table.lk td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.lk tr:last-child td{border-bottom:0}
+table.lk td:first-child{color:var(--muted);padding-right:10px;width:42%}
+.sc-tbl{margin:0 0 12px}
+.sc-name{font-family:var(--font-code);font-weight:600;font-size:.88rem}
+.sc-name small{font-family:var(--font-body);font-weight:400;color:var(--muted);margin-left:6px}
+.sc-cols{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.col{font-family:var(--font-code);font-size:.72rem;padding:1px 7px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);white-space:nowrap}
+.col.k{color:var(--accent);border-color:color-mix(in srgb, var(--accent) 45%, transparent);background:var(--accent-weak)}
+.sc-join{font-family:var(--font-code);font-size:.74rem;line-height:1.9;margin:0 0 6px;overflow-x:auto;white-space:nowrap}
+.sc-join i{font-style:normal;color:var(--muted)}
+@media (max-width:560px){#schema{max-height:62vh}.fab span{display:none}.fab{padding:0 15px}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -271,6 +297,9 @@ button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:tra
     </main>
   </div>
 </div>
+
+<button class="pri fab" id="schemaBtn" aria-expanded="false" aria-controls="schema" aria-label="Tablolar ve sütunlar panelini aç"></button>
+<aside id="schema" hidden aria-label="Tablolar ve sütunlar" lang="tr"></aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-asm.js"></script>
 <script>
@@ -2389,7 +2418,7 @@ function makeEditor(opts){
      ${t ? `<button class="pri" data-a="check">${ic('checkc')}Kontrol et</button><button data-a="run">${ic('play')}Çalıştır</button>`
          : `<button class="pri" data-a="run">${ic('play')}Çalıştır</button>`}
      ${t&&t.hint?`<button class="ghost" data-a="hint">${ic('bulb')}İpucu</button>`:''}
-     ${t?`<button class="ghost" data-a="exp">${ic('table')}Beklenen sonuç</button><button class="ghost" data-a="sol">${ic('eye')}Çözüm</button>`:''}
+     ${t?`<button class="ghost" data-a="exp">${ic('table')}Beklenen sonuç</button><button class="ghost" data-a="sol">${ic('eye')}Çözüm</button><button class="ghost" data-a="schema">${ic('book')}Tablolar</button>`:''}
      <span class="sp"></span>
      <button class="ghost" data-a="reset" title="${t?'Kutuyu temizle':'İlk hâline döndür'}">${ic('reset')}${t?'Temizle':'Sıfırla'}</button>
    </div>
@@ -2433,6 +2462,7 @@ function makeEditor(opts){
     if(a==='run') doRun();
     else if(a==='check') doCheck();
     else if(a==='reset'){ ta.value = t ? '' : (opts.code||''); autosize(ta); paint(); if(draftKey) store.set(draftKey, ta.value); out.innerHTML=''; ta.focus(); }
+    else if(a==='schema') toggleSchema(true);
     else if(a==='hint') out.innerHTML = `<div class="msg info"><b>İpucu:</b> ${esc(t.hint)}</div>`;
     else if(a==='sol') out.innerHTML = `<div class="msg info"><b>Örnek çözüm.</b> Aynı sonucu veren başka yazımlar da doğru sayılır.<pre class="code">${highlight(pretty(t.sol))}</pre></div>`;
     else if(a==='exp'){ await READY; const s=expected(t); out.innerHTML = s ? tableHtml(s, t.verify?'Beklenen (kontrol sorgusu: '+t.verify+')':'Beklenen sonuç') : ''; }
@@ -2515,7 +2545,7 @@ function renderLesson(){
   }
   if(l.tasks.length){
     const sec=document.createElement('section'); sec.className='tasks';
-    sec.innerHTML = `<div class="tasks-head"><h3>${l.teacher||l.id==='prova'?'Sorular':'Pratik'}</h3><span class="src">${l.tasks.length} soru</span></div><p class="lead" style="margin-top:10px">Sorguyu yaz, <b>Kontrol et</b>'e bas. Sütun adlarının ya da sütun sırasının farklı olması sorun değil; önemli olan gelen değerler.</p>`;
+    sec.innerHTML = `<div class="tasks-head"><h3>${l.teacher||l.id==='prova'?'Sorular':'Pratik'}</h3><span class="src">${l.tasks.length} soru</span></div><p class="lead" style="margin-top:10px">Hangi bilgi hangi tabloda diye takılırsan sağ alttaki <b>Tablolar</b> düğmesine bas, panel açık kalır. Sorguyu yaz, <b>Kontrol et</b>'e bas. Sütun adlarının ya da sütun sırasının farklı olması sorun değil; önemli olan gelen değerler.</p>`;
     l.tasks.forEach((t,i)=>sec.appendChild(makeTask(l,t,i)));
     el.appendChild(sec);
   }
@@ -2546,6 +2576,70 @@ function fillDynamic(){
     gv.dataset.done='1';
   }
 }
+
+/* ---- Tablolar paneli ---- */
+const LOOKUP = [
+  ['müşteri adı','Customers.CustomerName'],
+  ['müşterinin ülkesi, şehri','Customers.Country, City'],
+  ['sipariş tarihi, yıl, ay',"Orders.OrderDate  ('4.07.1996')"],
+  ['çalışan adı','Employees.FirstName'],
+  ['ürün adı','Products.ProductName'],
+  ['fiyat, kazanç, satış','Products.Price  (tek adedin fiyatı)'],
+  ['adet, miktar','OrderDetails.Quantity'],
+  ['kategori adı','Categories.CategoryName'],
+  ['tedarikçi adı, ülkesi','Suppliers.SupplierName, Country'],
+  ['kargo firması','Shippers.ShipperName']
+];
+const SCHEMA = [
+  ['Customers','müşteriler',['CustomerID','CustomerName','ContactName','Address','City','PostalCode','Country']],
+  ['Orders','siparişler',['OrderID','CustomerID','EmployeeID','OrderDate','ShipperID']],
+  ['OrderDetails','sipariş satırları',['OrderDetailID','OrderID','ProductID','Quantity']],
+  ['Products','ürünler',['ProductID','ProductName','SupplierID','CategoryID','Unit','Price']],
+  ['Categories','kategoriler',['CategoryID','CategoryName','Description']],
+  ['Employees','çalışanlar',['EmployeeID','LastName','FirstName','BirthDate','Photo','Notes']],
+  ['Shippers','kargo firmaları',['ShipperID','ShipperName','Phone']],
+  ['Suppliers','tedarikçiler',['SupplierID','SupplierName','ContactName','Address','City','PostalCode','Country','Phone']]
+];
+const SCHEMA_ACCESS = [
+  ['musteri','',['no','adsoyad','memleket','tel','bakiye']],
+  ['siparis','',['no','siparisno','ürün','kargoteslim','tarih']],
+  ['Tablo1','',['no','adsoyad','memleket']],
+  ['Tablo2','',['Kimlik','adsoyad','toplam','odenmis','kalan','cinsiyet']],
+  ['silin','',['no','adsoyad','memleket']]
+];
+const JOINS = [
+  ['Orders','CustomerID','Customers'],['Orders','EmployeeID','Employees'],['Orders','ShipperID','Shippers'],
+  ['Orders','OrderID','OrderDetails'],['OrderDetails','ProductID','Products'],
+  ['Products','CategoryID','Categories'],['Products','SupplierID','Suppliers']
+];
+function tblHtml(list, keys){
+  return list.map(([n,d,cols])=>`<div class="sc-tbl"><div class="sc-name">${n}${d?`<small>${d}</small>`:''}</div><div class="sc-cols">${cols.map(c=>`<span class="col${keys&&/ID$/.test(c)?' k':''}">${c}</span>`).join('')}</div></div>`).join('');
+}
+(function(){
+  const panel=document.getElementById('schema'), fab=document.getElementById('schemaBtn');
+  panel.innerHTML = `<div class="sc-head"><b>Tablolar ve sütunlar</b><button class="ghost" id="schemaX" aria-label="Paneli kapat">Kapat</button></div>
+  <details class="sc-sec" open><summary>Hangi bilgi nerede?</summary>
+    <p class="sc-note">Soruda geçen kelimeyi bul, sağdaki tabloyu ve sütunu al.</p>
+    <table class="lk"><tbody>${LOOKUP.map(([a,b])=>`<tr><td>${a}</td><td><code>${b}</code></td></tr>`).join('')}</tbody></table></details>
+  <details class="sc-sec" open><summary>Tabloları nasıl bağlarım?</summary>
+    <p class="sc-note">İki tabloyu bu ortak sütunla bağla. Zincir: Customers → Orders → OrderDetails → Products → Categories.</p>
+    <div class="sc-join">${JOINS.map(([a,c,b])=>`${a}.${c} <i>=</i> ${b}.${c}`).join('<br>')}</div></details>
+  <details class="sc-sec"><summary>Bütün tablolar ve sütunları</summary>
+    <p class="sc-note">Turuncu sütunlar numara sütunları, JOIN'de bunlar kullanılır.</p>${tblHtml(SCHEMA,true)}</details>
+  <details class="sc-sec"><summary>Access dersi tabloları</summary>
+    <p class="sc-note">13. konuda kullanılanlar.</p>${tblHtml(SCHEMA_ACCESS,false)}</details>`;
+  fab.innerHTML = ic('table')+'<span>Tablolar</span>';
+  window.toggleSchema = function(force){
+    const open = force===undefined ? panel.hidden : force;
+    panel.hidden = !open; fab.setAttribute('aria-expanded', String(open));
+    fab.setAttribute('aria-label', open?'Tablolar panelini kapat':'Tablolar ve sütunlar panelini aç');
+    store.set('schemaOpen', open);
+  };
+  fab.addEventListener('click', ()=>toggleSchema());
+  document.getElementById('schemaX').addEventListener('click', ()=>toggleSchema(false));
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !panel.hidden) toggleSchema(false); });
+  toggleSchema(!!store.get('schemaOpen', false));
+})();
 
 window.addEventListener('hashchange', ()=>{ buildNav(); renderLesson(); window.scrollTo(0,0); });
 buildNav(); renderLesson();
