@@ -214,6 +214,17 @@ button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:tra
 .mcq button.wrong{background:var(--err-weak);border-color:var(--err);color:var(--ink)}
 .mcq .why{font-size:.95rem}
 .mcq .why:empty{display:none}
+.mcq button.sel{border-color:var(--primary);background:var(--primary-weak);color:var(--ink);font-weight:600}
+.mcq button:disabled{cursor:default}
+.mcq button:disabled:active{transform:none}
+.task.wrong{border-color:color-mix(in srgb, var(--err) 45%, var(--line))}
+.task.wrong .q .no{background:var(--err);color:var(--surface)}
+.quiz-top{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 16px;padding:12px 16px;margin:8px 0 4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow)}
+.quiz-top .bar-p{flex:1 1 160px;max-width:300px}
+.quiz-end{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:22px 0}
+.quiz-end button.pri, .score button.pri{min-height:44px;padding:0 20px}
+.score{margin:8px 0 16px}
+.score p{margin-top:10px}
 @media (max-width:560px){.mcq{padding-left:18px}}
 .reveal{padding:12px 18px 16px;border-top:1px dashed var(--line-strong);font-size:.95rem;background:var(--surface)}
 .reveal > div{margin-top:8px}
@@ -2189,6 +2200,7 @@ tasks:[
 {id:'teori', no:'14', title:'Teori: kavramlar ve açılımlar', group:'Teori ve ileri SQL',
 body:`
 <p class="lead">Hocanın ders planındaki (vertabprogders) teorik kısım. Hocanın son derste söyledikleri: <b>kelime açılımları sorulabilir</b>, <b>DDL / DML / DCL açılımları kesin soru</b>.</p>
+<p class="tip">Bu konunun sonunda 30 soruluk test var (bütün açılımlar dahil). Konuyu bitirince <a href="#deneme">Teori denemesi</a>'ne geç: her açışta karışık 20 soru, sonunda puan.</p>
 <h3>Açılım kartları</h3>
 <p>Kısaltmaya bak, açılımını kafandan söyle, sonra karta tıklayıp kontrol et. Sınavdan önce birkaç tur yap.</p>
 <div class="flashes">
@@ -2297,7 +2309,20 @@ tasks:[
  {mcq:true, q:'ACID\'deki <b>A</b> (Atomicity) ne demektir?', options:['İşlem ya tamamen yapılır ya hiç yapılmaz','Veriler şifrelenir','Aynı anda tek kullanıcı çalışır','Veri her zaman yedeklenir'], answer:0, explain:'Atomicity = bölünmezlik. Yarım kalan işlem ROLLBACK ile tamamen geri alınır.'},
  {mcq:true, q:'MongoDB hangi tür NoSQL veritabanıdır?', options:['Anahtar-değer','Belge (Document)','Grafik','İlişkisel'], answer:1, explain:'MongoDB veriyi JSON benzeri belgeler (BSON) olarak tutar: belge tabanlı.'},
  {mcq:true, q:'SQL enjeksiyonuna karşı en etkili önlem hangisidir?', options:['Daha çok indeks eklemek','Parametreli sorgular (prepared statements) kullanmak','Tabloları normalize etmek','SELECT * kullanmamak'], answer:1, explain:'Parametreli sorguda kullanıcının yazdığı şey her zaman veri olarak işlenir, SQL kodu olarak çalışmaz.'},
- {mcq:true, q:'İndeksin dezavantajı nedir?', options:['Aramayı yavaşlatır','Ekleme, güncelleme ve silme işlemlerini yavaşlatır, yer kaplar','Tabloyu siler','JOIN yapılmasını engeller'], answer:1, explain:'Her veri değişikliğinde indeks de güncellenmek zorunda. Okuma hızlanır, yazma yavaşlar.'}
+ {mcq:true, q:'İndeksin dezavantajı nedir?', options:['Aramayı yavaşlatır','Ekleme, güncelleme ve silme işlemlerini yavaşlatır, yer kaplar','Tabloyu siler','JOIN yapılmasını engeller'], answer:1, explain:'Her veri değişikliğinde indeks de güncellenmek zorunda. Okuma hızlanır, yazma yavaşlar.'},
+ {mcq:true, src:'Açılım', q:'<b>SQL</b>\'in açılımı nedir?', options:['Simple Question Language','Structured Query Language','Standard Query List','System Quality Language'], answer:1, explain:'SQL = Structured Query Language, Yapılandırılmış Sorgu Dili.'},
+ {mcq:true, src:'Açılım', q:'<b>DBMS</b>\'in açılımı nedir?', options:['Data Backup Management Software','Database Modeling System','Database Management System','Digital Base Memory Storage'], answer:2, explain:'DBMS = Database Management System, Veritabanı Yönetim Sistemi.'},
+ {mcq:true, src:'Açılım', q:'<b>RDBMS</b>\'teki <b>R</b> neyi ifade eder?', options:['Remote (uzak)','Relational (ilişkisel)','Random (rastgele)','Recovery (kurtarma)'], answer:1, explain:'RDBMS = Relational Database Management System, İlişkisel Veritabanı Yönetim Sistemi. MySQL, PostgreSQL, SQLite bunlardandır.'},
+ {mcq:true, src:'Açılım', q:'<b>TCL</b>\'nin açılımı ve komutları hangisidir?', options:['Table Create Language · CREATE TABLE','Transaction Control Language · BEGIN, COMMIT, ROLLBACK','Text Command Language · UPPER, LOWER','Table Control Language · GRANT, REVOKE'], answer:1, explain:'TCL = Transaction Control Language, İşlem Kontrol Dili. GRANT/REVOKE ise DCL.'},
+ {mcq:true, src:'Açılım', q:'<b>"Veri Tanımlama Dili"</b> hangi kısaltmanın Türkçesidir?', options:['DML','DCL','DDL','TCL'], answer:2, explain:'Data Definition Language = Veri Tanımlama Dili = DDL. Tablonun yapısını tanımlar: CREATE, ALTER, DROP.'},
+ {mcq:true, src:'Açılım', q:'<b>"Veri İşleme Dili"</b> hangi kısaltmanın Türkçesidir?', options:['DML','DDL','DBMS','DCL'], answer:0, explain:'Data Manipulation Language = Veri İşleme Dili = DML. Veriyi ekler, değiştirir, siler, okur.'},
+ {mcq:true, src:'Açılım', q:'<b>PK</b> ve <b>FK</b> neyin kısaltmasıdır?', options:['Primary Key ve Foreign Key','Private Key ve File Key','Primary Kind ve First Key','Public Key ve Field Key'], answer:0, explain:'PK = Primary Key (Birincil Anahtar), FK = Foreign Key (Yabancı Anahtar).'},
+ {mcq:true, src:'Açılım', q:'<b>CRUD</b> hangi dört işlemi ifade eder?', options:['Copy, Read, Undo, Delete','Create, Read, Update, Delete','Create, Run, Use, Drop','Connect, Read, Upload, Download'], answer:1, explain:'CRUD = Create (INSERT), Read (SELECT), Update (UPDATE), Delete (DELETE).'},
+ {mcq:true, src:'Açılım', q:'<b>ACID</b> harfleri neyi ifade eder?', options:['Access, Control, Index, Data','Atomicity, Consistency, Isolation, Durability','Add, Change, Insert, Delete','Automatic, Central, Indexed, Distributed'], answer:1, explain:'Atomicity (bölünmezlik), Consistency (tutarlılık), Isolation (yalıtım), Durability (kalıcılık).'},
+ {mcq:true, src:'Açılım', q:'<b>NoSQL</b>\'in açılımı nedir?', options:['No SQL at all (SQL yasak)','New Object SQL','Not Only SQL','Network of SQL'], answer:2, explain:'NoSQL = Not Only SQL, yani "sadece SQL değil": ilişkisel olmayan veritabanları.'},
+ {mcq:true, src:'Açılım', q:'<code>ORDER BY</code>\'daki <b>DESC</b> ve <b>ASC</b> neyin kısaltmasıdır?', options:['Describe / Assign','Descending (azalan) / Ascending (artan)','Delete / Add','Distinct / All'], answer:1, explain:'DESC = Descending, büyükten küçüğe. ASC = Ascending, küçükten büyüğe (varsayılan).'},
+ {mcq:true, src:'Açılım', q:'<b>VARCHAR</b> veri tipi ne demektir?', options:['Değişken uzunluklu metin (Variable Character)','Ondalıklı sayı','Tarih','Sabit uzunluklu metin'], answer:0, explain:'VARCHAR(50) en fazla 50 karakterlik değişken uzunluklu metin. Sabit uzunluklu olan CHAR.'},
+ {mcq:true, src:'Açılım', q:'<b>1NF</b>\'nin açılımı nedir?', options:['First Normal Form (Birinci Normal Form)','One Null Field','First New File','One Name Format'], answer:0, explain:'1NF, 2NF, 3NF = First / Second / Third Normal Form, normalizasyon seviyeleri.'}
 ]},
 
 /* ---------------------------------------------------- 15 ileri */
@@ -2506,6 +2531,13 @@ tasks:[
  {q:'1996\'nın son üç ayında (Ekim, Kasım, Aralık) verilen sipariş sayısı.', sol:`SELECT COUNT(*) FROM Orders WHERE OrderDate LIKE '%.10.1996' OR OrderDate LIKE '%.11.1996' OR OrderDate LIKE '%.12.1996';`, hint:"Üç LIKE, OR ile. '%10%' gibi yazarsan ayın 10'u, 11'i, 12'si de gelir; noktalarla ara: '%.10.1996'."},
  {q:'Her müşteri ülkesi için sipariş edilen ürünlerin ortalama fiyatı; sadece ortalaması 25\'ten büyük olanlar, büyükten küçüğe.', sol:`SELECT cu.Country, AVG(p.Price) AS ort FROM Orders o LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID LEFT JOIN Products p ON od.ProductID = p.ProductID LEFT JOIN Customers cu ON o.CustomerID = cu.CustomerID GROUP BY cu.Country HAVING AVG(p.Price) > 25 ORDER BY ort DESC;`, ordered:[1], hint:'GROUP BY Country, HAVING AVG(...) > 25, ORDER BY ... DESC'}
 ]},
+
+/* ---------------------------------------------------- deneme */
+{id:'deneme', no:'D', title:'Teori denemesi', group:'Sınava hazırlık', quiz:true,
+body:`
+<p class="lead">20 soruluk deneme sınavı. Sorular teori, açılımlar, alt sorgular ve tablo komutları havuzundan her seferinde <b>karışık</b> gelir, şıkların sırası da karışır. Sınavdaki gibi: önce hepsini cevapla, sonra <b>Bitir ve puanla</b>. Doğru cevaplar ve açıklamalar en sonda görünür.</p>
+<div id="quiz"></div>`,
+tasks:[]},
 
 /* ---------------------------------------------------- 15 kopya */
 {id:'kopya', no:'K', title:'Kopya kağıdı', group:'Sınava hazırlık',
@@ -2817,6 +2849,7 @@ function renderLesson(){
     const pr=document.getElementById('playreset'); pr.innerHTML = ic('reset')+'Veritabanını baştan kur';
     pr.addEventListener('click', async ()=>{ await READY; PLAY.close(); PLAY=new SQL.Database(BASE); document.querySelector('#playbox .out').innerHTML='<div class="msg ok"><b>Tamam.</b> Veritabanı ilk hâline döndü.</div>'; });
   }
+  if(l.quiz) buildQuiz(document.getElementById('quiz'));
   if(l.tasks.length){
     const sec=document.createElement('section'); sec.className='tasks';
     sec.innerHTML = `<div class="tasks-head"><h3>${l.teacher||l.id==='prova'?'Sorular':'Pratik'}</h3><span class="src">${l.tasks.length} soru</span></div><p class="lead" style="margin-top:10px">Hangi bilgi hangi tabloda diye takılırsan sağ alttaki <b>Tablolar</b> düğmesine bas, panel açık kalır. Sorguyu yaz, <b>Kontrol et</b>'e bas. Sütun adlarının ya da sütun sırasının farklı olması sorun değil; önemli olan gelen değerler.</p>`;
@@ -2849,6 +2882,65 @@ function fillDynamic(){
       + `<p class="src" style="flex-basis:100%;margin:0">Diğer ülkeler de aynı şekilde kendi kutularında. Sonuçta her kutu tek satır olur: <code>Germany | ${g.Germany.length}</code>, <code>Brazil | ${g.Brazil.length}</code>...</p>`;
     gv.dataset.done='1';
   }
+}
+
+/* ---- Teori denemesi ---- */
+const QUIZ_FROM = ['teori','ileri','degistirme','access'];
+const QUIZ_N = 20;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function buildQuiz(box){
+  const pool = LESSONS.filter(l=>QUIZ_FROM.includes(l.id)).flatMap(l=>l.tasks.filter(t=>t.mcq));
+  const N = Math.min(QUIZ_N, pool.length);
+  const qs = shuffle(pool.slice()).slice(0,N).map(t=>{
+    const opts = shuffle(t.options.map((o,k)=>({o,k})));
+    return {t, opts, ans:opts.findIndex(x=>x.k===t.answer), pick:null};
+  });
+  let done=false;
+  const answered = ()=>qs.filter(q=>q.pick!==null).length;
+  const correct = ()=>qs.filter(q=>q.pick===q.ans).length;
+  function render(){
+    const best = store.get('quizBest', null);
+    let h='';
+    if(done){
+      const c=correct(), p=Math.round(c/N*100);
+      const msg = p>=85 ? 'Çok iyi, teori hazır.' : p>=70 ? 'İyi. Yanlışların aşağıda kırmızı; açıklamalarını oku.' : 'Yanlışların açıklamalarını oku, 14. konuyu tekrar et ve yeni bir deneme yap.';
+      h += `<div class="msg ${p>=70?'ok':'warn'} score"><b>${c} / ${N} doğru (%${p}).</b> ${msg}${best?` En iyi sonucun: ${best.c} / ${best.n}.`:''}<p><button class="pri" data-q="new">${ic('reset')}Yeni deneme</button></p></div>`;
+    } else {
+      h += `<div class="quiz-top"><span><b class="qa">0</b> / ${N} cevaplandı</span><div class="bar-p"><i class="qbar"></i></div>${best?`<span class="src">En iyi sonucun: ${best.c} / ${best.n}</span>`:''}</div>`;
+    }
+    qs.forEach((q,i)=>{
+      const cls = done ? (q.pick===q.ans?' solved':' wrong') : '';
+      const btns = q.opts.map((x,k)=>{
+        let c=''; if(done){ if(k===q.ans) c='right'; else if(k===q.pick) c='wrong'; } else if(k===q.pick) c='sel';
+        return `<button data-i="${i}" data-k="${k}" class="${c}"${done?' disabled':''}${!done?` aria-pressed="${k===q.pick}"`:''}>${String.fromCharCode(65+k)})&nbsp; ${esc(x.o)}</button>`;
+      }).join('');
+      const why = done ? `<div class="why"><div class="msg ${q.pick===q.ans?'ok':q.pick===null?'warn':'err'}"><b>${q.pick===q.ans?'Doğru.':q.pick===null?'Boş bıraktın.':'Yanlış.'}</b> ${q.t.explain}</div></div>` : '';
+      h += `<div class="task${cls}"><div class="q"><span class="no">${i+1}</span><div class="txt">${q.t.src?`<div class="chips"><span class="chip src">${esc(q.t.src)}</span></div>`:''}${q.t.q}</div></div><div class="mcq">${btns}${why}</div></div>`;
+    });
+    if(!done) h += `<div class="quiz-end"><button class="pri" data-q="finish">${ic('checkc')}Bitir ve puanla</button><span class="src qleft"></span></div>`;
+    box.innerHTML=h;
+    if(!done) counts();
+  }
+  function counts(){
+    const a=answered();
+    box.querySelector('.qa').textContent=a;
+    box.querySelector('.qbar').style.width=Math.round(a/N*100)+'%';
+    box.querySelector('.qleft').textContent = a<N ? `${N-a} soru boş, boşlar yanlış sayılır.` : 'Hepsi cevaplandı.';
+  }
+  box.onclick = e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.q==='finish'){
+      done=true; const c=correct(), best=store.get('quizBest',null);
+      if(!best || c/N > best.c/best.n) store.set('quizBest',{c,n:N});
+      render(); box.scrollIntoView({block:'start'}); return;
+    }
+    if(b.dataset.q==='new'){ buildQuiz(box); box.scrollIntoView({block:'start'}); return; }
+    if(done || b.dataset.i===undefined) return;
+    qs[+b.dataset.i].pick=+b.dataset.k;
+    b.parentElement.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('sel',on); x.setAttribute('aria-pressed',String(on)); });
+    counts();
+  };
+  render();
 }
 
 /* ---- Tablolar paneli ---- */
