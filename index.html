@@ -244,6 +244,18 @@ button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:tra
 .cheat ul{padding-left:1.1em;font-size:.92rem}
 #playreset{margin-top:4px}
 
+/* ---- açılım kartları ---- */
+.flashes{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px;margin:14px 0 8px}
+.flash{border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow);transition:border-color .15s}
+.flash summary{list-style:none;cursor:pointer;padding:16px 14px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--font-code);font-weight:600;font-size:1.05rem;color:var(--primary)}
+.flash summary::-webkit-details-marker{display:none}
+.flash summary::after{content:"aç";font-family:var(--font-body);font-size:.72rem;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 8px}
+.flash[open]{border-color:var(--primary)}
+.flash[open] summary{padding-bottom:6px}
+.flash[open] summary::after{content:"kapat"}
+.flash b{display:block;padding:0 14px;font-size:.92rem}
+.flash span{display:block;padding:2px 14px 14px;font-size:.84rem;color:var(--muted)}
+
 /* ---- Tablolar paneli (her sayfada, sağ altta) ---- */
 .fab{position:fixed;right:max(16px, env(safe-area-inset-right, 0px));bottom:max(16px, env(safe-area-inset-bottom, 0px));z-index:30;min-height:46px;border-radius:99px;padding:0 20px;box-shadow:0 6px 20px -4px rgba(0,0,0,.35);font-weight:600}
 #schema{position:fixed;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(max(16px, env(safe-area-inset-bottom, 0px)) + 58px);z-index:30;width:min(400px, calc(100vw - 32px));max-height:min(74vh, 680px);overflow:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);box-shadow:0 14px 44px -10px rgba(0,0,0,.4);overscroll-behavior:contain}
@@ -1311,6 +1323,9 @@ function explainError(m){
   if((x=m.match(/ambiguous column name: (.+)/))) return `<code>${esc(x[1])}</code> birden fazla tabloda var, hangisini kastettiğin belli değil. Başına tablo adını ya da takma adı koy: <code>Products.${esc(x[1])}</code> ya da <code>p.${esc(x[1])}</code>.`;
   if(/incomplete input/.test(m)) return `Sorgu yarım kalmış gibi görünüyor: kapanmamış bir parantez ya da tırnak olabilir, ya da sorgu bir anahtar kelimeyle bitiyor (<code>WHERE</code> yazıp koşulu yazmamak gibi).`;
   if((x=m.match(/unrecognized token: "(.+)"/))) return `<code>${esc(x[1])}</code> anlaşılamadı. Çoğunlukla açılıp kapanmayan bir tırnaktan olur: <code>'Germany'</code> iki tarafta da tek tırnak ister.`;
+  if(/near "(ALL|ANY|SOME)": syntax error/.test(m)) return `Bu veritabanı (SQLite) <code>ANY</code> / <code>ALL</code> tanımıyor. Aynı anlamı şöyle yaz: <code>&gt; ALL (SELECT x ...)</code> yerine <code>&gt; (SELECT MAX(x) ...)</code>, <code>&gt; ANY (SELECT x ...)</code> yerine <code>&gt; (SELECT MIN(x) ...)</code>.`;
+  if(/near "(DESC|DESCRIBE)": syntax error/.test(m)) return `<code>DESC tablo;</code> (DESCRIBE) MySQL komutu, SQLite'ta yok. Sütunları görmek için <code>PRAGMA table_info(tablo);</code> ya da <code>SELECT * FROM tablo WHERE 1 = 0;</code> yaz. Sıralamadaki DESC ise <code>ORDER BY</code>'dan sonra gelir: <code>ORDER BY Price DESC</code>.`;
+  if(/FOREIGN KEY constraint failed/.test(m)) return `Yabancı anahtar (FOREIGN KEY) kuralı: başvurduğun değer diğer tabloda yok. Önce o kaydı ana tabloya eklemen gerekir.`;
   if(/near "\*": syntax error/.test(m)) return `<code>*</code> civarında yazım hatası. <code>DELETE * FROM ...</code> yazdıysan: bu Access'e özel bir yazım, burada (ve standart SQL'de) <code>DELETE FROM ...</code> yazılır. Değilse: <code>*</code> sadece <code>SELECT *</code>'da ya da iki sayının arasında (çarpma) kullanılır.`;
   if((x=m.match(/near "(.+?)": syntax error/))) return `<code>${esc(x[1])}</code> civarında yazım hatası var. Sık sebepler: kapanmamış parantez (<code>COUNT(CustomerID, Country</code> gibi), son sütundan sonra fazladan virgül, eksik virgül,<code>SELECT</code> ile <code>FROM</code> arasının boş kalması, anahtar kelimelerin sırasının yanlış olması (doğru sıra: SELECT, FROM, JOIN, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT) ya da <code>Orders.o</code> gibi takma ad önüne nokta konması.`;
   if(/misuse of aggregate/.test(m)) return `COUNT, SUM, AVG gibi fonksiyonları WHERE içinde kullanamazsın. Gruplamadan sonra süzmek için <code>HAVING</code> kullan.`;
@@ -1483,7 +1498,7 @@ SELECT * FROM Products LIMIT 10;</pre>
 <li>Takılırsan önce <b>İpucu</b>, olmazsa <b>Çözümü göster</b>.</li>
 <li>Çözdüğün sorular sol menüde sayılır. Bu bilgi sadece senin tarayıcında durur, arkadaşların kendi ilerlemesini görür.</li>
 </ol>
-<p class="tip">Sıra önerisi: 1'den 13'e kadar konuları sırayla bitir, sonra <b>Hocanın soruları</b>'na geç, en son <b>Sınav provası</b>. Sınavdan önce <b>Kopya kağıdı</b>'na bir göz at.</p>`,
+<p class="tip">Sıra önerisi: 1'den 15'e kadar konuları sırayla bitir (14. konu teori ve açılımlar, hocanın "kesin soru" dediği yer), sonra <b>Hocanın soruları</b>'na geç, en son <b>Sınav provası</b>. Sınavdan önce <b>Kopya kağıdı</b>'na bir göz at.</p>`,
 tasks:[]},
 
 /* ---------------------------------------------------- 1 */
@@ -1690,7 +1705,7 @@ body:`
 <h3>ORDER BY: sırala</h3>
 <pre class="ex">SELECT ProductName, Price FROM Products
 ORDER BY Price;</pre>
-<p>Varsayılan küçükten büyüğe (<code>ASC</code>). Büyükten küçüğe için <code>DESC</code>:</p>
+<p>Varsayılan küçükten büyüğe (<code>ASC</code>, ascending: artan). Büyükten küçüğe için <code>DESC</code> (descending: azalan). Hoca "DESC'i unutma" dedi: "en çok", "en pahalı", "büyükten küçüğe (b&gt;k)" gören her soruda DESC gerekir.</p>
 <pre class="ex">SELECT ProductName, Price FROM Products
 ORDER BY Price DESC;</pre>
 <p>Metinler alfabetik sıralanır. Birden fazla sütun yazarsan önce birincisine göre, eşit olanlarda ikincisine göre sıralar:</p>
@@ -2170,6 +2185,239 @@ tasks:[
  {mcq:true, q:'UNION ile ilgili hangisi doğru?', options:['İki tabloyu ortak sütun üzerinden yan yana koyar','İki SELECT\'in sonucunu alt alta koyar, iki tarafta sütun sayısı aynı olmalı','Sadece aynı tablodan iki sorguyu birleştirir','Tekrar eden satırları da her zaman gösterir'], answer:1, explain:'Yan yana koyan JOIN. UNION alt alta koyar ve tekrarları atar; tekrarları görmek için UNION ALL.'}
 ]},
 
+/* ---------------------------------------------------- 14 teori */
+{id:'teori', no:'14', title:'Teori: kavramlar ve açılımlar', group:'Teori ve ileri SQL',
+body:`
+<p class="lead">Hocanın ders planındaki (vertabprogders) teorik kısım. Hocanın son derste söyledikleri: <b>kelime açılımları sorulabilir</b>, <b>DDL / DML / DCL açılımları kesin soru</b>.</p>
+<h3>Açılım kartları</h3>
+<p>Kısaltmaya bak, açılımını kafandan söyle, sonra karta tıklayıp kontrol et. Sınavdan önce birkaç tur yap.</p>
+<div class="flashes">
+<details class="flash"><summary>SQL</summary><b>Structured Query Language</b><span>Yapılandırılmış Sorgu Dili</span></details>
+<details class="flash"><summary>DBMS</summary><b>Database Management System</b><span>Veritabanı Yönetim Sistemi</span></details>
+<details class="flash"><summary>RDBMS</summary><b>Relational Database Management System</b><span>İlişkisel Veritabanı Yönetim Sistemi</span></details>
+<details class="flash"><summary>DDL</summary><b>Data Definition Language</b><span>Veri Tanımlama Dili · CREATE, ALTER, DROP</span></details>
+<details class="flash"><summary>DML</summary><b>Data Manipulation Language</b><span>Veri İşleme Dili · INSERT, UPDATE, DELETE, SELECT</span></details>
+<details class="flash"><summary>DCL</summary><b>Data Control Language</b><span>Veri Kontrol Dili · GRANT, REVOKE</span></details>
+<details class="flash"><summary>TCL</summary><b>Transaction Control Language</b><span>İşlem Kontrol Dili · BEGIN, COMMIT, ROLLBACK</span></details>
+<details class="flash"><summary>PK</summary><b>Primary Key</b><span>Birincil Anahtar</span></details>
+<details class="flash"><summary>FK</summary><b>Foreign Key</b><span>Yabancı Anahtar</span></details>
+<details class="flash"><summary>1NF · 2NF · 3NF</summary><b>First / Second / Third Normal Form</b><span>Birinci / İkinci / Üçüncü Normal Form</span></details>
+<details class="flash"><summary>CRUD</summary><b>Create, Read, Update, Delete</b><span>Oluştur, Oku, Güncelle, Sil</span></details>
+<details class="flash"><summary>ACID</summary><b>Atomicity, Consistency, Isolation, Durability</b><span>Bölünmezlik, Tutarlılık, Yalıtım, Kalıcılık</span></details>
+<details class="flash"><summary>NoSQL</summary><b>Not Only SQL</b><span>Sadece SQL değil (ilişkisel olmayan veritabanları)</span></details>
+<details class="flash"><summary>DESC / ASC</summary><b>Descending / Ascending</b><span>Azalan (büyükten küçüğe) / Artan</span></details>
+<details class="flash"><summary>VARCHAR</summary><b>Variable Character</b><span>Değişken uzunluklu metin (CHAR: sabit uzunluk)</span></details>
+</div>
+<h3>DDL, DML, DCL: kesin soru</h3>
+<p>SQL komutları ne iş yaptıklarına göre gruplara ayrılır. Ayırmanın en kolay yolu: komut <b>tablonun kendisini</b> mi değiştiriyor, yoksa <b>içindeki veriyi</b> mi?</p>
+<div class="tw"><table class="ref"><thead><tr><th>Grup</th><th>Açılımı</th><th>Ne yapar</th><th>Komutlar</th></tr></thead><tbody>
+<tr><td><b>DDL</b></td><td>Data Definition Language<br><span class="src">Veri Tanımlama Dili</span></td><td>Tablonun <b>yapısını</b> kurar, değiştirir, siler</td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code></td></tr>
+<tr><td><b>DML</b></td><td>Data Manipulation Language<br><span class="src">Veri İşleme Dili</span></td><td>Tablonun içindeki <b>veriyi</b> ekler, değiştirir, siler, okur</td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>SELECT</code></td></tr>
+<tr><td><b>DCL</b></td><td>Data Control Language<br><span class="src">Veri Kontrol Dili</span></td><td>Kimin neye <b>erişebileceğini</b> belirler</td><td><code>GRANT</code> (yetki ver), <code>REVOKE</code> (yetkiyi geri al)</td></tr>
+</tbody></table></div>
+<p>Tuzak çift: <code>DROP</code> (DDL) tabloyu yok eder, <code>DELETE</code> (DML) tablonun içindeki satırları siler, tablo kalır. <code>ALTER</code> (DDL) sütun ekler/siler, <code>UPDATE</code> (DML) değer değiştirir.</p>
+<p class="aside">Bazı kaynaklar iki grup daha sayar: SELECT'i ayrı tutan <b>DQL</b> (Data Query Language, Veri Sorgulama Dili) ve BEGIN/COMMIT/ROLLBACK için <b>TCL</b> (Transaction Control Language). Hocanın ders notunda SELECT, DML'in içinde sayılıyor; sınavda notu esas al.</p>
+<h3>Veritabanı ve DBMS</h3>
+<ul>
+<li><b>Veritabanı:</b> verilerin düzenli saklandığı ve yönetildiği yapı.</li>
+<li><b>DBMS</b> (Veritabanı Yönetim Sistemi): veritabanını oluşturmak, yönetmek ve kullanmak için yazılım. İlişkisel olanlar (<b>RDBMS</b>): MySQL, PostgreSQL, SQL Server, Oracle, SQLite (bu site ve Colab). NoSQL olanlar: MongoDB, Cassandra, Firebase.</li>
+<li><b>Dosya tabanlı sisteme göre avantajları:</b> veri tekrarı azalır, güvenlik ve yetkilendirme vardır, veri bütünlüğü korunur, aynı anda birçok kullanıcı çalışabilir, veriye hızlı erişilir.</li>
+</ul>
+<h3>Tablo, satır, sütun</h3>
+<p><b>Tablo</b> (table) = satır ve sütunlardan oluşan yapı. <b>Satır</b> = kayıt (row, record). <b>Sütun</b> = alan (column, field). Sınavda "kayıt" görürsen satır, "alan" görürsen sütun.</p>
+<h3>Anahtarlar: PK ve FK</h3>
+<ul>
+<li><b>Birincil anahtar (Primary Key):</b> her satırı tek başına tanımlayan sütun. <b>Tekrar edemez, boş (NULL) olamaz.</b> Northwind'de <code>Customers.CustomerID</code>, <code>Orders.OrderID</code>.</li>
+<li><b>Yabancı anahtar (Foreign Key):</b> başka bir tablonun birincil anahtarına başvuran sütun. Tabloları birbirine bağlar. <code>Orders.CustomerID</code>, Customers'ın PK'sına başvuran bir FK'dir.</li>
+</ul>
+<p>Yani JOIN'lerde <code>ON</code>'a yazdığın şey hep "FK = PK": <code>o.CustomerID = cu.CustomerID</code>. 15. konuda FOREIGN KEY'in yanlış veriyi nasıl engellediğini çalıştırarak göreceksin.</p>
+<h3>İlişki türleri</h3>
+<div class="tw"><table class="ref"><thead><tr><th>Tür</th><th>Anlamı</th><th>Örnek</th></tr></thead><tbody>
+<tr><td><b>Bire bir</b> (1-1, One-to-One)</td><td>Bir kayda karşı en fazla bir kayıt</td><td>Bir öğrenci ↔ bir öğrenci kimlik kartı</td></tr>
+<tr><td><b>Bire çok</b> (1-N, One-to-Many)</td><td>Bir kayda karşı birden çok kayıt</td><td>Bir müşteri → birçok sipariş (Customers → Orders)</td></tr>
+<tr><td><b>Çoktan çoğa</b> (N-N, Many-to-Many)</td><td>İki tarafta da birden çok</td><td>Bir siparişte birçok ürün, bir ürün birçok siparişte (Orders ↔ Products)</td></tr>
+</tbody></table></div>
+<p>Çoktan çoğa ilişki doğrudan kurulamaz, arada bir <b>ara tablo</b> gerekir. Northwind'deki <code>OrderDetails</code> tam olarak bu: Orders ile Products arasındaki köprü. 10. konuda "neden hep OrderDetails'ten geçiyoruz" sorusunun cevabı bu.</p>
+<h3>Normalizasyon</h3>
+<p><b>Normalizasyon:</b> veri tekrarını azaltmak ve tutarlılığı artırmak için tabloları mantıklı parçalara bölmek. Kötü tasarlanmış bir tablo düşün:</p>
+<div class="tw"><table class="ref"><thead><tr><th>OgrNo</th><th>Ad</th><th>BolumKodu</th><th>BolumAdi</th><th>Dersler</th></tr></thead><tbody>
+<tr><td>1</td><td>Ali</td><td>IST</td><td>İstatistik</td><td>Matematik, Fizik</td></tr>
+<tr><td>2</td><td>Ayşe</td><td>IST</td><td>İstatistik</td><td>Matematik</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>1NF</b> (Birinci Normal Form): <b>her hücrede tek değer</b>, tekrar eden grup yok. "Matematik, Fizik" hücresi 1NF'yi bozuyor. Çözüm: her ders ayrı satır (ya da ayrı bir kayıt tablosu).</li>
+<li><b>2NF</b>: 1NF + her sütun anahtarın <b>tamamına</b> bağlı. Anahtar (OgrNo, DersKodu) ikilisiyse, "Ad" sadece OgrNo'ya bağlıdır, bu kısmi bağımlılık 2NF'yi bozar. Çözüm: öğrenci bilgisi ayrı tablo.</li>
+<li><b>3NF</b>: 2NF + sütunlar anahtar dışındaki <b>başka bir sütuna</b> bağlı değil. BolumAdi, OgrNo'ya değil BolumKodu'na bağlı (geçişli bağımlılık). Çözüm: ayrı <code>Bolumler(BolumKodu, BolumAdi)</code> tablosu.</li>
+</ul>
+<p><b>Anomaliler</b> (normalizasyon yapılmazsa çıkan sorunlar), yukarıdaki tablo üzerinden:</p>
+<ul>
+<li><b>Güncelleme (update) anomalisi:</b> bölümün adı değişirse, o bölümdeki her öğrencinin satırını tek tek değiştirmen gerekir. Birini unutursan veri tutarsız olur.</li>
+<li><b>Ekleme (insertion) anomalisi:</b> henüz öğrencisi olmayan yeni bir bölümü ekleyemezsin, çünkü bölüm bilgisi öğrenci satırının içinde.</li>
+<li><b>Silme (deletion) anomalisi:</b> bölümdeki son öğrenciyi silersen bölümün bilgisi de kaybolur.</li>
+</ul>
+<p>Northwind normalize edilmiş bir veritabanı: kategori adı her ürünün yanında tekrar yazılmıyor, ayrı <code>Categories</code> tablosunda bir kere duruyor. JOIN yapmak zorunda kalmamızın sebebi bu.</p>
+<h3>İndeks</h3>
+<p>Kitabın sonundaki dizin gibi: aranan değeri bütün tabloyu taramadan bulmayı sağlar. <code>CREATE INDEX idx_ad ON tablo(sutun);</code> Faydası: arama, sıralama, JOIN hızlanır. Bedeli: her INSERT/UPDATE/DELETE'te indeks de güncellendiği için yazma işlemleri yavaşlar ve yer kaplar. O yüzden sadece sık aranan sütunlara konur.</p>
+<h3>Transaction (işlem) ve ACID</h3>
+<p>Birkaç komutun <b>ya hep birlikte ya hiç</b> çalışması. Klasik örnek banka havalesi: bir hesaptan para düşülür, diğerine eklenir; arada hata olursa ikisi de geri alınmalı.</p>
+<ul><li><code>BEGIN</code> başlatır, <code>COMMIT</code> kalıcı yapar, <code>ROLLBACK</code> geri alır.</li>
+<li><b>ACID</b>: <b>A</b>tomicity (bölünmezlik, ya hep ya hiç), <b>C</b>onsistency (tutarlılık), <b>I</b>solation (yalıtım, aynı anda çalışan işlemler birbirini bozmaz), <b>D</b>urability (kalıcılık, COMMIT edilen veri kaybolmaz).</li></ul>
+<h3>Trigger ve stored procedure</h3>
+<ul><li><b>Tetikleyici (trigger):</b> bir tabloda INSERT, UPDATE ya da DELETE olunca <b>kendiliğinden</b> çalışan kod. Örnek: satış eklenince stok miktarını otomatik düşürmek.</li>
+<li><b>Saklı yordam (stored procedure):</b> veritabanında saklanan, adıyla çağrılan hazır SQL kod bloğu. <b>Fonksiyon</b> bir değer döndürür, prosedür bir işi yapar.</li></ul>
+<h3>NoSQL</h3>
+<p>İlişkisel olmayan veritabanları. Sabit tablo şeması yok, esnek veri yapısı ve yüksek ölçeklenebilirlik var. İlişkisel veritabanı yapılandırılmış veri ve ACID için, NoSQL büyük ve yapılandırılmamış veri için tercih edilir.</p>
+<div class="tw"><table class="ref"><thead><tr><th>Tür</th><th>Veriyi nasıl tutar</th><th>Örnek</th></tr></thead><tbody>
+<tr><td>Anahtar-değer (Key-Value)</td><td>anahtar → değer çiftleri</td><td>Redis</td></tr>
+<tr><td>Belge (Document)</td><td>JSON/BSON belgeleri</td><td>MongoDB</td></tr>
+<tr><td>Kolon tabanlı (Column-Family)</td><td>sütun aileleri</td><td>Cassandra</td></tr>
+<tr><td>Grafik (Graph)</td><td>düğümler ve kenarlar</td><td>Neo4j (sosyal ağlar)</td></tr>
+</tbody></table></div>
+<h3>Güvenlik, yedekleme, optimizasyon</h3>
+<ul>
+<li><b>SQL enjeksiyonu (SQL injection):</b> saldırganın bir giriş kutusuna SQL kodu yazıp sorguyu değiştirmesi. Örnek: kullanıcı adı yerine <code>' OR '1'='1</code> yazılırsa <code>WHERE ad = '' OR '1'='1'</code> her zaman doğru olur. Korunma: <b>parametreli sorgular / hazırlanmış ifadeler (prepared statements)</b> ve giriş doğrulama.</li>
+<li><b>Yetkilendirme:</b> kullanıcıya sadece ihtiyacı olan yetkiyi ver (GRANT/REVOKE, yani DCL).</li>
+<li><b>Yedekleme türleri:</b> <b>tam</b> (her şey), <b>fark</b> (son tam yedekten beri değişenler), <b>artımlı</b> (son yedekten, hangisi olursa, beri değişenler).</li>
+<li><b>Optimizasyon:</b> doğru indeks, gereksiz veri çekmemek (<code>SELECT *</code> yerine gereken sütunlar), sık kullanılan veriyi <b>önbelleğe (cache)</b> almak.</li>
+</ul>`,
+tasks:[
+ {mcq:true, src:'Açılım', q:'<b>DDL</b>\'nin açılımı nedir?', options:['Data Development Language','Data Definition Language','Database Design Language','Data Delete Language'], answer:1, explain:'DDL = Data Definition Language, Veri Tanımlama Dili. CREATE, ALTER, DROP.'},
+ {mcq:true, src:'Açılım', q:'<b>DML</b>\'nin açılımı nedir?', options:['Data Manipulation Language','Data Management Language','Database Modeling Language','Data Multiple Language'], answer:0, explain:'DML = Data Manipulation Language, Veri İşleme Dili. INSERT, UPDATE, DELETE, SELECT.'},
+ {mcq:true, src:'Açılım', q:'<b>DCL</b>\'nin açılımı ve komutları hangisidir?', options:['Data Create Language · CREATE, DROP','Data Control Language · GRANT, REVOKE','Database Command Language · BEGIN, COMMIT','Data Copy Language · INSERT, SELECT'], answer:1, explain:'DCL = Data Control Language, Veri Kontrol Dili. Yetki verir (GRANT) ve geri alır (REVOKE).'},
+ {mcq:true, q:'Hangisi bir <b>DDL</b> komutu <b>değildir</b>?', options:['CREATE','ALTER','DROP','INSERT'], answer:3, explain:'INSERT tabloya veri (satır) ekler, yani DML. CREATE, ALTER, DROP tablonun yapısıyla ilgilidir, DDL.'},
+ {mcq:true, q:'<code>ALTER TABLE ogrenciler DROP COLUMN bolum;</code> hangi gruptandır ve ne yapar?', options:['DML · bolum değerlerini siler, sütun kalır','DDL · bolum sütununu tablodan kaldırır','DDL · ogrenciler tablosunu siler','DCL · bolum sütununa erişimi kapatır'], answer:1, explain:'ALTER tablonun yapısını değiştirir (DDL). DROP COLUMN sütunu tümüyle kaldırır.'},
+ {mcq:true, q:'<code>DROP TABLE</code> ile <code>DELETE FROM</code> arasındaki fark nedir?', options:['İkisi de aynı işi yapar','DROP satırları siler, DELETE tabloyu siler','DROP tabloyu tamamen yok eder (DDL), DELETE satırları siler ve tablo kalır (DML)','DROP sadece Access\'te çalışır'], answer:2, explain:'DROP TABLE tablonun kendisini kaldırır. DELETE FROM içerikteki satırları siler, boş tablo yerinde durur.'},
+ {mcq:true, q:'<b>Birincil anahtar</b> (Primary Key) için hangisi doğrudur?', options:['Aynı değer birden çok satırda olabilir','Başka bir tablonun anahtarına başvurur','Her satırı benzersiz tanımlar, tekrar edemez ve boş olamaz','Sadece metin sütunlarında kullanılır'], answer:2, explain:'PK her satırı benzersiz tanımlar. Başka tabloya başvuran yabancı anahtardır (FK).'},
+ {mcq:true, q:'<code>Orders.CustomerID</code> sütunu Customers tablosuna göre nedir?', options:['Birincil anahtar','Yabancı anahtar','İndeks','Normal form'], answer:1, explain:'Orders\'taki CustomerID, Customers\'ın birincil anahtarına başvurur; bu yüzden yabancı anahtardır (FK).'},
+ {mcq:true, q:'Bir müşterinin birçok siparişi olabilir. Customers ile Orders arasındaki ilişki türü nedir?', options:['Bire bir (1-1)','Bire çok (1-N)','Çoktan çoğa (N-N)','İlişki yok'], answer:1, explain:'Bir müşteri → birçok sipariş, ama her sipariş tek müşteriye ait: bire çok.'},
+ {mcq:true, q:'Orders ile Products arasındaki çoktan çoğa ilişkiyi hangi tablo kurar?', options:['Customers','Categories','OrderDetails','Suppliers'], answer:2, explain:'Çoktan çoğa ilişki ara tabloyla kurulur. OrderDetails her satırda bir OrderID ve bir ProductID tutar.'},
+ {mcq:true, q:'Bir hücrede "Matematik, Fizik" gibi iki değer yazıyorsa hangi kural bozulur?', options:['1NF','2NF','3NF','ACID'], answer:0, explain:'1NF: her hücrede tek değer olmalı, tekrar eden grup olmamalı.'},
+ {mcq:true, q:'Bölüm adı her öğrenci satırında yazıyor; bölümün adı değişince 50 satırı tek tek düzeltmek gerekiyor. Bu hangi sorundur?', options:['Ekleme anomalisi','Güncelleme anomalisi','Silme anomalisi','SQL enjeksiyonu'], answer:1, explain:'Aynı bilgi birçok yerde tekrarlandığı için güncellemede tutarsızlık riski: güncelleme anomalisi.'},
+ {mcq:true, q:'<code>ORDER BY Price DESC</code> ne yapar?', options:['Fiyatı küçükten büyüğe sıralar','Fiyatı büyükten küçüğe sıralar','Tablonun yapısını gösterir','Fiyat sütununu siler'], answer:1, explain:'DESC = descending, azalan. ASC (artan) varsayılandır.'},
+ {mcq:true, q:'ACID\'deki <b>A</b> (Atomicity) ne demektir?', options:['İşlem ya tamamen yapılır ya hiç yapılmaz','Veriler şifrelenir','Aynı anda tek kullanıcı çalışır','Veri her zaman yedeklenir'], answer:0, explain:'Atomicity = bölünmezlik. Yarım kalan işlem ROLLBACK ile tamamen geri alınır.'},
+ {mcq:true, q:'MongoDB hangi tür NoSQL veritabanıdır?', options:['Anahtar-değer','Belge (Document)','Grafik','İlişkisel'], answer:1, explain:'MongoDB veriyi JSON benzeri belgeler (BSON) olarak tutar: belge tabanlı.'},
+ {mcq:true, q:'SQL enjeksiyonuna karşı en etkili önlem hangisidir?', options:['Daha çok indeks eklemek','Parametreli sorgular (prepared statements) kullanmak','Tabloları normalize etmek','SELECT * kullanmamak'], answer:1, explain:'Parametreli sorguda kullanıcının yazdığı şey her zaman veri olarak işlenir, SQL kodu olarak çalışmaz.'},
+ {mcq:true, q:'İndeksin dezavantajı nedir?', options:['Aramayı yavaşlatır','Ekleme, güncelleme ve silme işlemlerini yavaşlatır, yer kaplar','Tabloyu siler','JOIN yapılmasını engeller'], answer:1, explain:'Her veri değişikliğinde indeks de güncellenmek zorunda. Okuma hızlanır, yazma yavaşlar.'}
+]},
+
+/* ---------------------------------------------------- 15 ileri */
+{id:'ileri', no:'15', title:'Alt sorgular ve ileri SQL', group:'Teori ve ileri SQL',
+body:`
+<p class="lead">Ders planının uygulamalı kısmında olup önceki konularda olmayanlar: alt sorgular, RIGHT ve FULL JOIN, metin ve tarih fonksiyonları, indeks, transaction, FOREIGN KEY. Hepsi burada çalışıyor.</p>
+<h3>Alt sorgu: sorgunun içinde sorgu</h3>
+<p>Bazen bir koşulun değeri önceden belli değildir. "Ortalama fiyattan pahalı ürünler" sorusunda ortalamayı önce bulmak gerekir. İçteki sorgu parantez içinde yazılır ve <b>önce o çalışır</b>.</p>
+<p>Önce içteki sorguyu tek başına çalıştır:</p>
+<pre class="ex">SELECT AVG(Price) FROM Products;</pre>
+<p>Şimdi onu bir koşulun içine koy:</p>
+<pre class="ex">SELECT ProductName, Price
+FROM Products
+WHERE Price > (SELECT AVG(Price) FROM Products);</pre>
+<p>Veritabanı önce parantezin içini hesaplar (yaklaşık 39.16), sonra sorguyu <code>WHERE Price > 39.16</code> gibi çalıştırır. Bu <b>tek sonuç döndüren</b> alt sorgu: bir satır, bir sütun. Bu yüzden <code>&gt;</code>, <code>=</code>, <code>&lt;</code> ile kullanılabilir.</p>
+<p>Klasik soru, "en pahalı ürünün adı":</p>
+<pre class="ex">SELECT ProductName, Price
+FROM Products
+WHERE Price = (SELECT MAX(Price) FROM Products);</pre>
+<h3>Çok sonuç döndüren alt sorgu: IN</h3>
+<p>İçteki sorgu birden çok değer döndürüyorsa <code>=</code> yerine <code>IN</code> kullanılır. "Beverages kategorisindeki ürünler":</p>
+<pre class="ex">SELECT ProductName
+FROM Products
+WHERE CategoryID IN (SELECT CategoryID FROM Categories WHERE CategoryName = 'Beverages');</pre>
+<p>Bu sorgu, 9. konuda JOIN ile yazdığımız sorguyla aynı sonucu verir. Aynı soru çoğu zaman ya JOIN ya alt sorguyla çözülebilir; ikisi de doğru.</p>
+<p><code>NOT IN</code> ile "hiç sipariş vermemiş müşteriler":</p>
+<pre class="ex">SELECT CustomerName
+FROM Customers
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);</pre>
+<h3>EXISTS</h3>
+<p><code>EXISTS</code> alt sorgunun <b>en az bir satır döndürüp döndürmediğine</b> bakar. Döndürüyorsa koşul doğru olur. "En az bir siparişi olan müşteriler":</p>
+<pre class="ex">SELECT cu.CustomerName
+FROM Customers cu
+WHERE EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerID = cu.CustomerID);</pre>
+<p>İçteki sorgu dışarıdaki her müşteri için ayrı ayrı çalışır (<code>cu.CustomerID</code>'yi dışarıdan alıyor). <code>SELECT 1</code> yazılmasının sebebi şu: ne döndürdüğü önemli değil, sadece satır olup olmadığına bakılıyor.</p>
+<h3>ANY ve ALL</h3>
+<ul><li><code>&gt; ALL (alt sorgu)</code>: alt sorgudaki <b>bütün</b> değerlerden büyük.</li>
+<li><code>&gt; ANY (alt sorgu)</code>: alt sorgudaki değerlerden <b>en az birinden</b> büyük.</li></ul>
+<p>Ders notundaki örnek: <code>WHERE fiyat &gt; ALL (SELECT fiyat FROM ürünler WHERE kategori_id = 2)</code>, yani kategori 2'deki bütün ürünlerden pahalı olanlar. Bu veritabanı (SQLite) ANY/ALL'u tanımıyor, ama aynı anlamı MAX ve MIN ile yazabilirsin:</p>
+<div class="tw"><table class="ref"><tbody>
+<tr><td><code>&gt; ALL (SELECT x ...)</code></td><td>=</td><td><code>&gt; (SELECT MAX(x) ...)</code></td></tr>
+<tr><td><code>&gt; ANY (SELECT x ...)</code></td><td>=</td><td><code>&gt; (SELECT MIN(x) ...)</code></td></tr>
+</tbody></table></div>
+<pre class="ex">SELECT ProductName, Price
+FROM Products
+WHERE Price > (SELECT MAX(Price) FROM Products WHERE CategoryID = 2);</pre>
+<h3>Dört JOIN türü</h3>
+<p>Ders notunda dördü de var. Farkı küçük tablolarla görmek için Access dersindeki <code>musteri</code> ve <code>siparis</code> tablolarını kullanalım. Önce siparis'e müşterisi olmayan bir kayıt ekliyoruz (no = 99), sonra dört türü çalıştırıp satır sayılarını karşılaştır:</p>
+<pre class="ex">INSERT INTO siparis VALUES (99, 113, 'kalem', 'izmir', '2.05.2021');
+
+SELECT m.adsoyad, s.ürün FROM musteri m INNER JOIN siparis s ON m.no = s.no;
+SELECT m.adsoyad, s.ürün FROM musteri m LEFT JOIN siparis s ON m.no = s.no;
+SELECT m.adsoyad, s.ürün FROM musteri m RIGHT JOIN siparis s ON m.no = s.no;
+SELECT m.adsoyad, s.ürün FROM musteri m FULL OUTER JOIN siparis s ON m.no = s.no;</pre>
+<div class="tw"><table class="ref"><thead><tr><th>Tür</th><th>Hangi satırlar kalır</th><th>Burada</th></tr></thead><tbody>
+<tr><td><code>INNER JOIN</code></td><td>Sadece iki tarafta da eşi olanlar</td><td>3 satır</td></tr>
+<tr><td><code>LEFT JOIN</code></td><td>Soldakilerin hepsi + eşleşenler</td><td>7 satır (siparişsiz müşteriler NULL)</td></tr>
+<tr><td><code>RIGHT JOIN</code></td><td>Sağdakilerin hepsi + eşleşenler</td><td>4 satır (kalemin müşterisi NULL)</td></tr>
+<tr><td><code>FULL OUTER JOIN</code></td><td>İki taraftakilerin hepsi</td><td>8 satır</td></tr>
+</tbody></table></div>
+<p><code>A RIGHT JOIN B</code>, <code>B LEFT JOIN A</code> ile aynı şeydir; sadece tabloların yeri değişir. O yüzden pratikte çoğu kişi hep LEFT JOIN yazar.</p>
+<h3>Metin ve tarih fonksiyonları</h3>
+<pre class="ex">SELECT FirstName,
+       UPPER(FirstName) AS buyuk,
+       LOWER(LastName) AS kucuk,
+       FirstName || ' ' || LastName AS tam_ad,
+       CONCAT(FirstName, ' ', LastName) AS tam_ad2,
+       LENGTH(LastName) AS uzunluk
+FROM Employees;</pre>
+<ul><li><code>UPPER</code> büyük harfe, <code>LOWER</code> küçük harfe çevirir.</li>
+<li><code>CONCAT(a, b)</code> metinleri birleştirir. SQLite'ta <code>a || b</code> de aynı işi görür.</li>
+<li><code>LENGTH</code> karakter sayısını verir.</li></ul>
+<pre class="ex">SELECT DATE('now') AS bugun, DATETIME('now') AS simdi;</pre>
+<p>Ders notundaki <code>NOW()</code> MySQL'in fonksiyonu; SQLite'taki karşılığı <code>DATETIME('now')</code>.</p>
+<h3>İndeks oluşturmak</h3>
+<pre class="ex">CREATE INDEX idx_musteri_adi ON Customers(CustomerName);
+SELECT name, tbl_name FROM sqlite_master WHERE type = 'index';</pre>
+<p>Kalıp: <code>CREATE INDEX indeks_adi ON tablo(sütun);</code>. Sonuç değişmez, sadece o sütunda arama hızlanır. Silmek için <code>DROP INDEX idx_musteri_adi;</code>.</p>
+<h3>Transaction: BEGIN, COMMIT, ROLLBACK</h3>
+<p>Aşağıda bütün kargo firmalarını siliyoruz, ama ROLLBACK ile geri alıyoruz. Son SELECT'te firmaların hâlâ yerinde durduğunu göreceksin:</p>
+<pre class="ex">BEGIN;
+DELETE FROM Shippers;
+SELECT COUNT(*) AS silindikten_sonra FROM Shippers;
+ROLLBACK;
+SELECT COUNT(*) AS rollback_sonrasi FROM Shippers;</pre>
+<p><code>ROLLBACK</code> yerine <code>COMMIT</code> yazarsan silme kalıcı olur. Dene.</p>
+<h3>FOREIGN KEY: yanlış veriyi engellemek</h3>
+<p>Ders notundaki örnek. <code>dersler.OgrenciID</code>, <code>ogrenciler.ID</code>'ye başvuran bir yabancı anahtar. Var olmayan bir öğrenciye (99) ders eklemeye çalış:</p>
+<pre class="ex">PRAGMA foreign_keys = ON;
+CREATE TABLE ogrenciler (ID INT PRIMARY KEY, Ad VARCHAR(50), Soyad VARCHAR(50), Yas INT);
+CREATE TABLE dersler (
+  DersID INT PRIMARY KEY,
+  DersAdi VARCHAR(50),
+  OgrenciID INT,
+  FOREIGN KEY (OgrenciID) REFERENCES ogrenciler(ID)
+);
+INSERT INTO ogrenciler VALUES (1, 'Ali', 'Kaya', 22);
+INSERT INTO dersler VALUES (10, 'Matematik', 1);
+INSERT INTO dersler VALUES (11, 'Fizik', 99);</pre>
+<p><b>FOREIGN KEY constraint failed</b> hatası: 99 numaralı öğrenci yok, veritabanı bu kaydı kabul etmiyor. Veri bütünlüğü budur. (İlk satırdaki PRAGMA, SQLite'ta bu kontrolü açar; MySQL gibi sistemlerde varsayılan olarak açıktır.) Son satırı silip <code>SELECT * FROM dersler;</code> yazarsan geçerli kaydı görürsün.</p>
+<h3>DESC'in iki anlamı</h3>
+<ul><li><code>ORDER BY Price DESC</code>: büyükten küçüğe sırala (descending). Sınavda en çok bu çıkar; ASC varsayılan olduğu için büyükten küçüğe isteniyorsa DESC'i yazmayı unutma.</li>
+<li>MySQL'de <code>DESC Customers;</code> (DESCRIBE) tablonun sütunlarını ve tiplerini gösterir. SQLite'ta bu komut yok; karşılığı aşağıda:</li></ul>
+<pre class="ex">PRAGMA table_info(Customers);</pre>`,
+tasks:[
+ {q:'Ortalama fiyattan pahalı olan ürünlerin adı ve fiyatı.', sol:`SELECT ProductName, Price FROM Products WHERE Price > (SELECT AVG(Price) FROM Products);`, hint:'WHERE Price > (SELECT AVG(Price) FROM Products)'},
+ {q:'En ucuz ürünün (ya da ürünlerin) adı ve fiyatı, alt sorgu ile.', sol:`SELECT ProductName, Price FROM Products WHERE Price = (SELECT MIN(Price) FROM Products);`, hint:'WHERE Price = (SELECT MIN(Price) ...)'},
+ {q:'Seafood kategorisindeki ürünlerin adları, <code>IN</code> ve alt sorgu ile.', sol:`SELECT ProductName FROM Products WHERE CategoryID IN (SELECT CategoryID FROM Categories WHERE CategoryName = 'Seafood');`, hint:"CategoryID IN (SELECT CategoryID FROM Categories WHERE CategoryName = 'Seafood')"},
+ {q:'Hiç sipariş vermemiş müşterilerin adları, <code>NOT IN</code> ile.', sol:`SELECT CustomerName FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders);`, hint:'CustomerID NOT IN (SELECT CustomerID FROM Orders)'},
+ {q:'Almanya\'daki müşterilerden en az bir sipariş vermiş olanların adları, <code>EXISTS</code> ile.', sol:`SELECT cu.CustomerName FROM Customers cu WHERE cu.Country = 'Germany' AND EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerID = cu.CustomerID);`, hint:"WHERE cu.Country = 'Germany' AND EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerID = cu.CustomerID)"},
+ {q:'Kategorisi 1 olan <b>bütün</b> ürünlerden pahalı olan ürünlerin adı ve fiyatı (ders notundaki <code>&gt; ALL</code> sorusu).', sol:`SELECT ProductName, Price FROM Products WHERE Price > (SELECT MAX(Price) FROM Products WHERE CategoryID = 1);`, hint:'> ALL burada çalışmaz. "Hepsinden büyük" = "en büyüğünden büyük": > (SELECT MAX(Price) ... WHERE CategoryID = 1)'},
+ {q:'Çalışanların adı ve soyadı tek sütunda, aralarında boşlukla (Nancy Davolio gibi).', sol:`SELECT FirstName || ' ' || LastName FROM Employees;`, hint:"FirstName || ' ' || LastName  ya da  CONCAT(FirstName, ' ', LastName)"},
+ {q:'Kanada\'daki müşterilerin adları büyük harfle.', sol:`SELECT UPPER(CustomerName) FROM Customers WHERE Country = 'Canada';`, hint:"UPPER(CustomerName) ... WHERE Country = 'Canada'"},
+ {q:'<code>Products</code> tablosunun <code>ProductName</code> sütununa bir indeks oluştur (adı sen seç).', sol:`CREATE INDEX idx_urun_adi ON Products(ProductName);`, verify:`SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND tbl_name = 'Products' AND sql LIKE '%ProductName%';`, hint:'CREATE INDEX indeks_adi ON Products(ProductName);'},
+ {q:'Bir transaction başlat, 1 numaralı ürünün fiyatını 0 yap, sonra işlemi geri al. Fiyat değişmemiş olmalı.', sol:`BEGIN; UPDATE Products SET Price = 0 WHERE ProductID = 1; ROLLBACK;`, verify:`SELECT ProductID, Price FROM Products WHERE ProductID = 1;`, hint:'BEGIN; UPDATE ...; ROLLBACK;'},
+ {mcq:true, q:'Bir alt sorgu birden çok satır döndürüyorsa koşulda hangisi kullanılır?', options:['WHERE x = (SELECT ...)','WHERE x IN (SELECT ...)','WHERE x LIKE (SELECT ...)','WHERE x BETWEEN (SELECT ...)'], answer:1, explain:'= tek değerle karşılaştırır. Çok değer dönüyorsa IN (ya da ANY/ALL) gerekir.'},
+ {mcq:true, q:'<code>A RIGHT JOIN B</code> hangisiyle aynı sonucu verir?', options:['A INNER JOIN B','B LEFT JOIN A','A LEFT JOIN B','A FULL OUTER JOIN B'], answer:1, explain:'RIGHT JOIN sağdaki tablonun bütün satırlarını tutar. Tabloların yerini değiştirip LEFT JOIN yazmak aynı şeydir.'},
+ {mcq:true, q:'<code>BEGIN; DELETE FROM Shippers; ROLLBACK;</code> çalıştıktan sonra Shippers tablosunda ne olur?', options:['Tablo boştur','Tablo silinmiştir','Bütün satırlar yerinde durur','Sadece ilk satır silinmiştir'], answer:2, explain:'ROLLBACK, BEGIN\'den sonraki her şeyi geri alır.'}
+]},
+
 /* ---------------------------------------------------- 13 hoca */
 {id:'hoca', no:'H', title:'Hocanın soruları', group:'Sınava hazırlık', teacher:true,
 body:`
@@ -2263,7 +2511,33 @@ tasks:[
 {id:'kopya', no:'K', title:'Kopya kağıdı', group:'Sınava hazırlık',
 body:`
 <p class="lead">Sınavdan önce son tekrar için her şey tek sayfada.</p>
+<div class="aside"><b>Hocanın son derste söyledikleri:</b> kelime açılımları sorulabilir (SQL vb.). <b>DDL, DML, DCL açılımları kesin soru.</b> DESC'i unutma. CREATE TABLE, ALTER TABLE ile sütun ekleme ve sütun silme.</div>
 <div class="cheat">
+<div style="grid-column:1/-1"><h4>Açılımlar (kesin soru)</h4><div class="tw" style="margin:0"><table class="ref"><tbody>
+<tr><td><b>SQL</b></td><td>Structured Query Language</td><td>Yapılandırılmış Sorgu Dili</td></tr>
+<tr><td><b>DDL</b></td><td>Data Definition Language</td><td>Veri Tanımlama Dili · CREATE, ALTER, DROP</td></tr>
+<tr><td><b>DML</b></td><td>Data Manipulation Language</td><td>Veri İşleme Dili · INSERT, UPDATE, DELETE, SELECT</td></tr>
+<tr><td><b>DCL</b></td><td>Data Control Language</td><td>Veri Kontrol Dili · GRANT, REVOKE</td></tr>
+<tr><td><b>TCL</b></td><td>Transaction Control Language</td><td>İşlem Kontrol Dili · BEGIN, COMMIT, ROLLBACK</td></tr>
+<tr><td><b>DBMS / RDBMS</b></td><td>(Relational) Database Management System</td><td>(İlişkisel) Veritabanı Yönetim Sistemi</td></tr>
+<tr><td><b>PK / FK</b></td><td>Primary Key / Foreign Key</td><td>Birincil / Yabancı Anahtar</td></tr>
+<tr><td><b>DESC / ASC</b></td><td>Descending / Ascending</td><td>Azalan / Artan</td></tr>
+<tr><td><b>CRUD</b></td><td>Create, Read, Update, Delete</td><td>Oluştur, Oku, Güncelle, Sil</td></tr>
+<tr><td><b>ACID</b></td><td>Atomicity, Consistency, Isolation, Durability</td><td>Bölünmezlik, Tutarlılık, Yalıtım, Kalıcılık</td></tr>
+<tr><td><b>NoSQL</b></td><td>Not Only SQL</td><td>İlişkisel olmayan veritabanları</td></tr>
+</tbody></table></div></div>
+<div><h4>Teori özeti</h4><ul>
+<li>PK: tekrar edemez, boş olamaz. FK: başka tablonun PK'sına başvurur.</li>
+<li>İlişkiler: 1-1, 1-N (müşteri → siparişler), N-N (siparişler ↔ ürünler, ara tablo OrderDetails).</li>
+<li>1NF: hücrede tek değer. 2NF: anahtarın tamamına bağlı. 3NF: başka sütuna bağlı değil.</li>
+<li>Anomaliler: ekleme, güncelleme, silme.</li>
+<li>NoSQL: anahtar-değer, belge, kolon, grafik.</li>
+</ul></div>
+<div><h4>Alt sorgu</h4><pre class="code">WHERE Price > (SELECT AVG(Price) FROM Products)
+WHERE CategoryID IN (SELECT CategoryID FROM ...)
+WHERE EXISTS (SELECT 1 FROM ... )
+> ALL (...)  =  > (SELECT MAX(...))
+> ANY (...)  =  > (SELECT MIN(...))</pre></div>
 <div><h4>Temel kalıp ve sıra</h4><pre class="code">SELECT sütunlar
 FROM tablo t
 LEFT JOIN tablo2 t2 ON t.x = t2.x
