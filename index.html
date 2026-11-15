@@ -219,6 +219,18 @@ button.ghost:hover{background:var(--surface-2);color:var(--ink);border-color:tra
 .mcq button:disabled:active{transform:none}
 .task.wrong{border-color:color-mix(in srgb, var(--err) 45%, var(--line))}
 .task.wrong .q .no{background:var(--err);color:var(--surface)}
+.qtbl{margin-top:10px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2)}
+.qtbl summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0 12px;min-height:40px;font-size:.84rem;color:var(--muted);user-select:none}
+.qtbl summary::-webkit-details-marker{display:none}
+.qtbl summary::after{content:"göster";margin-left:auto;font-size:.74rem;border:1px solid var(--line-strong);border-radius:99px;padding:1px 9px;background:var(--surface)}
+.qtbl[open] summary::after{content:"gizle"}
+.qtbl summary:hover{color:var(--ink)}
+.qtbl summary b{font-family:var(--font-code);color:var(--ink);font-weight:600}
+.qtbl .mini-grid{margin:0;padding:0 10px 10px}
+.qtbl .tw.mini{background:var(--surface)}
+.qtgl{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;cursor:pointer;min-height:36px}
+.qtgl input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
+@media (pointer:coarse){.qtbl summary{min-height:44px}}
 .mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;margin:12px 0}
 .tw.mini{margin:0}
 .tw.mini caption{caption-side:top;text-align:left;font-family:var(--font-code);font-weight:600;font-size:.85rem;padding:7px 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
@@ -1303,8 +1315,14 @@ CREATE TABLE urun (id INTEGER PRIMARY KEY, ad TEXT, kategori TEXT, fiyat INTEGER
 CREATE TABLE uye (id INTEGER PRIMARY KEY, ad TEXT, sehir TEXT);
 CREATE TABLE satis (id INTEGER PRIMARY KEY, uye_id INTEGER REFERENCES uye(id), tutar INTEGER);
 ` + TEST_TABLES.map(([n,,rows])=>`INSERT INTO ${n} VALUES ${rows.map(r=>'('+r.map(v=>typeof v==='number'?v:`'${v}'`).join(',')+')').join(',')};`).join('\n');
-function testTablesHtml(){
-  return '<div class="mini-grid">' + TEST_TABLES.map(([n,cols,rows])=>`<div class="tw mini"><table class="ref"><caption>${n}</caption><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>'<tr>'+r.map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')}</tbody></table></div>`).join('') + '</div>';
+/* Bir sorunun metninde ve şıklarında geçen test tabloları (ogrenci, urun, uye, satis) */
+function testTablesIn(q){
+  if(q.tables) return q.tables;
+  const found = new Set(((q.q||'')+' '+(q.options||[]).join(' ')).match(/\b(ogrenci|urun|uye|satis)\b/g) || []);
+  return TEST_TABLES.map(([n])=>n).filter(n=>found.has(n));
+}
+function testTablesHtml(names){
+  return '<div class="mini-grid">' + TEST_TABLES.filter(([n])=>!names||names.includes(n)).map(([n,cols,rows])=>`<div class="tw mini"><table class="ref"><caption>${n}</caption><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>'<tr>'+r.map(v=>`<td>${v}</td>`).join('')+'</tr>').join('')}</tbody></table></div>`).join('') + '</div>';
 }
 
 /* =========================================================
@@ -1493,7 +1511,7 @@ const TEST1 = [
  {src:'Sorgu sonucu', q:'<code>SELECT AVG(fiyat) FROM urun;</code> sonucu nedir?', sql:`SELECT AVG(fiyat) FROM urun;`, options:['20','25','30','125'], answer:1, explain:'(10 + 15 + 20 + 30 + 50) / 5 = 125 / 5 = 25. 125 toplamdır (SUM), ortalama değil.'},
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM urun WHERE fiyat BETWEEN 15 AND 30;</code> hangi ürünleri döndürür?', sql:`SELECT ad FROM urun WHERE fiyat BETWEEN 15 AND 30;`, options:['Süt','Süt, Çay','Armut, Süt','Armut, Süt, Çay'], answer:3, explain:'BETWEEN uçları <b>dahil</b> eder: 15 ≤ fiyat ≤ 30. Armut (15), Süt (20), Çay (30).'},
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM ogrenci WHERE ad LIKE \'A%\';</code> hangi öğrencileri döndürür?', sql:`SELECT ad FROM ogrenci WHERE ad LIKE 'A%';`, options:['Ali','Ali, Ayşe','Ali, Ayşe, Can','Hiçbiri'], answer:1, explain:'<code>\'A%\'</code> = A ile başlayan, devamı ne olursa. Ali ve Ayşe.'},
- {src:'Doğru sorgu', q:'Adı <b>E harfiyle başlayan</b> öğrencileri hangi koşul bulur?', options:["WHERE ad LIKE '%E'","WHERE ad LIKE 'E%'","WHERE ad = 'E%'","WHERE ad LIKE 'E_'"], answer:1, explain:"<code>'E%'</code>: E ile başlar. <code>'%E'</code> E ile biter. <code>= 'E%'</code> joker kullanmaz, adı tam olarak \"E%\" olanı arar. <code>'E_'</code> sadece 2 harfli adları bulur."},
+ {src:'Doğru sorgu', tables:['ogrenci'], q:'Adı <b>E harfiyle başlayan</b> öğrencileri hangi koşul bulur?', options:["WHERE ad LIKE '%E'","WHERE ad LIKE 'E%'","WHERE ad = 'E%'","WHERE ad LIKE 'E_'"], answer:1, explain:"<code>'E%'</code>: E ile başlar. <code>'%E'</code> E ile biter. <code>= 'E%'</code> joker kullanmaz, adı tam olarak \"E%\" olanı arar. <code>'E_'</code> sadece 2 harfli adları bulur."},
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM ogrenci ORDER BY puan DESC LIMIT 2;</code> sonucu nedir?', sql:`SELECT ad FROM ogrenci ORDER BY puan DESC LIMIT 2;`, options:['Ece, Ali','Can, Ayşe','Ali, Ayşe','Can, Mert'], answer:1, explain:'DESC = büyükten küçüğe: Can (90), Ayşe (85), Mert (75)... LIMIT 2 ilk ikisini alır.'},
  {src:'Sorgu sonucu', q:'<code>SELECT DISTINCT bolum FROM ogrenci;</code> kaç satır döndürür?', sql:`SELECT DISTINCT bolum FROM ogrenci;`, options:['2','3','4','5'], answer:1, explain:'5 öğrenci var ama 3 farklı bölüm: Mat, Fiz, Kim. DISTINCT tekrarları atar.'},
  {src:'Hatayı bul', q:'<code>SELECT ad, puan, FROM ogrenci;</code> neden hata verir?', options:['SELECT küçük harfle yazılmalı','puan\'dan sonraki virgül fazla','FROM\'dan sonra WHERE zorunlu','Tablo adı tırnak içinde olmalı'], answer:1, explain:'Son sütundan sonra virgül olmaz. Doğrusu: <code>SELECT ad, puan FROM ogrenci;</code>'},
@@ -1520,7 +1538,7 @@ const TEST2 = [
  {src:'Sorgu sonucu', q:'<code>SELECT COUNT(DISTINCT uye_id) FROM satis;</code> sonucu nedir?', sql:`SELECT COUNT(DISTINCT uye_id) FROM satis;`, options:['1','2','3','4'], answer:1, explain:'satis tablosunda 3 satır var ama uye_id değerleri 1, 1, 2. Farklı olanlar: 1 ve 2. <code>COUNT(uye_id)</code> olsaydı 3 çıkardı.'},
  {src:'Sorgu sonucu', q:'<code>SELECT u.ad, s.tutar FROM uye u INNER JOIN satis s ON u.id = s.uye_id;</code> kaç satır döndürür?', sql:`SELECT u.ad, s.tutar FROM uye u INNER JOIN satis s ON u.id = s.uye_id;`, options:['2','3','4','9'], answer:1, explain:'INNER JOIN sadece eşleşenleri alır: Ali–100, Ali–50, Ayşe–200. Can\'ın satışı olmadığı için yok. 3 satır.'},
  {src:'Sorgu sonucu', q:'Aynı sorgu <code>LEFT JOIN</code> ile yazılırsa (<code>FROM uye u LEFT JOIN satis s ...</code>) kaç satır döner?', sql:`SELECT u.ad, s.tutar FROM uye u LEFT JOIN satis s ON u.id = s.uye_id;`, options:['3','4','5','6'], answer:1, explain:'LEFT JOIN soldaki (uye) herkesi tutar. Eşleşen 3 satıra, satışı olmayan Can da NULL tutarla eklenir: 4 satır.'},
- {src:'Sorgu sonucu', q:'Bir önceki LEFT JOIN sonucunda <code>tutar</code> değeri <b>NULL</b> olan üye kimdir?', sql:`SELECT u.ad FROM uye u LEFT JOIN satis s ON u.id = s.uye_id WHERE s.tutar IS NULL;`, options:['Ali','Ayşe','Can','Hiçbiri'], answer:2, explain:'Can\'ın (id 3) satis tablosunda hiç satırı yok, bu yüzden satış sütunları boş (NULL) gelir.'},
+ {src:'Sorgu sonucu', tables:['uye','satis'], q:'Bir önceki LEFT JOIN sonucunda <code>tutar</code> değeri <b>NULL</b> olan üye kimdir?', sql:`SELECT u.ad FROM uye u LEFT JOIN satis s ON u.id = s.uye_id WHERE s.tutar IS NULL;`, options:['Ali','Ayşe','Can','Hiçbiri'], answer:2, explain:'Can\'ın (id 3) satis tablosunda hiç satırı yok, bu yüzden satış sütunları boş (NULL) gelir.'},
  {src:'Sorgu sonucu', q:'<code>SELECT u.ad, SUM(s.tutar) FROM uye u INNER JOIN satis s ON u.id = s.uye_id GROUP BY u.ad;</code> sonucunda <b>Ali</b>\'nin değeri nedir?', sql:`SELECT SUM(s.tutar) FROM uye u INNER JOIN satis s ON u.id = s.uye_id WHERE u.ad = 'Ali';`, options:['50','100','150','350'], answer:2, explain:'Ali\'nin iki satışı var: 100 + 50 = 150. GROUP BY her üyenin satışlarını ayrı toplar.'},
  {src:'Doğru sorgu', q:'<b>Hiç satışı olmayan</b> üyeleri hangi sorgu bulur?', options:['SELECT u.ad FROM uye u INNER JOIN satis s ON u.id = s.uye_id WHERE s.id IS NULL;','SELECT u.ad FROM uye u LEFT JOIN satis s ON u.id = s.uye_id WHERE s.id IS NULL;','SELECT u.ad FROM uye u LEFT JOIN satis s ON u.id = s.uye_id WHERE s.id = NULL;','SELECT u.ad FROM uye u WHERE satis IS NULL;'], answer:1, explain:'LEFT JOIN eşleşmeyenleri NULL ile tutar, <code>IS NULL</code> onları seçer. INNER JOIN eşleşmeyenleri baştan atar. <code>= NULL</code> hiçbir zaman doğru olmaz, NULL için hep IS NULL yazılır.'},
  {src:'Hatayı bul', q:'<code>SELECT p.ProductName FROM Products WHERE p.Price &gt; 50;</code> neden hata verir?', options:['Price sütunu yok','p takma adı FROM\'da tanımlanmamış','WHERE yerine HAVING olmalı','ProductName tırnak içinde olmalı'], answer:1, explain:'<code>p.</code> kullanmak için önce <code>FROM Products p</code> diye tanımlamak gerekir. Ya takma adı tanımla ya da <code>p.</code>\'leri sil.'},
@@ -1537,7 +1555,7 @@ const TEST3 = [
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM urun WHERE fiyat &gt; (SELECT AVG(fiyat) FROM urun);</code> sonucu nedir?', sql:`SELECT ad FROM urun WHERE fiyat > (SELECT AVG(fiyat) FROM urun);`, options:['Peynir','Çay, Peynir','Süt, Çay, Peynir','Elma, Armut'], answer:1, explain:'Önce içteki sorgu çalışır: ortalama 25. Sonra fiyatı 25\'ten büyük olanlar: Çay (30), Peynir (50).'},
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM urun WHERE fiyat = (SELECT MAX(fiyat) FROM urun);</code> sonucu nedir?', sql:`SELECT ad FROM urun WHERE fiyat = (SELECT MAX(fiyat) FROM urun);`, options:['Elma','Çay','Peynir','50'], answer:2, explain:'En yüksek fiyat 50, o fiyattaki ürün Peynir. Sorgu fiyatı değil adı seçiyor, o yüzden cevap "50" değil.'},
  {src:'Sorgu sonucu', q:'<code>SELECT ad FROM uye WHERE id IN (SELECT uye_id FROM satis);</code> sonucu nedir?', sql:`SELECT ad FROM uye WHERE id IN (SELECT uye_id FROM satis);`, options:['Ali','Ali, Ayşe','Ali, Ayşe, Can','Can'], answer:1, explain:'İçteki sorgu satış yapan üye numaralarını verir: 1, 1, 2. id\'si bunlardan biri olan üyeler: Ali ve Ayşe.'},
- {src:'Sorgu sonucu', q:'Aynı sorgu <code>NOT IN</code> ile yazılırsa sonuç ne olur?', sql:`SELECT ad FROM uye WHERE id NOT IN (SELECT uye_id FROM satis);`, options:['Ali','Ayşe','Can','Boş'], answer:2, explain:'NOT IN, listede olmayanları getirir: satışı olmayan tek üye Can.'},
+ {src:'Sorgu sonucu', tables:['uye','satis'], q:'Aynı sorgu <code>NOT IN</code> ile yazılırsa sonuç ne olur?', sql:`SELECT ad FROM uye WHERE id NOT IN (SELECT uye_id FROM satis);`, options:['Ali','Ayşe','Can','Boş'], answer:2, explain:'NOT IN, listede olmayanları getirir: satışı olmayan tek üye Can.'},
  {src:'Sorgu sonucu', q:'<code>WHERE fiyat &gt; ALL (SELECT fiyat FROM urun WHERE kategori = \'Meyve\')</code> koşulu hangi ürünleri seçer?', sql:`SELECT ad FROM urun WHERE fiyat > (SELECT MAX(fiyat) FROM urun WHERE kategori = 'Meyve');`, options:['Armut','Süt, Çay, Peynir','Çay, Peynir','Bütün ürünler'], answer:1, explain:'Meyvelerin fiyatları 10 ve 15. "Hepsinden büyük" = en büyüğünden (15) büyük: Süt (20), Çay (30), Peynir (50). SQLite\'ta ALL olmadığı için bu siteye <code>&gt; (SELECT MAX(fiyat) ...)</code> diye yazılır.'},
  {src:'Sorgu sonucu', q:'<code>SELECT sehir FROM uye UNION SELECT \'Bursa\';</code> kaç satır döndürür?', sql:`SELECT sehir FROM uye UNION SELECT 'Bursa';`, options:['2','3','4','5'], answer:1, explain:'uye\'den Ankara, İzmir, Ankara gelir, altına Bursa eklenir. UNION tekrarları atar: Ankara, İzmir, Bursa = 3. UNION ALL olsaydı 4 olurdu.'},
  {src:'Teori', q:'UNION ile iki SELECT birleştirilirken hangi kural zorunludur?', options:['İki sorgu aynı tablodan olmalı','İki sorguda sütun sayısı aynı olmalı','İki sorguda da WHERE olmalı','Sütun adları aynı olmalı'], answer:1, explain:'UNION sonuçları alt alta koyar, bu yüzden sütun sayısı aynı olmalı. Sütun adları farklı olabilir; sonuçtaki adlar ilk SELECT\'ten gelir.'},
@@ -2991,6 +3009,9 @@ function renderLesson(){
   pg.innerHTML = `${prev?`<a href="#${prev.id}"><small>← Önceki</small>${esc(prev.title)}</a>`:''}${next?`<a class="nx" href="#${next.id}"><small>Sonraki →</small>${esc(next.title)}</a>`:''}`;
   el.appendChild(pg);
   if(SQL) fillDynamic();
+  /* Test sayfalarında Tablolar panelinde test tabloları en üstte ve açık */
+  const sct=document.getElementById('scTest');
+  if(sct){ const isTest=!!l.quizCfg; sct.open=isTest; if(isTest) sct.parentElement.querySelector('.sc-head').after(sct); }
 }
 
 /* veritabanı gerektiren parçalar */
@@ -3031,15 +3052,17 @@ function buildQuiz(box, cfgIn){
   let done=false;
   const answered = ()=>qs.filter(q=>q.pick!==null).length;
   const correct = ()=>qs.filter(q=>q.pick===q.ans).length;
+  const hasTables = qs.some(q=>testTablesIn(q.t).length);
   function render(){
     const best = store.get(cfg.key, null);
+    const tblOpen = !!store.get('qtblOpen', false);
     let h='';
     if(done){
       const c=correct(), p=Math.round(c/N*100);
       const msg = p>=85 ? 'Çok iyi, bu konular hazır.' : p>=70 ? 'İyi. Yanlışların aşağıda kırmızı; açıklamalarını oku.' : cfg.retry;
       h += `<div class="msg ${p>=70?'ok':'warn'} score"><b>${c} / ${N} doğru (%${p}).</b> ${msg}${best?` En iyi sonucun: ${best.c} / ${best.n}.`:''}<p><button class="pri" data-q="new">${ic('reset')}${cfg.shuffle?'Yeni deneme':'Testi baştan çöz'}</button></p></div>`;
     } else {
-      h += `<div class="quiz-top"><span><b class="qa">0</b> / ${N} cevaplandı</span><div class="bar-p"><i class="qbar"></i></div>${best?`<span class="src">En iyi sonucun: ${best.c} / ${best.n}</span>`:''}</div>`;
+      h += `<div class="quiz-top"><span><b class="qa">0</b> / ${N} cevaplandı</span><div class="bar-p"><i class="qbar"></i></div>${hasTables?`<label class="qtgl"><input type="checkbox" id="qtblAll"${tblOpen?' checked':''}> Tabloları hep açık göster</label>`:''}${best?`<span class="src">En iyi sonucun: ${best.c} / ${best.n}</span>`:''}</div>`;
     }
     qs.forEach((q,i)=>{
       const cls = done ? (q.pick===q.ans?' solved':' wrong') : '';
@@ -3048,7 +3071,9 @@ function buildQuiz(box, cfgIn){
         return `<button data-i="${i}" data-k="${k}" class="${c}"${done?' disabled':''}${!done?` aria-pressed="${k===q.pick}"`:''}>${String.fromCharCode(65+k)})&nbsp; ${esc(x.o)}</button>`;
       }).join('');
       const why = done ? `<div class="why"><div class="msg ${q.pick===q.ans?'ok':q.pick===null?'warn':'err'}"><b>${q.pick===q.ans?'Doğru.':q.pick===null?'Boş bıraktın.':'Yanlış.'}</b> ${q.t.explain}</div></div>` : '';
-      h += `<div class="task${cls}"><div class="q"><span class="no">${i+1}</span><div class="txt">${q.t.src?`<div class="chips"><span class="chip src">${esc(q.t.src)}</span></div>`:''}${q.t.q}</div></div><div class="mcq">${btns}${why}</div></div>`;
+      const tn = testTablesIn(q.t);
+      const tbl = tn.length ? `<details class="qtbl"${tblOpen?' open':''}><summary>${ic('table')}<span>Tablo: <b>${tn.join(', ')}</b></span></summary>${testTablesHtml(tn)}</details>` : '';
+      h += `<div class="task${cls}"><div class="q"><span class="no">${i+1}</span><div class="txt">${q.t.src?`<div class="chips"><span class="chip src">${esc(q.t.src)}</span></div>`:''}${q.t.q}${tbl}</div></div><div class="mcq">${btns}${why}</div></div>`;
     });
     if(!done) h += `<div class="quiz-end"><button class="pri" data-q="finish">${ic('checkc')}Bitir ve puanla</button><span class="src qleft"></span></div>`;
     box.innerHTML=h;
@@ -3072,6 +3097,11 @@ function buildQuiz(box, cfgIn){
     qs[+b.dataset.i].pick=+b.dataset.k;
     b.parentElement.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('sel',on); x.setAttribute('aria-pressed',String(on)); });
     counts();
+  };
+  box.onchange = e=>{
+    if(e.target.id!=='qtblAll') return;
+    const on=e.target.checked; store.set('qtblOpen', on);
+    box.querySelectorAll('details.qtbl').forEach(d=>{ d.open=on; });
   };
   render();
 }
@@ -3125,7 +3155,7 @@ function tblHtml(list, keys){
     <div class="sc-join">${JOINS.map(([a,c,b])=>`${a}.${c} <i>=</i> ${b}.${c}`).join('<br>')}</div></details>
   <details class="sc-sec"><summary>Bütün tablolar ve sütunları</summary>
     <p class="sc-note">Turuncu sütunlar numara sütunları, JOIN'de bunlar kullanılır.</p>${tblHtml(SCHEMA,true)}</details>
-  <details class="sc-sec"><summary>Genel test tabloları</summary>
+  <details class="sc-sec" id="scTest"><summary>Genel test tabloları</summary>
     <p class="sc-note">Genel test 1, 2 ve 3'teki sorular bu tablolarla. Serbest alan'da da sorgulayabilirsin.</p>${testTablesHtml()}</details>
   <details class="sc-sec"><summary>Access dersi tabloları</summary>
     <p class="sc-note">13. konuda kullanılanlar.</p>${tblHtml(SCHEMA_ACCESS,false)}</details>`;
